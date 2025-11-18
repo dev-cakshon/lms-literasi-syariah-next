@@ -4,8 +4,11 @@ import { redirect } from "next/navigation";
 import { CourseSidebarItem } from "./CourseSidebarItem";
 import { CourseProgress } from "../course-list/CourseProgress";
 
-interface courseSidebarProps {
-    course: { title: string, purchased: { [key: string]: boolean } };
+interface CourseSidebarProps {
+    course: {
+        title: string;
+        purchased: { [key: string]: boolean };
+    };
     chapters: {
         _id: string;
         courseId: string;
@@ -20,7 +23,7 @@ export const CourseSidebar = ({
     course,
     chapters,
     userId,
-}: courseSidebarProps) => {
+}: CourseSidebarProps) => {
     // const { userId } = auth()
     // if(!userId){
     //     return redirect("/")

@@ -1,50 +1,62 @@
 import { File } from "lucide-react";
 import { redirect } from "next/navigation";
 
-import { Banner } from "@/components/banner";
-import { Preview } from "@/components/preview";
+import { getCourseDataById } from "@/lib/dummyData";
+
 import { Separator } from "@/components/ui/separator";
 
-import { getChapters } from "@/actions/get-chapters";
+// import { Banner } from "@/components/banner";
+// import { Preview } from "@/components/preview";
+// import { CourseEnrollButton } from "./_components/course-enroll-button";
+// import { CourseProgressButton } from "./_components/course-progress-button";
+// import { VideoPlayer } from "./_components/video-player";
 
-import { CourseEnrollButton } from "./_components/course-enroll-button";
-import { CourseProgressButton } from "./_components/course-progress-button";
-import { VideoPlayer } from "./_components/video-player";
-
-const ChapterIdPage = async ({
-    params,
-}: {
-    params: { courseId: string; chapterId: string };
+const ChapterIdPage = async ({ params }: {
+    params: Promise<{ courseId: string; chapterId: string }>;
 }) => {
-    // const { userId } = auth();
-    const userId = "user"; // Stub userId
+    const userId = "user-123"; // Stub userId
+
     if (!userId) {
         return redirect("/");
     }
-    const {
-        course,
-        chapter,
-        attachments,
-        purchased,
-        muxData,
-        nextChapter,
-        isCompleted,
-    } = await getChapters({
-        userId: userId,
-        courseId: params.courseId,
-        chapterId: params.chapterId,
-    });
+
+    const { courseId, chapterId } = await params;
+
+    console.log("=== ChapterIdPage Debug ===");
+    console.log("ChapterIdPage courseId:", courseId);
+    console.log("ChapterIdPage chapterId:", chapterId);
+
+    // Get course data by ID
+    const courseData = getCourseDataById(courseId);
+    
+    console.log("ChapterIdPage - Course data found:", courseData ? "YES" : "NO");
+    
+    if (!courseData) {
+        console.log("ChapterIdPage - REDIRECTING TO / (no course data)");
+        return redirect("/");
+    }
+
+    const { course, chapters } = courseData;
+    const chapter = chapters.find((ch) => ch._id === chapterId) || null;
+    const purchased = course.purchased[userId];
+    const isCompleted = chapter?.isCompleted[userId] || false;
+    const _muxData = (chapter?.isFree || purchased) ? chapter?.playbackId : null;
+    const attachments = purchased ? course.attachments : [];
+    const currentIndex = chapters.findIndex((ch) => ch._id === chapterId);
+    const _nextChapter = currentIndex >= 0 && currentIndex < chapters.length - 1 
+        ? chapters[currentIndex + 1] 
+        : null;
 
     if (!course || !chapter) {
         return redirect("/");
     }
 
-    const isLocked = !chapter.isFree && !purchased;
-    const completeOnEnd = !!purchased && isCompleted;
+    const _isLocked = !chapter.isFree && !purchased;
+    const _completeOnEnd = !!purchased && isCompleted;
 
     return (
         <div>
-            {isCompleted && (
+            {/* {isCompleted && (
                 <Banner variant="success" label="You already completed this chapter." />
             )}
             {isLocked && (
@@ -52,10 +64,10 @@ const ChapterIdPage = async ({
                     variant="warning"
                     label="You need to purchase this coruse to watch this chapter!"
                 />
-            )}
-            <div className="flex flex-col max-w-4xl mx-auto pb-20">
+            )} */}
+            <div className="flex flex-col max-w-6xl mx-auto pb-20">
                 <div className="p-4">
-                    <VideoPlayer
+                    {/* <VideoPlayer
                         chapterId={params.chapterId}
                         title={chapter.title}
                         courseId={params.courseId}
@@ -63,49 +75,51 @@ const ChapterIdPage = async ({
                         playbackId={muxData!}
                         isLocked={isLocked}
                         completeOnEnd={completeOnEnd}
-                    />
+                    /> */}
+                    video player here
                 </div>
 
                 <div>
                     <div className="p-4 flex flex-col md:flex-row items-center justify-between">
                         <h2 className="text-2xl font-semibold mb-2">{chapter.title}</h2>
-                        {purchased ? (
-                            <CourseProgressButton
-                                chapterId={params.chapterId}
-                                courseId={params.courseId}
-                                nextChapterId={nextChapter?._id}
-                                isCompleted={isCompleted}
-                            />
-                        ) : (
-                            <CourseEnrollButton
-                                courseId={params.courseId}
-                                price={course.price!}
-                            />
-                        )}
+                        {/* {purchased ? ( */}
+                        {/* <CourseProgressButton
+                            chapterId={params.chapterId}
+                            courseId={params.courseId}
+                            nextChapterId={nextChapter?._id}
+                            isCompleted={isCompleted}
+                        /> */}
+                        {/* ) : ( */}
+                        {/* <CourseEnrollButton
+                            courseId={params.courseId}
+                            price={course.price}
+                        /> */}
+                        {/* )}  */}
                     </div>
                     <Separator />
-                    <div>
-                        <Preview value={chapter.description} />
+                    <div className="p-4">
+                        <p className="text-gray-700">{chapter.description}</p>
+                        {/* <Preview value={chapter.description} /> */}
                     </div>
-                    {!!attachments.length && (
-                        <>
-                            <Separator />
-                            <h2 className="text-xl font-semibold mt-2 py-1 px-4">
-                                Course Attachments
-                            </h2>
-                            <div className="p-4">
-                                {attachments.map((attachment, idx) => (
-                                    <a href={attachment} key={idx} target="_blank"
-                                        className="flex items-center p-3 w-full bg-sky-200 border text-sky-700 rounded-md hover:underline">
-                                        <File />
-                                        <p className="line-clamp-1">
-                                            {attachment}
-                                        </p>
-                                    </a>
-                                ))}
-                            </div>
-                        </>
-                    )}
+                    {/* {!!attachments.length && (
+                        <> */}
+                    <Separator />
+                    <h2 className="text-xl font-semibold mt-2 py-1 px-4">
+                        Course Attachments
+                    </h2>
+                    <div className="p-4">
+                        {attachments.map((attachment, idx) => (
+                            <a href={attachment} key={idx} target="_blank"
+                                className="flex items-center p-3 w-full bg-sky-200 border text-sky-700 rounded-md hover:underline">
+                                <File />
+                                <p className="line-clamp-1">
+                                    {attachment}
+                                </p>
+                            </a>
+                        ))}
+                    </div>
+                    {/* </>
+                    )} */}
                 </div>
             </div>
         </div>

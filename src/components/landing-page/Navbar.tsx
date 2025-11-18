@@ -5,9 +5,9 @@ import * as React from 'react';
 import ButtonLink from '@/components/links/ButtonLink';
 import UnstyledLink from '@/components/links/UnstyledLink';
 
-import Logo from '~/svg/Logo.svg';
+import Logo from "~/svg/Logo.svg";
 
-export default function Navbar() {
+export const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
     return (
@@ -22,24 +22,24 @@ export default function Navbar() {
                 {/* Desktop Navigation */}
                 <div className='hidden items-center gap-8 md:flex'>
                     <UnstyledLink
-                        href='#kursus'
+                        href='#course'
                         className='text-gray-700 transition-colors hover:text-gray-900'
                     >
                         Kursus
                     </UnstyledLink>
                     <UnstyledLink
-                        href='#tentang'
+                        href='#about'
                         className='text-gray-700 transition-colors hover:text-gray-900'
                     >
                         Tentang Kami
                     </UnstyledLink>
                     <UnstyledLink
-                        href='#fitur'
+                        href='#feature'
                         className='text-gray-700 transition-colors hover:text-gray-900'
                     >
                         Fitur
                     </UnstyledLink>
-                    <ButtonLink href='/masuk' variant='primary'>
+                    <ButtonLink href='/dashboard' variant='primary'>
                         Masuk
                     </ButtonLink>
                 </div>

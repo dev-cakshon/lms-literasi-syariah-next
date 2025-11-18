@@ -1,7 +1,7 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { NavbarMain } from '@/components/navbar/NavbarMain';
-import Sidebar from '@/components/sidebar/Sidebar';
+import { NavbarMain } from "@/components/navbar/NavbarMain";
+import { Sidebar } from "@/components/sidebar/Sidebar";
 
 export default function MainLayout({
   children,

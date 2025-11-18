@@ -1,31 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import ButtonLink from '@/components/links/ButtonLink';
 
-export default function HeroSection() {
+import ButtonLink from "@/components/links/ButtonLink";
+
+export const HeroSection = () => {
     return (
         <section className='relative min-h-screen overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-500'>
-            {/* Background Decorative Elements */}
-            <div className='absolute inset-0 opacity-20'>
-                {/* Mosque Silhouette Left */}
-                <div className='absolute left-0 top-20 h-96 w-96 bg-emerald-900 opacity-30' style={{
-                    clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-                }}></div>
-
-                {/* Mosque Silhouette Right */}
-                <div className='absolute right-0 top-32 h-80 w-80 bg-emerald-900 opacity-30' style={{
-                    clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-                }}></div>
-
-                {/* Decorative Dots Pattern */}
-                <div className='absolute left-10 top-1/3 grid grid-cols-3 gap-2'>
-                    {[...Array(9)].map((_, i) => (
-                        <div key={i} className='h-2 w-2 rounded-full bg-white opacity-40'></div>
-                    ))}
-                </div>
-            </div>
-
             {/* Main Content Container */}
             <div className='layout relative grid min-h-screen items-center gap-8 py-20 pt-32 lg:grid-cols-2'>
 
@@ -38,8 +19,7 @@ export default function HeroSection() {
                     </h1>
 
                     <p className='text-lg text-emerald-50 md:text-xl'>
-                        Platform Pembelajaran Terkunaka untuk Fikih Muamalah,
-                        Keuangan Syariah, dan Investasi Halal
+                        Platform Pembelajaran Terkemuka untuk Keuangan Syariah dan Investasi Halal.
                     </p>
 
                     {/* CTA Button with Stats */}
@@ -66,48 +46,6 @@ export default function HeroSection() {
                         </div>
                     </div>
                 </div>
-
-                {/* Right Side - Illustration Area */}
-                <div className='relative z-10 hidden lg:block'>
-                    {/* Placeholder for Scale Illustration */}
-                    <div className='relative mx-auto h-96 w-96'>
-                        {/* Scale Balance - You'll replace this with actual image */}
-                        <div className='flex h-full items-center justify-center'>
-                            <div className='text-center'>
-                                <svg className='mx-auto h-64 w-64 text-amber-400 opacity-80' fill='currentColor' viewBox='0 0 24 24'>
-                                    <path d='M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z' />
-                                </svg>
-                                <p className='mt-4 text-white opacity-60'>
-                                    [Your scale illustration here]
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Decorative Gold Sparkles */}
-                    <div className='absolute right-10 top-10 h-4 w-4 animate-pulse rounded-full bg-amber-400'></div>
-                    <div className='absolute right-20 top-32 h-3 w-3 animate-pulse rounded-full bg-amber-300' style={{ animationDelay: '0.5s' }}></div>
-                    <div className='absolute right-32 top-20 h-2 w-2 animate-pulse rounded-full bg-amber-400' style={{ animationDelay: '1s' }}></div>
-                </div>
-            </div>
-
-            {/* Bottom People Image Section */}
-            <div className='absolute bottom-0 left-0 right-0 z-20 h-64 bg-gradient-to-t from-black/40 to-transparent'>
-                {/* Placeholder for people image - You'll replace with actual image */}
-                <div className='layout flex h-full items-end justify-center pb-8'>
-                    <div className='flex gap-4 opacity-70'>
-                        {[...Array(5)].map((_, i) => (
-                            <div key={i} className='h-32 w-24 rounded-lg bg-white/10 backdrop-blur-sm'></div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Decorative Pattern Bottom Right */}
-            <div className='absolute bottom-10 right-10 grid grid-cols-3 gap-2 opacity-20'>
-                {[...Array(9)].map((_, i) => (
-                    <div key={i} className='h-2 w-2 rounded-full bg-white'></div>
-                ))}
             </div>
         </section>
     );

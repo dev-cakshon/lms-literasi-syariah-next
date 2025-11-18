@@ -3,13 +3,13 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
-interface sidebarItemProps {
-    icon: LucideIcon,
-    label: string,
-    href: string
+interface SidebarItemProps {
+    icon: LucideIcon;
+    label: string;
+    href: string;
 }
 
-const SidebarItem = ({ icon: Icon, label, href }: sidebarItemProps) => {
+export const SidebarItem = ({ icon: Icon, label, href }: SidebarItemProps) => {
 
     const pathname = usePathname()
     const router = useRouter()

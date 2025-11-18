@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import qs from "query-string";
 import { IconType } from "react-icons";
 
-interface categoryItemProps {
+interface CategoryItemProps {
     label: string;
     icon?: IconType;
     value?: string;
@@ -15,7 +15,7 @@ export const CategoryItem = ({
     label,
     icon: Icon,
     value,
-}: categoryItemProps) => {
+}: CategoryItemProps) => {
     const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();

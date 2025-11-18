@@ -1,6 +1,6 @@
-import * as React from 'react';
-import ButtonLink from '@/components/links/ButtonLink';
-import Button from '../buttons/Button';
+import * as React from "react";
+import ButtonLink from "@/components/links/ButtonLink";
+import Button from "../buttons/Button";
 
 // Props interface for CourseCard
 export interface CourseCardProps {
@@ -11,13 +11,13 @@ export interface CourseCardProps {
     href: string; // Link to course page
 }
 
-export default function CourseCard({
+export const CourseCard = ({
     title,
     illustration,
     duration,
     modules,
     href,
-}: CourseCardProps) {
+}: CourseCardProps) => {
     return (
         <div className='group flex flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:shadow-xl'>
             {/* Top Section - Title & Illustration */}

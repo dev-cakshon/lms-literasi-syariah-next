@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { BarChart, Compass, Layout, List } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { BarChart, Compass, Layout, List } from "lucide-react";
+import { usePathname } from "next/navigation";
 
-import SidebarItem from './SidebarItem';
+import { SidebarItem } from "./SidebarItem";
 
 const guestRoutes = [
     {
@@ -13,12 +13,12 @@ const guestRoutes = [
     },
     {
         icon: Compass,
-        label: 'My Courses',
+        label: 'Kursus Saya',
         href: '/my-courses',
     },
     {
         icon: Compass,
-        label: 'Browse',
+        label: 'Cari',
         href: '/browse',
     },
 ];

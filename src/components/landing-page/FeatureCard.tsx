@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 
 // Props interface - defines what data this component needs
 export interface FeatureCardProps {
@@ -7,11 +7,11 @@ export interface FeatureCardProps {
     description: string;
 }
 
-export default function FeatureCard({
+export const FeatureCard = ({
     icon,
     title,
     description
-}: FeatureCardProps) {
+}: FeatureCardProps) => {
     return (
         <div className='group rounded-2xl bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-lg'>
             <div className='flex items-start gap-4'>

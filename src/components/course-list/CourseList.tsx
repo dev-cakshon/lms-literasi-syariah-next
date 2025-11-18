@@ -1,23 +1,23 @@
 import { CourseCard } from "./CourseCard"
 
-type courseWithProgress = {
-    _id: string,
-    userId: string,
-    categoryId: string,
-    imageUrl: string,
-    title: string,
-    description: string,
-    price: number,
-    progress: number | null,
-    chaptersLength: number
-    category: string
+type CourseWithProgress = {
+    _id: string;
+    userId?: string;
+    categoryId?: string;
+    imageUrl: string | null;
+    title: string;
+    description?: string;
+    price: number;
+    progress: number | null;
+    chaptersLength: number;
+    category: string;
 }
 
-interface coursesListProps {
-    items: courseWithProgress[]
+interface CourseListProps {
+    items: CourseWithProgress[];
 }
 
-export const CourseList = ({ items }: coursesListProps) => {
+export const CourseList = ({ items }: CourseListProps) => {
 
     return (
         <>

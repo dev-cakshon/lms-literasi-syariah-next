@@ -1,15 +1,15 @@
-import { AchievementBadges } from '@/components/dashboard/AchievementBadges';
-import { Leaderboard } from '@/components/dashboard/Leaderboard';
-import { ProfileOverview } from '@/components/dashboard/ProfileOverview';
+import { AchievementBadges } from "@/components/dashboard/AchievementBadges";
+import { Leaderboard } from "@/components/dashboard/Leaderboard";
+import { ProfileOverview } from "@/components/dashboard/ProfileOverview";
 
 export default function DashboardPage() {
     return (
         <div className="p-6 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen">
-            <div className="max-w-7xl mx-auto">
+            <div className="mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
-                    <p className="text-gray-600">Track your progress and compete with others</p>
+                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard Pembelajaran</h1>
+                    <p className="text-gray-600">Pantau progres belajar ekonomi syariah Anda dan berkompetisi dengan peserta lainnya</p>
                 </div>
 
                 {/* Main Grid Layout */}

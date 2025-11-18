@@ -37,7 +37,7 @@ export const ProfileOverview = ({
 
         {/* Name */}
         <h3 className="text-xl font-bold text-gray-800 mb-1">{name}</h3>
-        <p className="text-sm text-gray-500 mb-4">Level {level} Scholar</p>
+        <p className="text-sm text-gray-500 mb-4">Level {level} - Pelajar Ekonomi Syariah</p>
 
         {/* XP Progress */}
         <div className="w-full mb-6">
@@ -64,20 +64,20 @@ export const ProfileOverview = ({
         {/* Stats Grid */}
         <div className="w-full grid grid-cols-2 gap-3">
           <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-100">
-            <p className="text-2xl font-bold text-blue-600">24</p>
-            <p className="text-xs text-gray-600">Courses</p>
+            <p className="text-2xl font-bold text-blue-600">4</p>
+            <p className="text-xs text-gray-600">Kursus</p>
           </div>
           <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg p-3 border border-emerald-100">
-            <p className="text-2xl font-bold text-emerald-600">18</p>
-            <p className="text-xs text-gray-600">Completed</p>
+            <p className="text-2xl font-bold text-emerald-600">2</p>
+            <p className="text-xs text-gray-600">Selesai</p>
           </div>
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-100">
-            <p className="text-2xl font-bold text-purple-600">156</p>
-            <p className="text-xs text-gray-600">Lessons</p>
+            <p className="text-2xl font-bold text-purple-600">28</p>
+            <p className="text-xs text-gray-600">Bab</p>
           </div>
           <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-lg p-3 border border-orange-100">
-            <p className="text-2xl font-bold text-orange-600">42h</p>
-            <p className="text-xs text-gray-600">Learning</p>
+            <p className="text-2xl font-bold text-orange-600">42j</p>
+            <p className="text-xs text-gray-600">Belajar</p>
           </div>
         </div>
       </div>

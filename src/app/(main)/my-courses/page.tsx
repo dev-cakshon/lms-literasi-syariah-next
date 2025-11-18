@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
 import { CheckCircle, Clock } from "lucide-react";
-import '@/lib/env';
+import "@/lib/env";
 
-import { dummyDashboardData } from '@/lib/dummyData';
+import { dummyDashboardData } from "@/lib/dummyData";
 
-import { CourseList } from '@/components/course-list/CourseList';
-import { InfoCard } from '@/components/InfoCard';
+import { CourseList } from "@/components/course-list/CourseList";
+import { InfoCard } from "@/components/InfoCard";
 
 export default function MyCoursesPage() {
 

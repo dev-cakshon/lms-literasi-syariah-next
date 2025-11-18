@@ -1,4 +1,4 @@
-import { Award, BookOpen, Target, Zap, Star, Trophy, Flame, CheckCircle } from 'lucide-react';
+import { Award, BookOpen, CheckCircle,Flame, Star, Target, Trophy, Zap } from 'lucide-react';
 
 interface Badge {
     id: string;
@@ -19,8 +19,8 @@ export const AchievementBadges = ({ badges }: AchievementBadgesProps) => {
     const defaultBadges: Badge[] = [
         {
             id: '1',
-            name: 'First Steps',
-            description: 'Complete your first course',
+            name: 'Pemula Muamalah',
+            description: 'Selesaikan kursus pertama Anda',
             icon: <BookOpen className="w-6 h-6" />,
             unlocked: true,
             color: 'text-blue-600',
@@ -28,8 +28,8 @@ export const AchievementBadges = ({ badges }: AchievementBadgesProps) => {
         },
         {
             id: '2',
-            name: 'Quick Learner',
-            description: 'Complete 5 lessons in a day',
+            name: 'Pelajar Cepat',
+            description: 'Selesaikan 5 bab dalam sehari',
             icon: <Zap className="w-6 h-6" />,
             unlocked: true,
             color: 'text-yellow-600',
@@ -37,8 +37,8 @@ export const AchievementBadges = ({ badges }: AchievementBadgesProps) => {
         },
         {
             id: '3',
-            name: 'Dedicated',
-            description: '7-day learning streak',
+            name: 'Istiqomah',
+            description: 'Belajar 7 hari berturut-turut',
             icon: <Flame className="w-6 h-6" />,
             unlocked: true,
             color: 'text-orange-600',
@@ -46,8 +46,8 @@ export const AchievementBadges = ({ badges }: AchievementBadgesProps) => {
         },
         {
             id: '4',
-            name: 'Perfect Score',
-            description: 'Score 100% on a quiz',
+            name: 'Nilai Sempurna',
+            description: 'Raih skor 100% pada kuis',
             icon: <Star className="w-6 h-6" />,
             unlocked: true,
             color: 'text-purple-600',
@@ -55,8 +55,8 @@ export const AchievementBadges = ({ badges }: AchievementBadgesProps) => {
         },
         {
             id: '5',
-            name: 'Goal Achiever',
-            description: 'Complete 10 courses',
+            name: 'Pencapai Target',
+            description: 'Selesaikan 10 kursus syariah',
             icon: <Target className="w-6 h-6" />,
             unlocked: true,
             color: 'text-emerald-600',
@@ -64,8 +64,8 @@ export const AchievementBadges = ({ badges }: AchievementBadgesProps) => {
         },
         {
             id: '6',
-            name: 'Champion',
-            description: 'Reach top 10 on leaderboard',
+            name: 'Juara',
+            description: 'Masuk 10 besar papan peringkat',
             icon: <Trophy className="w-6 h-6" />,
             unlocked: false,
             color: 'text-gray-400',
@@ -73,8 +73,8 @@ export const AchievementBadges = ({ badges }: AchievementBadgesProps) => {
         },
         {
             id: '7',
-            name: 'Master',
-            description: 'Complete 50 courses',
+            name: 'Master Ekonomi Syariah',
+            description: 'Selesaikan 50 kursus',
             icon: <Award className="w-6 h-6" />,
             unlocked: false,
             color: 'text-gray-400',
@@ -82,8 +82,8 @@ export const AchievementBadges = ({ badges }: AchievementBadgesProps) => {
         },
         {
             id: '8',
-            name: 'Perfectionist',
-            description: 'Get 100% in 5 courses',
+            name: 'Perfeksionis',
+            description: 'Raih 100% di 5 kursus',
             icon: <CheckCircle className="w-6 h-6" />,
             unlocked: false,
             color: 'text-gray-400',

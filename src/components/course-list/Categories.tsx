@@ -1,24 +1,24 @@
 "use client"
 
 import { IconType } from "react-icons"
-import { FcEngineering, FcFilmReel, FcMultipleDevices, FcMusic, FcOldTimeCamera, FcSalesPerformance, FcSportsMode } from "react-icons/fc"
+import { FcBullish, FcBusinessman, FcCalculator, FcCurrencyExchange, FcMoneyTransfer, FcSalesPerformance } from "react-icons/fc"
+
 import { CategoryItem } from "./CategoryItem"
 
-interface categoriesProps {
-    items: { _id: string, name: string }[]
+interface CategoriesProps {
+    items: { _id: string; name: string }[];
 }
 
 const iconMap: Record<{ name: string }["name"], IconType> = {
-    "Music": FcMusic,
-    "Photography": FcOldTimeCamera,
-    "Fitness": FcSportsMode,
-    "Accounting": FcSalesPerformance,
-    "Computer Scince": FcMultipleDevices,
-    "Film": FcFilmReel,
-    "Engineering": FcEngineering
+    "Fiqih Muamalah": FcBusinessman,
+    "Investasi Syariah": FcBullish,
+    "Keuangan Syariah": FcMoneyTransfer,
+    "Akuntansi Syariah": FcCalculator,
+    "Perbankan Syariah": FcCurrencyExchange,
+    "Asuransi Syariah": FcSalesPerformance,
 }
 
-export const Categories = ({ items }: categoriesProps) => {
+export const Categories = ({ items }: CategoriesProps) => {
     return (<div className="flex items-center gap-x-2 overflow-x-auto pb-2">
         {items.map((item, idx) => {
             return (
