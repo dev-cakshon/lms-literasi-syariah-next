@@ -39,8 +39,12 @@ export const Navbar = () => {
                     >
                         Fitur
                     </UnstyledLink>
-                    <ButtonLink href='/dashboard' variant='primary'>
+                    <ButtonLink href='/dashboard'>Dashboard</ButtonLink>
+                    <ButtonLink href='/login' variant='light'>
                         Masuk
+                    </ButtonLink>
+                    <ButtonLink href='/signup' variant='primary'>
+                        Daftar
                     </ButtonLink>
                 </div>
 
@@ -73,28 +77,31 @@ export const Navbar = () => {
                 <div className='border-t border-gray-200 bg-white md:hidden'>
                     <div className='layout flex flex-col gap-4 py-4'>
                         <UnstyledLink
-                            href='#kursus'
+                            href='#course'
                             className='text-gray-700 transition-colors hover:text-gray-900'
                             onClick={() => setIsMobileMenuOpen(false)}
                         >
                             Kursus
                         </UnstyledLink>
                         <UnstyledLink
-                            href='#tentang'
+                            href='#about'
                             className='text-gray-700 transition-colors hover:text-gray-900'
                             onClick={() => setIsMobileMenuOpen(false)}
                         >
                             Tentang Kami
                         </UnstyledLink>
                         <UnstyledLink
-                            href='#fitur'
+                            href='#feature'
                             className='text-gray-700 transition-colors hover:text-gray-900'
                             onClick={() => setIsMobileMenuOpen(false)}
                         >
                             Fitur
                         </UnstyledLink>
-                        <ButtonLink href='/masuk' variant='light' className='w-full'>
+                        <ButtonLink href='/login' variant='light' className='w-full'>
                             Masuk
+                        </ButtonLink>
+                        <ButtonLink href='/signup' variant='primary' className='w-full'>
+                            Daftar
                         </ButtonLink>
                     </div>
                 </div>

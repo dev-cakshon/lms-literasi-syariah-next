@@ -4,6 +4,7 @@ import * as React from 'react';
 import '@/styles/globals.css';
 
 import { siteConfig } from '@/constant/config';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -51,8 +52,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html>
-      <body>{children}</body>
+    <html lang="id">
+      <body>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }
