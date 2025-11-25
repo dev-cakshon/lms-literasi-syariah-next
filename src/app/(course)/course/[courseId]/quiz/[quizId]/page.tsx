@@ -6,7 +6,7 @@ import { getQuizDetail, getQuizzesByCourse } from "@/lib/firestore";
 
 import Button from "@/components/buttons/Button";
 import { IconBadge } from "@/components/IconBadge"
-import { type Question, MultipleAnswer} from "@/components/quiz/MultipleAnswer";
+import { type Question, MultipleAnswer } from "@/components/quiz/MultipleAnswer";
 
 interface QuizPageProps {
     params: Promise<{ courseId: string; quizId: string }>;
@@ -45,7 +45,7 @@ export default function QuizPage({ params }: QuizPageProps) {
 
             try {
                 const quizDetail = await getQuizDetail(courseId, quizId);
-                
+
                 if (quizDetail) {
                     const quiz = quizDetail as {
                         title?: string;
@@ -74,7 +74,7 @@ export default function QuizPage({ params }: QuizPageProps) {
                                 correctAnswer: q.correctAnswerIndex,
                                 points: q.points,
                             }));
-                        
+
                         if (mappedQuestions.length > 0) {
                             setQuizData(mappedQuestions);
                         }
@@ -138,19 +138,19 @@ export default function QuizPage({ params }: QuizPageProps) {
     // Konfirmasi Start Quiz
     if (!quizStarted) {
         const totalPoints = quizData.reduce((sum, q) => sum + q.points, 0);
-        
+
         return (
             <div className="flex flex-col items-center justify-center max-w-6xl mx-auto p-6">
-                <div className="max-w-md w-full text-center">
-                    <div className="rounded-md flex justify-center items-center p-3">
-                        <IconBadge icon={Trophy} variant="success" />
+                    <div className="flex flex-col items-center justify-center h-full text-center">
+                        <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+                            <Trophy className="w-8 h-8 text-primary-600" />
+                        </div>
+                        <h1 className="text-3xl font-bold mb-4">{quizTitle}</h1>
+                        <p className="text-gray-600 mb-6">
+                            {quizData.length} Soal - {totalPoints} Poin
+                        </p>
+                        <Button onClick={handleStartQuiz}>Mulai Kuis</Button>
                     </div>
-                    <h1 className="text-3xl font-bold mb-4">{quizTitle}</h1>
-                    <p className="text-gray-600 mb-6">
-                        {quizData.length} Soal - {totalPoints} Poin
-                    </p>
-                    <Button onClick={handleStartQuiz}>Mulai Kuis</Button>
-                </div>
             </div>
         );
     }
