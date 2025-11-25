@@ -2,9 +2,8 @@
 
 import { Menu } from "lucide-react";
 
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-
 import { CourseSidebar } from "./CourseSidebar";
+import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 
 interface CourseMobileSidebarProps {
     course: {

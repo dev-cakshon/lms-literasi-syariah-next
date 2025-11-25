@@ -2,9 +2,8 @@
 
 import * as React from "react";
 
-import ButtonLink from "@/components/links/ButtonLink";
-
 import { CourseCard, CourseCardProps } from "./CourseCard";
+import ButtonLink from "../links/ButtonLink";
 
 // Course data type
 interface Course {

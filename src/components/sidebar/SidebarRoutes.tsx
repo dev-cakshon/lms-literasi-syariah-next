@@ -1,7 +1,9 @@
 "use client";
 
-import { BarChart, Compass, Layout, List } from "lucide-react";
+import { BarChart, Compass, Layout, List, BotMessageSquare } from "lucide-react";
 import { usePathname } from "next/navigation";
+
+import { useAuth } from "@/contexts/AuthContext";
 
 import { SidebarItem } from "./SidebarItem";
 
@@ -17,10 +19,15 @@ const guestRoutes = [
         href: '/my-courses',
     },
     {
-        icon: Compass,
-        label: 'Cari',
-        href: '/browse',
+        icon: BotMessageSquare,
+        label: 'Chatbot',
+        href: '/chatbot',
     },
+    // {
+    //     icon: BotMessageSquare,
+    //     label: 'Browse',
+    //     href: '/browse',
+    // },
 ];
 
 const teacherRoutes = [
@@ -38,9 +45,10 @@ const teacherRoutes = [
 
 const SidebarRoutes = () => {
     const pathname = usePathname();
+    const { isInstructor } = useAuth();
 
-    const isTeacher = pathname?.includes('/teacher');
-    const routes = isTeacher ? teacherRoutes : guestRoutes;
+    const isTeacherPage = pathname?.includes('/teacher');
+    const routes = isTeacherPage ? teacherRoutes : guestRoutes;
 
     return (
         <div className='flex flex-col w-full'>
@@ -54,6 +62,17 @@ const SidebarRoutes = () => {
                     />
                 );
             })}
+            
+            {/* Show teacher mode toggle for instructors */}
+            {isInstructor && !isTeacherPage && (
+                <div className="border-t mt-4 pt-4">
+                    <SidebarItem
+                        icon={List}
+                        label="Mode Instruktur"
+                        href="/teacher/courses"
+                    />
+                </div>
+            )}
         </div>
     );
 };

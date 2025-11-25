@@ -9,11 +9,11 @@ import { Logo } from "./Logo";
 import SidebarRoutes from "./SidebarRoutes";
 
 export const Sidebar = () => {
-    const { user, signOut } = useAuth();
+    const { user, logout } = useAuth();
     const router = useRouter();
 
     const handleSignOut = async () => {
-        await signOut();
+        await logout();
         router.push("/");
     };
 

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import ButtonLink from "@/components/links/ButtonLink";
+import ButtonLink from '../links/ButtonLink';
 
 export const HeroSection = () => {
     return (
@@ -25,7 +25,7 @@ export const HeroSection = () => {
                     {/* CTA Button with Stats */}
                     <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center'>
                         <ButtonLink
-                            href='#kursus'
+                            href='#course'
                             variant='light'
                             className='bg-gradient-to-r from-emerald-400 to-teal-500 px-8 py-3 text-white hover:from-emerald-500 hover:to-teal-600'
                         >

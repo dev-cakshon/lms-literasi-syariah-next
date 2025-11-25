@@ -1,4 +1,4 @@
-import { dummyBrowseCourses, dummyCategories } from "@/lib/dummyData";
+import { getAllCategories, getAllCourses, getCoursesByCategory } from "@/lib/firestore";
 
 import { Categories } from "@/components/course-list/Categories";
 import { CourseList } from "@/components/course-list/CourseList";
@@ -12,27 +12,36 @@ interface SearchPageProps {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-    const userId = "user-123";
+    // Fetch categories from Firestore
+    const categories = await getAllCategories();
 
-    const categories = dummyCategories;
+    // Fetch courses from Firestore
+    let courses = searchParams.categoryId 
+        ? await getCoursesByCategory(searchParams.categoryId)
+        : await getAllCourses();
 
-    // Filter courses based on search params
-    let filteredCourses = dummyBrowseCourses;
-
-    if (searchParams.categoryId) {
-        const selectedCategory = categories.find(cat => cat._id === searchParams.categoryId);
-        if (selectedCategory) {
-            filteredCourses = filteredCourses.filter(course => 
-                course.category === selectedCategory.name
-            );
-        }
-    }
-
+    // Filter by title if search query exists
     if (searchParams.title) {
-        filteredCourses = filteredCourses.filter(course =>
+        courses = courses.filter((course: any) =>
             course.title.toLowerCase().includes(searchParams.title!.toLowerCase())
         );
     }
+
+    // Transform Firestore data to match component expectations
+    const formattedCourses = courses.map((course: any) => ({
+        _id: course.id,
+        title: course.title,
+        imageUrl: course.imageUrl || null,
+        price: course.price || 0,
+        progress: null,
+        category: course.categoryId || '',
+        chaptersLength: course.totalChapters || 0,
+    }));
+
+    const formattedCategories = categories.map((cat: any) => ({
+        _id: cat.id,
+        name: cat.name || 'Uncategorized',
+    }));
 
     return (
         <>
@@ -46,8 +55,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     </p>
                 </div>
                 <SearchInput />
-                <Categories items={categories} />
-                <CourseList items={filteredCourses} />
+                <Categories items={formattedCategories} />
+                <CourseList items={formattedCourses} />
             </div>
         </>
     );

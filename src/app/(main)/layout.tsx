@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { NavbarMain } from "@/components/navbar/NavbarMain";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 

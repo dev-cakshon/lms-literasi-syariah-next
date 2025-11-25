@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 
-import ButtonLink from '@/components/links/ButtonLink';
-import UnstyledLink from '@/components/links/UnstyledLink';
+import ButtonLink from '../links/ButtonLink';
+import UnstyledLink from '../links/UnstyledLink';
 
 import Logo from "~/svg/Logo.svg";
 

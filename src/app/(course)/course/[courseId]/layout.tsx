@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import * as React from "react";
 
-import { getCourseDataById } from "@/lib/dummyData";
+import { getCourse, getCourseChapters } from "@/lib/firestore";
 
 import { CourseNavbar } from "@/components/course/CourseNavbar";
 import { CourseSidebar } from "@/components/course/CourseSidebar";
@@ -16,20 +16,35 @@ export default async function CourseLayout({
     const { courseId } = await params;
     const userId = "user-123"; // Stub userId
 
-    console.log("=== CourseLayout Debug ===");
-    console.log("CourseLayout courseId:", courseId);
-
-    // Get course data by ID
-    const courseData = getCourseDataById(courseId);
-    
-    console.log("CourseLayout - Course data found:", courseData ? "YES" : "NO");
+    // Fetch course and chapters from Firestore
+    const courseData = await getCourse(courseId);
     
     if (!courseData) {
-        console.log("CourseLayout - REDIRECTING TO / (no course data)");
         return redirect("/");
     }
 
-    const { course, chapters } = courseData;
+    const chaptersData = await getCourseChapters(courseId);
+
+    // Transform to match component expectations
+    const course = {
+        _id: courseData.id,
+        title: courseData.title,
+        price: courseData.price || 0,
+        attachments: [],
+        purchased: { [userId]: true },
+    };
+
+    const chapters = chaptersData.map((ch: any) => ({
+        _id: ch.id,
+        courseId: ch.courseId,
+        title: ch.title,
+        description: ch.content,
+        content: ch.content,
+        playbackId: ch.videoUrl,
+        videoUrl: ch.videoUrl,
+        isCompleted: { [userId]: false },
+        isFree: ch.isFree || false,
+    }));
 
     return (
         <div className="h-full">

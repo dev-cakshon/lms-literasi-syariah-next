@@ -1,6 +1,6 @@
 import * as React from "react";
-import ButtonLink from "@/components/links/ButtonLink";
-import Button from "../buttons/Button";
+
+import ButtonLink from "../links/ButtonLink";
 
 // Props interface for CourseCard
 export interface CourseCardProps {

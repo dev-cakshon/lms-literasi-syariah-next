@@ -1,7 +1,7 @@
 import { File } from "lucide-react";
 import { redirect } from "next/navigation";
 
-import { getCourseDataById } from "@/lib/dummyData";
+import { getChapter, getCourse, getCourseChapters } from "@/lib/firestore";
 
 import { Separator } from "@/components/ui/separator";
 
@@ -22,34 +22,44 @@ const ChapterIdPage = async ({ params }: {
 
     const { courseId, chapterId } = await params;
 
-    console.log("=== ChapterIdPage Debug ===");
-    console.log("ChapterIdPage courseId:", courseId);
-    console.log("ChapterIdPage chapterId:", chapterId);
-
-    // Get course data by ID
-    const courseData = getCourseDataById(courseId);
+    // Fetch from Firestore
+    const courseData = await getCourse(courseId);
+    const chapterData = await getChapter(chapterId);
+    const chaptersData = await getCourseChapters(courseId);
     
-    console.log("ChapterIdPage - Course data found:", courseData ? "YES" : "NO");
-    
-    if (!courseData) {
-        console.log("ChapterIdPage - REDIRECTING TO / (no course data)");
+    if (!courseData || !chapterData) {
         return redirect("/");
     }
 
-    const { course, chapters } = courseData;
-    const chapter = chapters.find((ch) => ch._id === chapterId) || null;
-    const purchased = course.purchased[userId];
-    const isCompleted = chapter?.isCompleted[userId] || false;
-    const _muxData = (chapter?.isFree || purchased) ? chapter?.playbackId : null;
-    const attachments = purchased ? course.attachments : [];
+    // Transform data to match component expectations
+    const course = {
+        _id: courseData.id,
+        title: courseData.title,
+        price: courseData.price || 0,
+        attachments: [],
+    };
+
+    const chapter = {
+        _id: chapterData.id,
+        title: chapterData.title,
+        content: chapterData.content,
+        videoUrl: chapterData.videoUrl,
+        isFree: chapterData.isFree || false,
+    };
+
+    const chapters = chaptersData.map((ch: any) => ({
+        _id: ch.id,
+        title: ch.title,
+    }));
+
+    const purchased = true; // Assume purchased for now
+    const isCompleted = false;
+    const _muxData = (chapter.isFree || purchased) ? chapter.videoUrl : null;
+    const attachments: string[] = [];
     const currentIndex = chapters.findIndex((ch) => ch._id === chapterId);
     const _nextChapter = currentIndex >= 0 && currentIndex < chapters.length - 1 
         ? chapters[currentIndex + 1] 
         : null;
-
-    if (!course || !chapter) {
-        return redirect("/");
-    }
 
     const _isLocked = !chapter.isFree && !purchased;
     const _completeOnEnd = !!purchased && isCompleted;
@@ -98,8 +108,8 @@ const ChapterIdPage = async ({ params }: {
                     </div>
                     <Separator />
                     <div className="p-4">
-                        <p className="text-gray-700">{chapter.description}</p>
-                        {/* <Preview value={chapter.description} /> */}
+                        <p className="text-gray-700">{chapter.content}</p>
+                        {/* <Preview value={chapter.content} /> */}
                     </div>
                     {/* {!!attachments.length && (
                         <> */}
