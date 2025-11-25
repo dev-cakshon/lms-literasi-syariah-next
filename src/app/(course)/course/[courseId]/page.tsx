@@ -1,37 +1,26 @@
 import { redirect } from "next/navigation";
 
-import { getCourseDataById } from "@/lib/dummyData";
+import { getChaptersByCourse } from "@/lib/firestore";
 
-const CourseIdPage = async ({
+export default async function CourseIdPage({
     params,
 }: {
     params: Promise<{ courseId: string }>;
-}) => {
+}) {
     const { courseId } = await params;
 
-    console.log("=== CourseIdPage Debug ===");
-    console.log("Requested courseId:", courseId);
+    const chapters = await getChaptersByCourse(courseId);
+    console.log("Chapters in CourseIdPage:", chapters);
 
-    // Get course data by ID
-    const courseData = getCourseDataById(courseId);
-
-    console.log("Course data found:", courseData ? "YES" : "NO");
-    if (courseData) {
-        console.log("Course title:", courseData.course.title);
-        console.log("Chapters count:", courseData.chapters.length);
-        console.log("First chapter ID:", courseData.chapters[0]?._id);
+    if (chapters.length === 0) {
+        return (
+            <div className="h-full flex items-center justify-center">
+                <p className="text-muted-foreground">No Chapter Found</p>
+            </div>
+        );
     }
 
-    if (!courseData || !courseData.chapters || courseData.chapters.length === 0) {
-        console.log("REDIRECTING TO / - Reason:", !courseData ? "No course data" : "No chapters");
-        return redirect("/");
-    }
-
-    const redirectUrl = `/course/${courseId}/chapter/${courseData.chapters[0]._id}`;
-    console.log("REDIRECTING TO:", redirectUrl);
-    console.log("=== End Debug ===");
-
-    return redirect(redirectUrl);
-};
-
-export default CourseIdPage;
+    // Redirect to first chapter
+    const firstChapter = chapters[0];
+    redirect(`/course/${courseId}/chapter/${firstChapter.id}`);
+}

@@ -1,63 +1,114 @@
-import { CheckCircle, Clock } from "lucide-react";
-import "@/lib/env";
+"use client";
 
-import { getCourse, getUserEnrollments, getUserProgress } from "@/lib/firestore";
+import { CheckCircle, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { getCourses, getUserProgress } from "@/lib/firestore";
 
 import { CourseList } from "@/components/course-list/CourseList";
 import { InfoCard } from "@/components/InfoCard";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useAuth } from "@/contexts/AuthContext";
 
-export default async function MyCoursesPage() {
-    const userId = "user-123"; // Stub user ID
+interface DisplayCourse {
+    id: string;
+    title: string;
+    imageUrl: string | null;
+    progress: number;
+    category: string;
+    chaptersLength: number;
+}
 
-    // Fetch user enrollments from Firestore
-    const enrollments = await getUserEnrollments(userId);
-    
-    // Fetch course details and progress for each enrollment
-    const coursesWithProgress = await Promise.all(
-        enrollments.map(async (enrollment: any) => {
-            const courseId = enrollment.courseId || enrollment.id;
-            const course = await getCourse(courseId);
-            if (!course) return null;
+export default function MyCoursesPage() {
+    const { user, loading: authLoading } = useAuth();
+    const [courses, setCourses] = useState<DisplayCourse[]>([]);
+    const [loading, setLoading] = useState(true);
 
-            const progress = await getUserProgress(userId, courseId);
-            const completedChapters = progress?.chapters?.filter((ch: { isCompleted: boolean }) => ch.isCompleted).length || 0;
-            const courseData = course as any;
-            const totalChapters = courseData.totalChapters || 0;
-            const progressPercentage = totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0;
+    useEffect(() => {
+        if (authLoading) return;
+        if (!user) {
+            setLoading(false);
+            return;
+        }
 
-            return {
-                _id: courseData.id,
-                title: courseData.title,
-                imageUrl: courseData.imageUrl || null,
-                price: courseData.price || 0,
-                progress: progressPercentage,
-                category: courseData.categoryId || '',
-                chaptersLength: totalChapters,
-            };
-        })
-    );
+        async function fetchData() {
+            if (!user) return;
 
-    // Filter out null values and separate by completion status
-    const validCourses = coursesWithProgress.filter((course): course is NonNullable<typeof course> => course !== null);
-    const completedCourses = validCourses.filter(course => course.progress === 100);
-    const courseInProgress = validCourses.filter(course => course.progress < 100);
+            try {
+                // Fetch all user progress (one-time)
+                const userProgress = await getUserProgress(user.uid);
+
+                // Map: courseId -> number of chapters completed
+                const completedChapterCounts: Record<string, number> = {};
+                userProgress.forEach((progress) => {
+                    const courseId = (progress as Record<string, unknown>).courseId as string;
+                    if (courseId) {
+                        completedChapterCounts[courseId] = (completedChapterCounts[courseId] || 0) + 1;
+                    }
+                });
+
+                // Fetch all courses (one-time)
+                const userCourses = await getCourses();
+
+                // Calculate progress for each course
+                const mapped: DisplayCourse[] = userCourses
+                    .map((course) => {
+                        const completedChapters = completedChapterCounts[course.id] || 0;
+                        const totalChapters = (course as Record<string, unknown>).totalChapters as number || 0;
+                        const progressPct = totalChapters > 0
+                            ? Math.round((completedChapters / totalChapters) * 100)
+                            : 0;
+
+                        return {
+                            id: course.id,
+                            title: (course as Record<string, unknown>).title as string || "Untitled Course",
+                            imageUrl: (course as Record<string, unknown>).imageUrl as string || null,
+                            progress: progressPct,
+                            category: (course as Record<string, unknown>).categoryId as string || "",
+                            chaptersLength: totalChapters,
+                        };
+                    })
+                    .filter((c) => {
+                        // Only show courses with progress > 0%
+                        const hasProgress = completedChapterCounts[c.id] || 0;
+                        return hasProgress > 0;
+                    });
+
+                setCourses(mapped);
+            } catch (error) {
+                // Error fetching data
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, [authLoading, user]);
+
+    if (authLoading || loading) {
+        return (
+            <div className="p-6 flex items-center justify-center h-full">
+                <p className="text-sm text-muted-foreground">Memuat...</p>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="p-6">
+                <p className="text-sm text-muted-foreground">Silakan login untuk melihat kursus Anda.</p>
+            </div>
+        );
+    }
+
+    const completedCourses = courses.filter((c) => c.progress !== null && c.progress === 100);
+    const courseInProgress = courses.filter((c) => c.progress !== null && c.progress < 100);
 
     return (
         <div className="p-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InfoCard
-                    icon={Clock}
-                    label="In Progress"
-                    numberOfItems={courseInProgress.length}
-                />
-                <InfoCard
-                    icon={CheckCircle}
-                    label="Completed"
-                    numberOfItems={completedCourses.length}
-                    variant="success"
-                />
+                <InfoCard icon={Clock} label="In Progress" numberOfItems={courseInProgress.length} />
+                <InfoCard icon={CheckCircle} label="Completed" numberOfItems={completedCourses.length} variant="success" />
             </div>
             <CourseList items={[...completedCourses, ...courseInProgress]} />
         </div>

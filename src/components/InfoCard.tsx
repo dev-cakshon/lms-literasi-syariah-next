@@ -1,7 +1,7 @@
 
 import { LucideIcon } from "lucide-react"
 
-import { IconBadge } from "./course-list/IconBadge"
+import { IconBadge } from "./IconBadge"
 
 interface InfoCardProps {
     icon: LucideIcon;
@@ -19,7 +19,7 @@ export const InfoCard = ({ icon: Icon, label, numberOfItems, variant }: InfoCard
             {label}
         </p>
         <p className="text-gray-500 text-sm">
-            {numberOfItems} {numberOfItems === 1? "Kursus" : "Kursus"}
+            {numberOfItems} Kursus
         </p>
             </div>
         </div>

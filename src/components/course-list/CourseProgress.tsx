@@ -7,9 +7,7 @@ interface courseProgressProps {
     variant?: "default" | "success",
     value: number,
     size?: "default" | "sm"
-
 }
-
 
 const colorByVariant = {
     default: "text-sky-700",

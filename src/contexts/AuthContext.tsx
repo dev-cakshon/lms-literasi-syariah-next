@@ -1,13 +1,14 @@
 "use client";
 
-import { 
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-  User} from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    GoogleAuthProvider,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    signOut as firebaseSignOut,
+    User
+} from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
 
 import { getAuthInstance } from "@/lib/firebase";
@@ -26,7 +27,6 @@ interface AuthContextType {
     signUp: (email: string, password: string) => Promise<void>;
     signInWithGoogle: () => Promise<void>;
     logout: () => Promise<void>;
-    isInstructor: boolean;
     isAdmin: boolean;
 }
 
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         console.log("🔐 AuthContext: BYPASS_AUTH =", BYPASS_AUTH);
-        
+
         if (BYPASS_AUTH) {
             // Mock user for development
             const mockUser = {
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 email: "dev@example.com",
                 displayName: "Developer User",
             } as User;
-            
+
             const mockProfile: UserProfile = {
                 uid: "user-123",
                 email: "dev@example.com",
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             };
-            
+
             console.log("✅ Setting mock user:", mockUser.email);
             setUser(mockUser);
             setUserProfile(mockProfile);
@@ -114,21 +114,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         await firebaseSignOut(auth);
     };
 
-    const isInstructor = userProfile?.role === "admin";
     const isAdmin = userProfile?.role === "admin";
 
     console.log("🔐 AuthContext state:", { user: user?.email, loading, BYPASS_AUTH });
 
     return (
-        <AuthContext.Provider value={{ 
-            user, 
+        <AuthContext.Provider value={{
+            user,
             userProfile,
-            loading, 
-            signIn, 
-            signUp, 
-            signInWithGoogle, 
+            loading,
+            signIn,
+            signUp,
+            signInWithGoogle,
             logout,
-            isInstructor,
             isAdmin
         }}>
             {children}

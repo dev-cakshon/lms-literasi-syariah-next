@@ -6,10 +6,11 @@ import UnstyledLink from '@/components/links/UnstyledLink';
 
 export const CourseNavbarRoutes = () => {
     return (
-        <div>
+        <div className='float-end'>
             <UnstyledLink
+                className='text-sm font-medium text-primary hover:underline'
                 href='/my-courses'>
-                Testing
+                Kembali ke Kursus Saya
             </UnstyledLink>
         </div>
     );

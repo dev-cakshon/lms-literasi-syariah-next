@@ -1,16 +1,14 @@
 import { CourseCard } from "./CourseCard"
 
 type CourseWithProgress = {
-    _id: string;
+    id: string;
     userId?: string;
     categoryId?: string;
     imageUrl: string | null;
     title: string;
     description?: string;
-    price: number;
-    progress: number | null;
+    progress: number;
     chaptersLength: number;
-    category: string;
 }
 
 interface CourseListProps {
@@ -24,13 +22,11 @@ export const CourseList = ({ items }: CourseListProps) => {
             <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
                 {items.map((item) => (
                     <CourseCard
-                        key={item._id}
-                        _id={item._id}
+                        key={item.id}
+                        id={item.id}
                         title={item.title}
                         imageUrl={item.imageUrl}
-                        price={item.price}
                         progress={item.progress}
-                        category={item.category}
                         chaptersLength={item.chaptersLength}
                     />
                 ))}
