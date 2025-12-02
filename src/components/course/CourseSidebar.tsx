@@ -25,6 +25,7 @@ interface CourseSidebarProps {
 interface Quiz {
     id: string;
     title?: string;
+    type?: string;
 }
 
 export const CourseSidebar = ({
@@ -32,17 +33,39 @@ export const CourseSidebar = ({
     chapters,
     completedChapterIds,
 }: CourseSidebarProps) => {
-    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+    const [preTest, setPreTest] = useState<Quiz[]>([]);
+    const [postTest, setPostTest] = useState<Quiz[]>([]);
+    const [preTestCompleted, setPreTestCompleted] = useState(false);
+
     const completedChapters = chapters.filter((chapter) => completedChapterIds.has(chapter.id)).length;
     const progressCount = chapters.length > 0 ? (completedChapters / chapters.length) * 100 : 0;
 
     useEffect(() => {
         async function fetchQuizzes() {
             const fetchedQuizzes = await getQuizzesByCourse(course.id);
-            setQuizzes(fetchedQuizzes.map((q) => ({
+
+            const preTestQuizzes = fetchedQuizzes.filter((q) =>
+                (q as { type?: string }).type === "preTest"
+            ).map((q) => ({
                 id: q.id,
-                title: (q as { title?: string }).title || "Quiz",
-            })));
+                title: (q as { title?: string }).title || "Pre-Test",
+                type: "preTest",
+            }));
+
+            const postTestQuizzes = fetchedQuizzes.filter((q) =>
+                (q as { type?: string }).type === "postTest"
+            ).map((q) => ({
+                id: q.id,
+                title: (q as { title?: string }).title || "Post-Test",
+                type: "postTest",
+            }));
+
+            setPreTest(preTestQuizzes);
+            setPostTest(postTestQuizzes);
+
+            // TODO: Fetch actual completion status from progress
+            // For now, assume pre-test is completed if it exists
+            setPreTestCompleted(preTestQuizzes.length === 0);
         }
         fetchQuizzes();
     }, [course.id]);
@@ -59,6 +82,17 @@ export const CourseSidebar = ({
                 </div>
             </div>
             <div className="flex flex-col w-full">
+                {preTest.map((quiz) => (
+                    <CourseSidebarItem
+                        key={quiz.id}
+                        id={quiz.id}
+                        courseId={course.id}
+                        label={quiz.title || "Pre-Test"}
+                        isCompleted={false}
+                        isLocked={false}
+                        type="quiz"
+                    />
+                ))}
                 {chapters.map((chapter) => (
                     <CourseSidebarItem
                         key={chapter.id}
@@ -66,17 +100,16 @@ export const CourseSidebar = ({
                         courseId={chapter.courseId}
                         label={chapter.title}
                         isCompleted={completedChapterIds.has(chapter.id)}
-                        isLocked={false}
+                        isLocked={!preTestCompleted}
                         type="chapter"
                     />
                 ))}
-                {quizzes.map((quiz) => (
+                {postTest.map((quiz) => (
                     <CourseSidebarItem
                         key={quiz.id}
                         id={quiz.id}
                         courseId={course.id}
-                        // label={quiz.title || "Quiz"}
-                        label="Kuis"
+                        label={quiz.title || "Post-Test"}
                         isCompleted={false}
                         isLocked={progressCount < 100}
                         type="quiz"

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getQuizDetail } from "@/lib/firestore";
+import { getCourses } from "@/lib/firestore";
 
 export async function GET(request: Request) {
     try {
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
         const userId = searchParams.get("userId");
         const courseId = searchParams.get("courseId");
 
-        const result = await getQuizDetail("ekonomi_syariah_main", "fgbgLP1vvK1e1FpOys43");
+        const result = await getCourses();
 
         return NextResponse.json({
             success: true,

@@ -10,4 +10,5 @@ module.exports = withUt({
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
+  plugins: [require("@tailwindcss/typography")],
 });

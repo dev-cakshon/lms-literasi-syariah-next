@@ -1,13 +1,13 @@
 "use client";
 
-import { BarChart, Compass, Layout, List, BotMessageSquare } from "lucide-react";
+import { BarChart, BotMessageSquare,Compass, Layout, List } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/contexts/AuthContext";
 
 import { SidebarItem } from "./SidebarItem";
 
-const guestRoutes = [
+const userRoutes = [
     {
         icon: Layout,
         label: 'Dashboard',
@@ -23,32 +23,27 @@ const guestRoutes = [
         label: 'Chatbot',
         href: '/chatbot',
     },
-    // {
-    //     icon: BotMessageSquare,
-    //     label: 'Browse',
-    //     href: '/browse',
-    // },
 ];
 
-const teacherRoutes = [
+const adminRoutes = [
     {
         icon: List,
-        label: 'Courses',
-        href: '/teacher/courses',
+        label: 'User',
+        href: '/admin/user',
     },
     {
         icon: BarChart,
-        label: 'Analytics',
-        href: '/teacher/analytics',
+        label: 'Course',
+        href: '/admin/course',
     },
 ];
 
 const SidebarRoutes = () => {
     const pathname = usePathname();
-    const { isInstructor } = useAuth();
+    const { isAdmin } = useAuth();
 
-    const isTeacherPage = pathname?.includes('/teacher');
-    const routes = isTeacherPage ? teacherRoutes : guestRoutes;
+    const isAdminPage = pathname?.includes('/admin');
+    const routes = isAdmin && isAdminPage ? adminRoutes : userRoutes;
 
     return (
         <div className='flex flex-col w-full'>
@@ -62,17 +57,6 @@ const SidebarRoutes = () => {
                     />
                 );
             })}
-            
-            {/* Show teacher mode toggle for instructors */}
-            {isInstructor && !isTeacherPage && (
-                <div className="border-t mt-4 pt-4">
-                    <SidebarItem
-                        icon={List}
-                        label="Mode Instruktur"
-                        href="/teacher/courses"
-                    />
-                </div>
-            )}
         </div>
     );
 };

@@ -32,7 +32,7 @@ export const CourseCard = ({
 
     return (
         <Link href={`/course/${id}`}>
-            <div className="group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
+            <div className="bg-white group hover:shadow-sm transition overflow-hidden border rounded-lg p-3 h-full">
                 {normalizedImageUrl ? (
                     <div className="relative w-full aspect-video rounded-md overflow-hidden bg-slate-200">
                         <Image

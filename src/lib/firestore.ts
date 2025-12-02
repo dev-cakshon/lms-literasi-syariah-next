@@ -9,11 +9,14 @@ import {
     orderBy,
     query,
     QueryConstraint,
+    serverTimestamp,
     setDoc,
+    Timestamp,
     updateDoc,
     where,
 } from "firebase/firestore";
 
+import type { UserProfile, UserRole } from "@/types";
 import { db } from "./firebase";
 
 //----- Collections -----//
@@ -26,7 +29,19 @@ export const COLLECTIONS = {
 //----- Course -----//
 export const getCourses = async () => {
     const coursesSnapshot = await getDocs(collection(db, COLLECTIONS.COURSES));
-    return coursesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    return coursesSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt instanceof Timestamp
+                ? data.createdAt.toDate().toISOString()
+                : data.createdAt,
+            updatedAt: data.updatedAt instanceof Timestamp
+                ? data.updatedAt.toDate().toISOString()
+                : data.updatedAt,
+        };
+    });
 };
 
 //=== NOT EXIST YET ===//
@@ -118,6 +133,28 @@ export const getChapterDetail = async (courseId: string, chapterId: string) => {
     }
 };
 
+//----- Progress -----//
+export const createProgress = async (userId: string, courseId: string, chapterId: string) => {
+    const progressId = `${courseId}_${chapterId}_${userId}`;
+    const progressData = {
+        userId,
+        courseId,
+        chapterId,
+        isCompleted: true,
+        pointsAwarded: 0,
+        completedAt: serverTimestamp(),
+    };
+
+    try {
+        const progressRef = doc(db, COLLECTIONS.PROGRESS, progressId);
+        await setDoc(progressRef, progressData);
+        return { id: progressId, ...progressData };
+    } catch (error) {
+        console.error("Error creating progress:", error);
+        return null;
+    }
+};
+
 //----- Quiz -----//
 export const getQuizzesByCourse = async (courseId: string) => {
     try {
@@ -148,4 +185,67 @@ export const getQuizDetail = async (courseId: string, quizId: string) => {
         console.error(`Error fetching quiz ${quizId}:`, error);
         return null;
     }
+};
+
+//----- User -----//
+export const createUserProfile = async (userId: string, email: string, displayName?: string): Promise<UserProfile> => {
+    const now = Timestamp.now();
+    const profile = {
+        uid: userId,
+        email,
+        displayName: displayName || email.split("@")[0],
+        role: "student" as UserRole,
+        totalPoints: 0,
+        createdAt: now,
+        updatedAt: now,
+    };
+    await setDoc(doc(db, COLLECTIONS.USERS, userId), profile);
+
+    return {
+        ...profile,
+        createdAt: now.toDate().toISOString(),
+        updatedAt: now.toDate().toISOString(),
+    };
+};
+
+export const getUserDetail = async (userId: string | null | undefined): Promise<UserProfile | null> => {
+    if (!userId) return null;
+    try {
+        const ref = doc(db, COLLECTIONS.USERS, userId);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+            return null;
+        }
+        const data = snap.data();
+        const roleValue = (data.role as string) || "student";
+        const role: UserRole = ["admin", "student", "instructor"].includes(roleValue)
+            ? (roleValue as UserRole)
+            : "student";
+
+        // Convert Timestamp to ISO string if exists
+        const createdAt = data.createdAt instanceof Timestamp
+            ? data.createdAt.toDate().toISOString()
+            : (data.createdAt as string) || new Date().toISOString();
+        const updatedAt = data.updatedAt instanceof Timestamp
+            ? data.updatedAt.toDate().toISOString()
+            : (data.updatedAt as string) || new Date().toISOString();
+
+        return {
+            uid: userId,
+            email: (data.email as string) || "",
+            displayName: (data.displayName as string) || "",
+            role,
+            totalPoints: typeof data.totalPoints === "number" ? data.totalPoints : 0,
+            createdAt,
+            updatedAt,
+        };
+    } catch (error) {
+        return null;
+    }
+};
+
+export const getOrCreateUserProfile = async (userId: string, email: string, displayName?: string): Promise<UserProfile> => {
+    const existing = await getUserDetail(userId);
+    if (existing) return existing;
+    return await createUserProfile(userId, email, displayName);
 };

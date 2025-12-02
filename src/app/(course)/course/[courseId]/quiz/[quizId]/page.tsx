@@ -2,10 +2,9 @@
 import { Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { getQuizDetail, getQuizzesByCourse } from "@/lib/firestore";
+import { getQuizDetail } from "@/lib/firestore";
 
 import Button from "@/components/buttons/Button";
-import { IconBadge } from "@/components/IconBadge"
 import { type Question, MultipleAnswer } from "@/components/quiz/MultipleAnswer";
 
 interface QuizPageProps {
@@ -141,16 +140,16 @@ export default function QuizPage({ params }: QuizPageProps) {
 
         return (
             <div className="flex flex-col items-center justify-center max-w-6xl mx-auto p-6">
-                    <div className="flex flex-col items-center justify-center h-full text-center">
-                        <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mb-4">
-                            <Trophy className="w-8 h-8 text-primary-600" />
-                        </div>
-                        <h1 className="text-3xl font-bold mb-4">{quizTitle}</h1>
-                        <p className="text-gray-600 mb-6">
-                            {quizData.length} Soal - {totalPoints} Poin
-                        </p>
-                        <Button onClick={handleStartQuiz}>Mulai Kuis</Button>
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mb-4">
+                        <Trophy className="w-8 h-8 text-primary-600" />
                     </div>
+                    <h1 className="text-3xl font-bold mb-4">{quizTitle}</h1>
+                    <p className="text-gray-600 mb-6">
+                        {quizData.length} Soal - {totalPoints} Poin
+                    </p>
+                    <Button onClick={handleStartQuiz}>Mulai Kuis</Button>
+                </div>
             </div>
         );
     }

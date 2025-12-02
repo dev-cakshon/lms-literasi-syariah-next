@@ -11,7 +11,7 @@ export interface CourseCardProps {
     href: string; // Link to course page
 }
 
-export const CourseCard = ({
+export const LandingCourseCard = ({
     title,
     illustration,
     duration,

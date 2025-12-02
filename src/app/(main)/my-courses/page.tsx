@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { getCourses, getUserProgress } from "@/lib/firestore";
 
 import { CourseList } from "@/components/course-list/CourseList";
-import { InfoCard } from "@/components/InfoCard";
+import { InfoCard } from "@/components/course-list/InfoCard";
 
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -17,6 +17,7 @@ interface DisplayCourse {
     progress: number;
     category: string;
     chaptersLength: number;
+    createdAt?: string;
 }
 
 export default function MyCoursesPage() {
@@ -49,6 +50,7 @@ export default function MyCoursesPage() {
 
                 // Fetch all courses (one-time)
                 const userCourses = await getCourses();
+                console.log("Fetched user courses:", userCourses);
 
                 // Calculate progress for each course
                 const mapped: DisplayCourse[] = userCourses
@@ -66,13 +68,17 @@ export default function MyCoursesPage() {
                             progress: progressPct,
                             category: (course as Record<string, unknown>).categoryId as string || "",
                             chaptersLength: totalChapters,
+                            createdAt: (course as Record<string, unknown>).createdAt as string || undefined,
                         };
                     })
-                    .filter((c) => {
-                        // Only show courses with progress > 0%
-                        const hasProgress = completedChapterCounts[c.id] || 0;
-                        return hasProgress > 0;
-                    });
+                    // sort courses based on createdAt (newest first)
+                    .sort((a, b) => {
+                        const ad = a.createdAt ? Date.parse(a.createdAt) : 0;
+                        const bd = b.createdAt ? Date.parse(b.createdAt) : 0;
+                        const output = ad - bd;
+                        return output;
+                    })
+                    ;
 
                 setCourses(mapped);
             } catch (error) {
@@ -87,7 +93,7 @@ export default function MyCoursesPage() {
 
     if (authLoading || loading) {
         return (
-            <div className="p-6 flex items-center justify-center h-full">
+            <div className="p-6 bg-gradient-to-br from-slate-50 to-gray-100 flex items-center justify-center h-full">
                 <p className="text-sm text-muted-foreground">Memuat...</p>
             </div>
         );
@@ -95,7 +101,7 @@ export default function MyCoursesPage() {
 
     if (!user) {
         return (
-            <div className="p-6">
+            <div className="p-6 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen">
                 <p className="text-sm text-muted-foreground">Silakan login untuk melihat kursus Anda.</p>
             </div>
         );
@@ -105,7 +111,7 @@ export default function MyCoursesPage() {
     const courseInProgress = courses.filter((c) => c.progress !== null && c.progress < 100);
 
     return (
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <InfoCard icon={Clock} label="In Progress" numberOfItems={courseInProgress.length} />
                 <InfoCard icon={CheckCircle} label="Completed" numberOfItems={completedCourses.length} variant="success" />

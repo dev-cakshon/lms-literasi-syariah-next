@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -37,6 +37,7 @@ interface CourseLayoutClientProps {
 
 function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
     const router = useRouter();
+    const pathname = usePathname();
     const { user } = useAuth();
     const [course, setCourse] = useState<Course | null>(null);
     const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -111,7 +112,7 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
         }
 
         fetchData();
-    }, [user, courseId, router]);
+    }, [user, courseId, router, pathname]);
 
     if (loading || !course) {
         return (

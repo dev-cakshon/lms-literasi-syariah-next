@@ -8,6 +8,6 @@ export const Logo = () => {
         //     alt="logo svg"
         //     src="/logo.svg"
         // />
-        <h1>Ekonomi Syariah</h1>
+        <h1>EaSyariah</h1>
     );
 }

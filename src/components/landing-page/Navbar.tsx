@@ -16,7 +16,7 @@ export const Navbar = () => {
                 {/* Logo */}
                 <div className='flex items-center'>
                     {/* <Logo className='h-8 w-8' /> */}
-                    <h1>TEST LOGO</h1>
+                    <h1>EaSyariah</h1>
                 </div>
 
                 {/* Desktop Navigation */}
@@ -39,13 +39,13 @@ export const Navbar = () => {
                     >
                         Fitur
                     </UnstyledLink>
-                    <ButtonLink href='/dashboard'>Dashboard</ButtonLink>
-                    <ButtonLink href='/login' variant='light'>
+                    {/* <ButtonLink href='/dashboard'>Dashboard</ButtonLink> */}
+                    <ButtonLink href='/login' variant='primary'>
                         Masuk
                     </ButtonLink>
-                    <ButtonLink href='/signup' variant='primary'>
+                    {/* <ButtonLink href='/signup' variant='primary'>
                         Daftar
-                    </ButtonLink>
+                    </ButtonLink> */}
                 </div>
 
                 {/* Mobile Menu Button */}

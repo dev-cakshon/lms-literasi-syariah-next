@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,7 +12,6 @@ export const LoginForm = () => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const { signIn, signInWithGoogle } = useAuth();
-    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,23 +20,25 @@ export const LoginForm = () => {
 
         try {
             await signIn(email, password);
-            router.push("/dashboard");
-        } catch (err: any) {
-            setError(err.message || "Gagal masuk. Periksa email dan password Anda.");
+            // Redirect handled at page level once profile loaded.
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "Gagal masuk. Periksa email dan password Anda.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleGoogleSignIn = async () => {
+    const _handleGoogleSignIn = async () => {
         setError("");
         setLoading(true);
 
         try {
             await signInWithGoogle();
-            router.push("/dashboard");
-        } catch (err: any) {
-            setError(err.message || "Gagal masuk dengan Google.");
+            // Redirect handled at page level once profile loaded.
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "Gagal masuk dengan Google.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -110,7 +111,7 @@ export const LoginForm = () => {
                     </div>
 
                     <button
-                        onClick={handleGoogleSignIn}
+                        onClick={_handleGoogleSignIn}
                         disabled={loading}
                         className="mt-4 w-full flex items-center justify-center gap-3 bg-white border border-slate-300 text-slate-700 py-2 rounded-md hover:bg-slate-50 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                     >

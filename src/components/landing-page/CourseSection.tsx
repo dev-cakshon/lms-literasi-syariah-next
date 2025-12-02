@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { CourseCard, CourseCardProps } from "./CourseCard";
+import { CourseCardProps, LandingCourseCard } from "./LandingCourseCard";
 import ButtonLink from "../links/ButtonLink";
 
 // Course data type
@@ -97,7 +97,7 @@ export const CourseSection = () => {
                 {/* Courses Grid */}
                 <div className='grid gap-6 md:grid-cols-2 lg:gap-8'>
                     {courses.map((course, index) => (
-                        <CourseCard
+                        <LandingCourseCard
                             key={index}
                             title={course.title}
                             illustration={course.illustration}
@@ -110,7 +110,7 @@ export const CourseSection = () => {
 
                 {/* Bottom CTA - View All Courses */}
                 <div className='mt-12 text-center'>
-                    <ButtonLink href='/browse'>
+                    <ButtonLink href='/course'>
                         Lihat Semua Kursus
                     </ButtonLink>
                 </div>

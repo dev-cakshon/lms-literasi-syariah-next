@@ -12,6 +12,7 @@ import {
 import { createContext, useContext, useEffect, useState } from "react";
 
 import { getAuthInstance } from "@/lib/firebase";
+import { getOrCreateUserProfile } from "@/lib/firestore";
 
 import type { UserProfile } from "@/types";
 
@@ -67,10 +68,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         console.log("🔒 Real auth enabled, checking Firebase auth state...");
         const auth = getAuthInstance();
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            console.log("🔄 Auth state changed:", user ? user.email : "No user");
-            setUser(user);
-            // TODO: Fetch user profile from Firestore
+        const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+            setUser(authUser);
+            if (authUser) {
+                const profile = await getOrCreateUserProfile(
+                    authUser.uid,
+                    authUser.email || "",
+                    authUser.displayName || undefined
+                );
+                setUserProfile(profile);
+            } else {
+                setUserProfile(null);
+            }
             setLoading(false);
         });
 
@@ -83,7 +92,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return;
         }
         const auth = getAuthInstance();
-        await signInWithEmailAndPassword(auth, email, password);
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        const profile = await getOrCreateUserProfile(
+            cred.user.uid,
+            cred.user.email || email,
+            cred.user.displayName || undefined
+        );
+        setUserProfile(profile);
     };
 
     const signUp = async (email: string, password: string) => {
@@ -92,7 +107,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return;
         }
         const auth = getAuthInstance();
-        await createUserWithEmailAndPassword(auth, email, password);
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const profile = await getOrCreateUserProfile(
+            cred.user.uid,
+            cred.user.email || email,
+            cred.user.displayName || undefined
+        );
+        setUserProfile(profile);
     };
 
     const signInWithGoogle = async () => {
@@ -102,7 +123,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
         const auth = getAuthInstance();
         const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
+        const cred = await signInWithPopup(auth, provider);
+        const profile = await getOrCreateUserProfile(
+            cred.user.uid,
+            cred.user.email || "",
+            cred.user.displayName || undefined
+        );
+        setUserProfile(profile);
     };
 
     const logout = async () => {
@@ -112,6 +139,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
         const auth = getAuthInstance();
         await firebaseSignOut(auth);
+        setUserProfile(null);
     };
 
     const isAdmin = userProfile?.role === "admin";
