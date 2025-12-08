@@ -3,7 +3,7 @@
 import { CheckCircle, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { getCourses, getUserProgress } from "@/lib/firestore";
+import { subscribeToCourses, subscribeToUserProgress } from "@/lib/firestore";
 
 import { CourseList } from "@/components/course-list/CourseList";
 import { InfoCard } from "@/components/course-list/InfoCard";
@@ -32,63 +32,69 @@ export default function MyCoursesPage() {
             return;
         }
 
-        async function fetchData() {
-            if (!user) return;
+        let userProgressData: Record<string, unknown>[] = [];
+        let coursesData: Record<string, unknown>[] = [];
 
-            try {
-                // Fetch all user progress (one-time)
-                const userProgress = await getUserProgress(user.uid);
+        const calculateCourses = () => {
+            // Map: courseId -> number of chapters completed
+            const completedChapterCounts: Record<string, number> = {};
+            userProgressData.forEach((progress) => {
+                const courseId = progress.courseId as string;
+                if (courseId) {
+                    completedChapterCounts[courseId] = (completedChapterCounts[courseId] || 0) + 1;
+                }
+            });
 
-                // Map: courseId -> number of chapters completed
-                const completedChapterCounts: Record<string, number> = {};
-                userProgress.forEach((progress) => {
-                    const courseId = (progress as Record<string, unknown>).courseId as string;
-                    if (courseId) {
-                        completedChapterCounts[courseId] = (completedChapterCounts[courseId] || 0) + 1;
-                    }
+            // Calculate progress for each course
+            const mapped: DisplayCourse[] = coursesData
+                .map((course) => {
+                    const completedChapters = completedChapterCounts[course.id as string] || 0;
+                    const totalChapters = course.totalChapters as number || 0;
+                    const progressPct = totalChapters > 0
+                        ? Math.round((completedChapters / totalChapters) * 100)
+                        : 0;
+
+                    return {
+                        id: course.id as string,
+                        title: course.title as string || "Untitled Course",
+                        imageUrl: course.imageUrl as string || null,
+                        progress: progressPct,
+                        category: course.categoryId as string || "",
+                        chaptersLength: totalChapters,
+                        createdAt: course.createdAt as string || undefined,
+                    };
+                })
+                // sort courses based on createdAt (newest first)
+                .sort((a, b) => {
+                    const ad = a.createdAt ? Date.parse(a.createdAt) : 0;
+                    const bd = b.createdAt ? Date.parse(b.createdAt) : 0;
+                    return bd - ad;
                 });
 
-                // Fetch all courses (one-time)
-                const userCourses = await getCourses();
-                console.log("Fetched user courses:", userCourses);
+            setCourses(mapped);
+            setLoading(false);
+        };
 
-                // Calculate progress for each course
-                const mapped: DisplayCourse[] = userCourses
-                    .map((course) => {
-                        const completedChapters = completedChapterCounts[course.id] || 0;
-                        const totalChapters = (course as Record<string, unknown>).totalChapters as number || 0;
-                        const progressPct = totalChapters > 0
-                            ? Math.round((completedChapters / totalChapters) * 100)
-                            : 0;
-
-                        return {
-                            id: course.id,
-                            title: (course as Record<string, unknown>).title as string || "Untitled Course",
-                            imageUrl: (course as Record<string, unknown>).imageUrl as string || null,
-                            progress: progressPct,
-                            category: (course as Record<string, unknown>).categoryId as string || "",
-                            chaptersLength: totalChapters,
-                            createdAt: (course as Record<string, unknown>).createdAt as string || undefined,
-                        };
-                    })
-                    // sort courses based on createdAt (newest first)
-                    .sort((a, b) => {
-                        const ad = a.createdAt ? Date.parse(a.createdAt) : 0;
-                        const bd = b.createdAt ? Date.parse(b.createdAt) : 0;
-                        const output = ad - bd;
-                        return output;
-                    })
-                    ;
-
-                setCourses(mapped);
-            } catch (error) {
-                // Error fetching data
-            } finally {
-                setLoading(false);
+        // Subscribe to user progress
+        const unsubProgress = subscribeToUserProgress(user.uid, (progress) => {
+            userProgressData = progress;
+            if (coursesData.length > 0) {
+                calculateCourses();
             }
-        }
+        });
 
-        fetchData();
+        // Subscribe to courses
+        const unsubCourses = subscribeToCourses((courses) => {
+            coursesData = courses;
+            if (userProgressData.length > 0 || coursesData.length > 0) {
+                calculateCourses();
+            }
+        });
+
+        return () => {
+            unsubProgress();
+            unsubCourses();
+        };
     }, [authLoading, user]);
 
     if (authLoading || loading) {

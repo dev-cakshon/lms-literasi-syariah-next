@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { getQuizzesByCourse } from "@/lib/firestore";
+import { subscribeToQuizzesByCourse } from "@/lib/firestore";
 
 import { CourseSidebarItem } from "./CourseSidebarItem";
 import { CourseProgress } from "../course-list/CourseProgress";
@@ -41,13 +41,11 @@ export const CourseSidebar = ({
     const progressCount = chapters.length > 0 ? (completedChapters / chapters.length) * 100 : 0;
 
     useEffect(() => {
-        async function fetchQuizzes() {
-            const fetchedQuizzes = await getQuizzesByCourse(course.id);
-
+        const unsubscribe = subscribeToQuizzesByCourse(course.id, (fetchedQuizzes) => {
             const preTestQuizzes = fetchedQuizzes.filter((q) =>
                 (q as { type?: string }).type === "preTest"
             ).map((q) => ({
-                id: q.id,
+                id: q.id as string,
                 title: (q as { title?: string }).title || "Pre-Test",
                 type: "preTest",
             }));
@@ -55,7 +53,7 @@ export const CourseSidebar = ({
             const postTestQuizzes = fetchedQuizzes.filter((q) =>
                 (q as { type?: string }).type === "postTest"
             ).map((q) => ({
-                id: q.id,
+                id: q.id as string,
                 title: (q as { title?: string }).title || "Post-Test",
                 type: "postTest",
             }));
@@ -66,8 +64,11 @@ export const CourseSidebar = ({
             // TODO: Fetch actual completion status from progress
             // For now, assume pre-test is completed if it exists
             setPreTestCompleted(preTestQuizzes.length === 0);
-        }
-        fetchQuizzes();
+        });
+
+        return () => {
+            unsubscribe();
+        };
     }, [course.id]);
 
     return (

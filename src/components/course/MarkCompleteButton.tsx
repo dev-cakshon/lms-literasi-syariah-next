@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { createProgress, getChaptersByCourse, getProgressByCourse } from "@/lib/firestore";
+import { createProgress, getChaptersByCourse, subscribeToProgressByCourse } from "@/lib/firestore";
 
 import Button from "@/components/buttons/Button";
 
@@ -28,23 +28,20 @@ export const MarkCompleteButton = ({ courseId, chapterId }: MarkCompleteButtonPr
 
     // Hide button if chapter already completed
     useEffect(() => {
-        let mounted = true;
-        const check = async () => {
-            if (!user) {
-                // Unknown completion when not logged in; allow showing button (will prompt login)
-                setIsCompleted(null);
-                return;
-            }
-            try {
-                const progress = await getProgressByCourse(user.uid, courseId);
-                const done = progress.progressDetail.some(p => p.chapterId === chapterId && !!p.isCompleted);
-                if (mounted) setIsCompleted(done);
-            } catch {
-                if (mounted) setIsCompleted(null);
-            }
+        if (!user) {
+            // Unknown completion when not logged in; allow showing button (will prompt login)
+            setIsCompleted(null);
+            return;
+        }
+
+        const unsubscribe = subscribeToProgressByCourse(user.uid, courseId, (progress) => {
+            const done = progress.progressDetail.some(p => p.chapterId === chapterId && !!p.isCompleted);
+            setIsCompleted(done);
+        });
+
+        return () => {
+            unsubscribe();
         };
-        check();
-        return () => { mounted = false; };
     }, [user, courseId, chapterId]);
 
     const handleMarkComplete = async () => {

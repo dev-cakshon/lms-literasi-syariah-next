@@ -4,9 +4,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
-    getChaptersByCourse,
-    getCourseDetail,
-    getProgressByCourse,
+    subscribeToChaptersByCourse,
+    subscribeToCourseDetail,
+    subscribeToProgressByCourse,
 } from "@/lib/firestore";
 
 import { CourseNavbar } from "@/components/course/CourseNavbar";
@@ -50,68 +50,64 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
             return;
         }
 
-        async function fetchData() {
-            if (!user) return;
-
-            try {
-                // Fetch course detail
-                const courseData = await getCourseDetail(courseId);
-                if (!courseData) {
-                    router.push("/");
-                    return;
-                }
-
-                type CourseData = { title?: string; price?: number };
-                const data = courseData as CourseData;
-
-                setCourse({
-                    id: courseData.id,
-                    title: data.title || "Untitled Course",
-                    price: data.price || 0,
-                });
-
-                // Fetch chapters
-                const chaptersData = await getChaptersByCourse(courseId);
-                console.log("Chapters Data:", chaptersData);
-                type ChapterData = {
-                    id: string;
-                    title?: string;
-                    content?: string;
-                    videoUrl?: string;
-                    order?: number;
-                    isFree?: boolean;
-                };
-                const formattedChapters: Chapter[] = chaptersData.map((doc: ChapterData & { id: string }) => {
-                    const data = doc as ChapterData;
-                    return {
-                        id: doc.id,
-                        courseId: courseId,
-                        title: data.title || "Untitled Chapter",
-                        content: data.content || "",
-                        videoUrl: data.videoUrl || "",
-                        order: data.order || 0,
-                        isFree: data.isFree || false,
-                    };
-                });
-                setChapters(formattedChapters);
-
-                // Fetch progress
-                const progressData = await getProgressByCourse(user.uid, courseId);
-                console.log("Progress Data:", progressData);
-                const completed = new Set<string>(
-                    progressData.progressDetail
-                        .filter((p) => p.isCompleted)
-                        .map((p) => p.chapterId)
-                );
-                setCompletedChapterIds(completed);
-            } catch (error) {
-                // Error fetching course data
-            } finally {
-                setLoading(false);
+        // Subscribe to course detail
+        const unsubCourse = subscribeToCourseDetail(courseId, (courseData) => {
+            if (!courseData) {
+                router.push("/");
+                return;
             }
-        }
 
-        fetchData();
+            type CourseData = { title?: string; price?: number };
+            const data = courseData as CourseData;
+
+            setCourse({
+                id: courseData.id as string,
+                title: data.title || "Untitled Course",
+                price: data.price || 0,
+            });
+            setLoading(false);
+        });
+
+        // Subscribe to chapters
+        const unsubChapters = subscribeToChaptersByCourse(courseId, (chaptersData) => {
+            type ChapterData = {
+                id: string;
+                title?: string;
+                content?: string;
+                videoUrl?: string;
+                order?: number;
+                isFree?: boolean;
+            };
+            const formattedChapters: Chapter[] = chaptersData.map((doc) => {
+                const data = doc as ChapterData;
+                return {
+                    id: doc.id as string,
+                    courseId: courseId,
+                    title: data.title || "Untitled Chapter",
+                    content: data.content || "",
+                    videoUrl: data.videoUrl || "",
+                    order: data.order || 0,
+                    isFree: data.isFree || false,
+                };
+            });
+            setChapters(formattedChapters);
+        });
+
+        // Subscribe to progress
+        const unsubProgress = subscribeToProgressByCourse(user.uid, courseId, (progressData) => {
+            const completed = new Set<string>(
+                progressData.progressDetail
+                    .filter((p) => p.isCompleted)
+                    .map((p) => p.chapterId)
+            );
+            setCompletedChapterIds(completed);
+        });
+
+        return () => {
+            unsubCourse();
+            unsubChapters();
+            unsubProgress();
+        };
     }, [user, courseId, router, pathname]);
 
     if (loading || !course) {

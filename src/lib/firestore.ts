@@ -6,6 +6,7 @@ import {
     DocumentData,
     getDoc,
     getDocs,
+    onSnapshot,
     orderBy,
     query,
     QueryConstraint,
@@ -16,8 +17,9 @@ import {
     where,
 } from "firebase/firestore";
 
-import type { UserProfile, UserRole } from "@/types";
 import { db } from "./firebase";
+
+import type { UserProfile, UserRole } from "@/types";
 
 //----- Collections -----//
 export const COLLECTIONS = {
@@ -27,21 +29,30 @@ export const COLLECTIONS = {
 } as const;
 
 //----- Course -----//
-export const getCourses = async () => {
-    const coursesSnapshot = await getDocs(collection(db, COLLECTIONS.COURSES));
-    return coursesSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            ...data,
-            createdAt: data.createdAt instanceof Timestamp
-                ? data.createdAt.toDate().toISOString()
-                : data.createdAt,
-            updatedAt: data.updatedAt instanceof Timestamp
-                ? data.updatedAt.toDate().toISOString()
-                : data.updatedAt,
-        };
-    });
+export const subscribeToCourses = (callback: (courses: Record<string, unknown>[]) => void) => {
+    const unsubscribe = onSnapshot(
+        collection(db, COLLECTIONS.COURSES),
+        (snapshot) => {
+            const courses = snapshot.docs.map((doc) => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt instanceof Timestamp
+                        ? data.createdAt.toDate().toISOString()
+                        : data.createdAt,
+                    updatedAt: data.updatedAt instanceof Timestamp
+                        ? data.updatedAt.toDate().toISOString()
+                        : data.updatedAt,
+                };
+            });
+            callback(courses);
+        },
+        (_error) => {
+            callback([]);
+        }
+    );
+    return unsubscribe;
 };
 
 //=== NOT EXIST YET ===//
@@ -50,71 +61,92 @@ export const getCourses = async () => {
 //     return "courses owned by " + userId;
 // };
 
-export const getCourseDetail = async (courseId: string) => {
-    try {
-        const courseDoc = await getDoc(doc(db, COLLECTIONS.COURSES, courseId));
-        if (!courseDoc.exists()) {
-            console.log(`Course not found: ${courseId}`);
-            return null;
+export const subscribeToCourseDetail = (courseId: string, callback: (course: Record<string, unknown> | null) => void) => {
+    const unsubscribe = onSnapshot(
+        doc(db, COLLECTIONS.COURSES, courseId),
+        (docSnap) => {
+            if (docSnap.exists()) {
+                callback({ id: docSnap.id, ...docSnap.data() });
+            } else {
+                callback(null);
+            }
+        },
+        (_error) => {
+            callback(null);
         }
-        return { id: courseDoc.id, ...courseDoc.data() };
-    } catch (error) {
-        console.error(`Error fetching course ${courseId}:`, error);
-        return null;
-    }
+    );
+    return unsubscribe;
 };
 
 //----- Progress -----//
-export const getUserProgress = async (userId: string) => {
+export const subscribeToUserProgress = (userId: string, callback: (progress: Record<string, unknown>[]) => void) => {
     const q = query(
         collection(db, COLLECTIONS.PROGRESS),
         where("userId", "==", userId)
     );
-    const progressSnapshot = await getDocs(q);
-    return progressSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    }));
+    const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+            const progress = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            callback(progress);
+        },
+        (_error) => {
+            callback([]);
+        }
+    );
+    return unsubscribe;
 };
 
-export const getProgressByCourse = async (userId: string, courseId: string) => {
+export const subscribeToProgressByCourse = (userId: string, courseId: string, callback: (progress: { userId: string; courseId: string; progressDetail: { chapterId: string; isCompleted: boolean; pointsAwarded: number }[] }) => void) => {
     const q = query(
         collection(db, COLLECTIONS.PROGRESS),
         where("userId", "==", userId),
         where("courseId", "==", courseId)
     );
-    const progressSnapshot = await getDocs(q);
-
-    // Return chapters array (each doc is a chapter progress)
-    const progressDetail = progressSnapshot.docs.map(doc => ({
-        chapterId: doc.data().chapterId,
-        isCompleted: doc.data().isCompleted || false,
-        pointsAwarded: doc.data().pointsAwarded || 0,
-    }));
-
-    return {
-        userId,
-        courseId,
-        progressDetail
-    };
+    const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+            const progressDetail = snapshot.docs.map(doc => ({
+                chapterId: doc.data().chapterId,
+                isCompleted: doc.data().isCompleted || false,
+                pointsAwarded: doc.data().pointsAwarded || 0,
+            }));
+            callback({
+                userId,
+                courseId,
+                progressDetail
+            });
+        },
+        (_error) => {
+            callback({ userId, courseId, progressDetail: [] });
+        }
+    );
+    return unsubscribe;
 };
 
 //----- Chapter -----//
-export const getChaptersByCourse = async (courseId: string) => {
-    try {
-        const q = query(
-            collection(db, COLLECTIONS.COURSES, courseId, "chapters"),
-            orderBy("order")
-        );
-        const chaptersSnapshot = await getDocs(q);
-        return chaptersSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-    } catch (error) {
-        console.error(`Error fetching chapters for course ${courseId}:`, error);
-        return [];
-    }
+export const subscribeToChaptersByCourse = (courseId: string, callback: (chapters: Record<string, unknown>[]) => void) => {
+    const q = query(
+        collection(db, COLLECTIONS.COURSES, courseId, "chapters"),
+        orderBy("order")
+    );
+    const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+            const chapters = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            callback(chapters);
+        },
+        (_error) => {
+            callback([]);
+        }
+    );
+    return unsubscribe;
 };
 
 export const getChapterDetail = async (courseId: string, chapterId: string) => {
@@ -156,6 +188,40 @@ export const createProgress = async (userId: string, courseId: string, chapterId
 };
 
 //----- Quiz -----//
+export const subscribeToQuizzesByCourse = (courseId: string, callback: (quizzes: Record<string, unknown>[]) => void) => {
+    const unsubscribe = onSnapshot(
+        collection(db, COLLECTIONS.COURSES, courseId, "quizzes"),
+        (snapshot) => {
+            const quizzes = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            callback(quizzes);
+        },
+        (_error) => {
+            callback([]);
+        }
+    );
+    return unsubscribe;
+};
+
+// Sync versions for server components
+export const getChaptersByCourse = async (courseId: string) => {
+    try {
+        const q = query(
+            collection(db, COLLECTIONS.COURSES, courseId, "chapters"),
+            orderBy("order")
+        );
+        const chaptersSnapshot = await getDocs(q);
+        return chaptersSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    } catch (error) {
+        return [];
+    }
+};
+
 export const getQuizzesByCourse = async (courseId: string) => {
     try {
         const quizzesSnapshot = await getDocs(
@@ -166,7 +232,6 @@ export const getQuizzesByCourse = async (courseId: string) => {
             ...doc.data()
         }));
     } catch (error) {
-        console.error(`Error fetching quizzes for course ${courseId}:`, error);
         return [];
     }
 };

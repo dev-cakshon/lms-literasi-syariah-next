@@ -2,7 +2,7 @@
 import { AlertCircle, Bot } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { ChatHistoryItem,sendChatMessage } from "@/lib/chatbot";
+import { ChatHistoryItem, sendChatMessage } from "@/lib/chatbot";
 
 import { ChatInput } from "@/components/chatbot/ChatInput";
 import { ChatMessage } from "@/components/chatbot/ChatMessage";
@@ -72,9 +72,9 @@ export default function ChatbotPage() {
     };
 
     return (
-        <div className="flex flex-col h-full max-h-screen">
+        <div className="flex flex-col h-full max-h-screen bg-gray-50">
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto bg-gray-50 p-6">
+            <div className="flex-1 overflow-y-auto p-6">
                 <div className="max-w-6xl mx-auto space-y-4">
                     {error && (
                         <div className="flex items-center gap-2 p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm">
@@ -125,9 +125,10 @@ export default function ChatbotPage() {
                     )}
                 </div>
             </div>
-
-            {/* Chat Input */}
-            <ChatInput onSend={handleSendMessage} disabled={isLoading} />
+            <div className="">
+                {/* Chat Input */}
+                <ChatInput onSend={handleSendMessage} disabled={isLoading} />
+            </div>
         </div>
     );
 }
