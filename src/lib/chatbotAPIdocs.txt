@@ -1,0 +1,35 @@
+1. Get History Endpoint
+GET /api/v1/chats/{chat_id}
+
+Successful Response
+[
+  {
+    "role": "string",
+    "content": "string",
+    "timestamp": "string"
+  }
+]
+
+2. Chat Endpoint
+POST /api/v1/chats/{chat_id}/message
+
+Request Body
+{
+  "userId": "string",
+  "newMessage": "string"
+}
+
+Successful Response
+"string"
+
+3. Create Chat Endpoint: Endpoint khusus buat chat pertama/chat baru.
+POST /api/v1/chats/new
+
+Request Body
+{
+  "userId": "string",
+  "newMessage": "string"
+}
+
+Successful Response
+"string"

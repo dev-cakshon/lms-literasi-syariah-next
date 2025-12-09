@@ -6,157 +6,166 @@
 		- NEXT_PUBLIC_CHATBOT_API_BASE
 		- NEXT_PUBLIC_CHATBOT_API_KEY
 
+	API Endpoints:
+		1. GET /api/v1/chats/{chat_id} - Get chat history
+		2. POST /api/v1/chats/{chat_id}/message - Send message to existing chat
+		3. POST /api/v1/chats/new - Create new chat
+
 	Contoh penggunaan:
-		import { sendChatMessage } from '@/lib/chatbot';
-		const res = await sendChatMessage('Apa prinsip dasar ekonomi syariah?', []);
-		console.log(res.reply);
+		import { createNewChat, sendMessage, getChatHistory } from '@/lib/chatbot';
+		
+		// Create new chat
+		const reply = await createNewChat('user123', 'Apa prinsip dasar ekonomi syariah?');
+		
+		// Send message to existing chat
+		const response = await sendMessage('chat123', 'user123', 'Jelaskan lebih lanjut');
+		
+		// Get chat history
+		const history = await getChatHistory('chat123');
 */
 
 import { CHATBOT_API_BASE, CHATBOT_API_KEY } from '@/constant/env';
 
-export type ChatRole = 'user' | 'bot';
-
 export interface ChatHistoryItem {
-	role: ChatRole;
-	content: string;
+  role: string;
+  content: string;
+  timestamp: string;
 }
 
-export interface ChatRequestPayload {
-	message: string;
-	history: ChatHistoryItem[];
+export interface ChatMessageRequest {
+  userId: string;
+  newMessage: string;
 }
 
-export interface ChatResponse {
-	reply: string; // teks jawaban bot sudah dipilih
-	raw: unknown;  // raw response JSON untuk debugging / fitur lanjutan
+function ensureConfigured() {
+  if (!CHATBOT_API_BASE || CHATBOT_API_BASE.trim() === '') {
+    throw new Error('CHATBOT_API_BASE belum dikonfigurasi');
+  }
+  if (!CHATBOT_API_KEY || CHATBOT_API_KEY.trim() === '') {
+    throw new Error('CHATBOT_API_KEY belum dikonfigurasi');
+  }
 }
 
-export interface ChatbotAPIOptions {
-	baseUrl?: string;        // override base url bila perlu
-	apiKey?: string;         // override api key bila perlu
-	signal?: AbortSignal;    // untuk pembatalan request
-	maxHistory?: number;     // limit jumlah history yang dikirim
-	retries?: number;        // jumlah retry otomatis
-	retryDelayMs?: number;   // jeda antar retry
+/**
+ * Get chat history
+ * GET /api/v1/chats/{chat_id}
+ */
+export async function getChatHistory(
+  chatId: string
+): Promise<ChatHistoryItem[]> {
+  ensureConfigured();
+
+  const res = await fetch(`${CHATBOT_API_BASE}/api/v1/chats/${chatId}`, {
+    method: 'GET',
+    headers: {
+      'X-API-KEY': CHATBOT_API_KEY,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to get chat history: ${res.status}`);
+  }
+
+  return await res.json();
 }
 
-const DEFAULT_RETRIES = 2;
-const DEFAULT_RETRY_DELAY = 600;
+/**
+ * Send message to existing chat
+ * POST /api/v1/chats/{chat_id}/message
+ */
+export async function sendMessage(
+  chatId: string,
+  userId: string,
+  newMessage: string
+): Promise<string> {
+  ensureConfigured();
 
-function ensureConfigured(baseUrl?: string, apiKey?: string) {
-	if (!baseUrl || baseUrl.trim() === '') {
-		throw new Error('CHATBOT_API_BASE belum dikonfigurasi');
-	}
-	if (!apiKey || apiKey.trim() === '') {
-		throw new Error('CHATBOT_API_KEY belum dikonfigurasi');
-	}
+  const payload: ChatMessageRequest = {
+    userId,
+    newMessage,
+  };
+
+  const res = await fetch(
+    `${CHATBOT_API_BASE}/api/v1/chats/${chatId}/message`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-KEY': CHATBOT_API_KEY,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Failed to send message: ${res.status}`);
+  }
+
+  const data = await res.json();
+
+  // Handle string response
+  if (typeof data === 'string') {
+    return data;
+  }
+
+  // Handle object response
+  return data.reply || data.message || data.response || String(data);
 }
 
-function buildPayload(message: string, history: ChatHistoryItem[], maxHistory?: number): ChatRequestPayload {
-	const trimmedHistory = maxHistory && maxHistory > 0
-		? history.slice(-maxHistory)
-		: history;
-	return {
-		message,
-		history: trimmedHistory.map(h => ({ role: h.role, content: h.content }))
-	};
+export interface CreateChatResponse {
+  chatId: string;
+  reply: string;
 }
 
-function parseReply(json: unknown): string {
-	if (json == null) return '';
-	if (typeof json === 'string') return json;
-	if (typeof json === 'object') {
-		const obj = json as Record<string, unknown>;
-		// Check for "response" field first (API format)
-		if (typeof (obj as { response?: unknown }).response === 'string') {
-			return (obj as { response: string }).response;
-		}
-		if (typeof (obj as { reply?: unknown }).reply === 'string') {
-			return (obj as { reply: string }).reply;
-		}
-		if (typeof (obj as { message?: unknown }).message === 'string') {
-			return (obj as { message: string }).message;
-		}
-		return JSON.stringify(obj);
-	}
-	return String(json);
+/**
+ * Create new chat
+ * POST /api/v1/chats/new
+ */
+export async function createNewChat(
+  userId: string,
+  newMessage: string
+): Promise<CreateChatResponse> {
+  ensureConfigured();
+
+  const payload: ChatMessageRequest = {
+    userId,
+    newMessage,
+  };
+
+  const res = await fetch(`${CHATBOT_API_BASE}/api/v1/chats/new`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-KEY': CHATBOT_API_KEY,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to create new chat: ${res.status}`);
+  }
+
+  const data = await res.json();
+
+  // If API returns just a string, we need to generate chatId
+  if (typeof data === 'string') {
+    return {
+      chatId: Date.now().toString(),
+      reply: data,
+    };
+  }
+
+  // If API returns an object with chatId and reply
+  return {
+    chatId: data.chatId || data.chat_id || Date.now().toString(),
+    reply: data.reply || data.message || data.response || String(data),
+  };
 }
 
-async function delay(ms: number) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-export async function sendChatMessage(
-	message: string,
-	history: ChatHistoryItem[],
-	options: ChatbotAPIOptions = {}
-): Promise<ChatResponse> {
-	const baseUrl = options.baseUrl || CHATBOT_API_BASE;
-	const apiKey = options.apiKey || CHATBOT_API_KEY;
-	ensureConfigured(baseUrl, apiKey);
-
-	const payload = buildPayload(message, history, options.maxHistory);
-	const retries = options.retries ?? DEFAULT_RETRIES;
-	const retryDelayMs = options.retryDelayMs ?? DEFAULT_RETRY_DELAY;
-	let attempt = 0;
-	let lastError: unknown;
-
-	while (attempt <= retries) {
-		try {
-			const res = await fetch(`${baseUrl}/api/chat`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-API-KEY': apiKey,
-				},
-				body: JSON.stringify(payload),
-				signal: options.signal,
-			});
-
-			if (!res.ok) {
-				throw new Error(`Request gagal status ${res.status}`);
-			}
-
-			const json = await res.json();
-			return { reply: parseReply(json), raw: json };
-		} catch (err) {
-			lastError = err;
-			// Jika sudah mencapai attempt terakhir, lempar error
-			if (attempt === retries) {
-				throw err;
-			}
-			// Backoff sederhana
-			await delay(retryDelayMs * (attempt + 1));
-			attempt++;
-		}
-	}
-
-	throw lastError instanceof Error ? lastError : new Error('Unknown error');
-}
-
-// Helper opsional: validasi konfigurasi untuk UI
+// Helper: validasi konfigurasi untuk UI
 export function isChatbotConfigured(): boolean {
-	return Boolean((CHATBOT_API_BASE || '').trim()) && Boolean((CHATBOT_API_KEY || '').trim());
+  return (
+    Boolean((CHATBOT_API_BASE || '').trim()) &&
+    Boolean((CHATBOT_API_KEY || '').trim())
+  );
 }
-
-// Helper untuk menyiapkan pesan baru ke history
-export function appendUserMessage(history: ChatHistoryItem[], content: string): ChatHistoryItem[] {
-	return [...history, { role: 'user', content }];
-}
-
-export function appendBotMessage(history: ChatHistoryItem[], content: string): ChatHistoryItem[] {
-	return [...history, { role: 'bot', content }];
-}
-
-// Contoh fungsi tingkat lebih tinggi (menggabungkan pengiriman & update history)
-export async function chatFlow(
-	userInput: string,
-	history: ChatHistoryItem[],
-	options?: ChatbotAPIOptions
-): Promise<{ reply: string; history: ChatHistoryItem[]; raw: unknown }> {
-	const newHistory = appendUserMessage(history, userInput);
-	const res = await sendChatMessage(userInput, newHistory, options);
-	const finalHistory = appendBotMessage(newHistory, res.reply);
-	return { reply: res.reply, history: finalHistory, raw: res.raw };
-}
-
