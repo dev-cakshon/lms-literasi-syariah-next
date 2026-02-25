@@ -1,0 +1,325 @@
+/**
+ * Central API client for the LMS backend.
+ *
+ * All requests go through `apiFetch()` which:
+ *   1. Prepends NEXT_PUBLIC_API_URL + /v1
+ *   2. Attaches Authorization: Bearer <idToken> when a token is provided
+ *   3. Parses the standard { success, data } / { success, error } envelope
+ *   4. Throws `ApiError` on failure so callers can catch consistently
+ */
+
+import { API_URL } from '@/constant/env';
+
+import type {
+  Chapter,
+  ChatbotMessageResponse,
+  Course,
+  CourseProgress,
+  DownloadUrlResponse,
+  Enrollment,
+  EnrollmentStatus,
+  LeaderboardUser,
+  Quiz,
+  QuizSubmitResult,
+  UploadUrlResponse,
+  UserProfile,
+} from '@/types';
+
+// ─── Error class ─────────────────────────────────────────────────────────────
+
+export class ApiError extends Error {
+  code: string;
+  status: number;
+
+  constructor(code: string, message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.code = code;
+    this.status = status;
+  }
+}
+
+// ─── Token accessor (set by AuthContext) ─────────────────────────────────────
+
+let _getToken: (() => Promise<string | null>) | null = null;
+
+/** Called once by AuthContext to wire up the token accessor */
+export function setTokenAccessor(fn: () => Promise<string | null>) {
+  _getToken = fn;
+}
+
+// ─── Core fetch wrapper ──────────────────────────────────────────────────────
+
+async function apiFetch<T>(
+  path: string,
+  options: RequestInit = {},
+): Promise<T> {
+  const base = API_URL.replace(/\/+$/, '');
+  const url = `${base}/v1${path}`;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string> | undefined),
+  };
+
+  // Attach bearer token if available
+  if (_getToken) {
+    const token = await _getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  const res = await fetch(url, { ...options, headers });
+
+  // Handle non-JSON responses
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    if (!res.ok) {
+      throw new ApiError('NETWORK_ERROR', `HTTP ${res.status}`, res.status);
+    }
+    return undefined as unknown as T;
+  }
+
+  const body = await res.json();
+
+  if (!res.ok || body.success === false) {
+    const code = body?.error?.code || 'UNKNOWN';
+    const msg = body?.error?.message || `Request failed (${res.status})`;
+    throw new ApiError(code, msg, res.status);
+  }
+
+  return body.data as T;
+}
+
+// ─── Auth endpoints ──────────────────────────────────────────────────────────
+
+export async function authRegister(data: {
+  name: string;
+  email: string;
+  password: string;
+}): Promise<{ uid: string; email: string; name: string; role: string }> {
+  return apiFetch('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function authMe(): Promise<UserProfile> {
+  return apiFetch('/auth/me');
+}
+
+export async function authAssignRole(uid: string, role: string): Promise<{ uid: string; role: string }> {
+  return apiFetch('/auth/assign-role', {
+    method: 'POST',
+    body: JSON.stringify({ uid, role }),
+  });
+}
+
+// ─── Users endpoints (admin) ─────────────────────────────────────────────────
+
+export async function getUsers(params?: { role?: string; search?: string }): Promise<UserProfile[]> {
+  const qs = new URLSearchParams();
+  if (params?.role) qs.set('role', params.role);
+  if (params?.search) qs.set('search', params.search);
+  const query = qs.toString();
+  return apiFetch(`/users${query ? `?${query}` : ''}`);
+}
+
+export async function getUser(uid: string): Promise<UserProfile> {
+  return apiFetch(`/users/${uid}`);
+}
+
+export async function updateUser(uid: string, data: { name?: string; email?: string }): Promise<UserProfile> {
+  return apiFetch(`/users/${uid}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteUser(uid: string): Promise<{ uid: string; isActive: boolean }> {
+  return apiFetch(`/users/${uid}`, { method: 'DELETE' });
+}
+
+// ─── Courses endpoints ───────────────────────────────────────────────────────
+
+export async function getCourses(): Promise<Course[]> {
+  return apiFetch('/courses');
+}
+
+export async function getCourse(courseId: string): Promise<Course> {
+  return apiFetch(`/courses/${courseId}`);
+}
+
+export async function createCourse(data: {
+  title: string;
+  description?: string;
+  thumbnailUrl?: string;
+  isPublished?: boolean;
+}): Promise<Course> {
+  return apiFetch('/courses', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateCourse(
+  courseId: string,
+  data: Partial<Pick<Course, 'title' | 'description' | 'thumbnailUrl' | 'isPublished'>>,
+): Promise<Course> {
+  return apiFetch(`/courses/${courseId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteCourse(courseId: string): Promise<{ id: string; deleted: boolean }> {
+  return apiFetch(`/courses/${courseId}`, { method: 'DELETE' });
+}
+
+// ─── Chapters endpoints ──────────────────────────────────────────────────────
+
+export async function getChapters(courseId: string): Promise<Chapter[]> {
+  return apiFetch(`/courses/${courseId}/chapters`);
+}
+
+export async function getChapter(courseId: string, chapterId: string): Promise<Chapter> {
+  return apiFetch(`/courses/${courseId}/chapters/${chapterId}`);
+}
+
+export async function createChapter(
+  courseId: string,
+  data: { title: string; content?: string; videoUrl?: string; order?: number },
+): Promise<Chapter> {
+  return apiFetch(`/courses/${courseId}/chapters`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateChapter(
+  courseId: string,
+  chapterId: string,
+  data: Partial<Pick<Chapter, 'title' | 'content' | 'videoUrl' | 'order'>>,
+): Promise<Chapter> {
+  return apiFetch(`/courses/${courseId}/chapters/${chapterId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteChapter(courseId: string, chapterId: string): Promise<{ id: string; deleted: boolean }> {
+  return apiFetch(`/courses/${courseId}/chapters/${chapterId}`, { method: 'DELETE' });
+}
+
+// ─── Quizzes endpoints ───────────────────────────────────────────────────────
+
+export async function getQuizzes(courseId: string): Promise<Quiz[]> {
+  return apiFetch(`/courses/${courseId}/quizzes`);
+}
+
+export async function getQuiz(courseId: string, quizId: string): Promise<Quiz> {
+  return apiFetch(`/courses/${courseId}/quizzes/${quizId}`);
+}
+
+export async function createQuiz(
+  courseId: string,
+  data: { title: string; questions: Quiz['questions'] },
+): Promise<Quiz> {
+  return apiFetch(`/courses/${courseId}/quizzes`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateQuiz(
+  courseId: string,
+  quizId: string,
+  data: Partial<Pick<Quiz, 'title' | 'questions'>>,
+): Promise<Quiz> {
+  return apiFetch(`/courses/${courseId}/quizzes/${quizId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteQuiz(courseId: string, quizId: string): Promise<{ id: string; deleted: boolean }> {
+  return apiFetch(`/courses/${courseId}/quizzes/${quizId}`, { method: 'DELETE' });
+}
+
+export async function submitQuiz(
+  courseId: string,
+  quizId: string,
+  answers: number[],
+): Promise<QuizSubmitResult> {
+  return apiFetch(`/courses/${courseId}/quizzes/${quizId}/submit`, {
+    method: 'POST',
+    body: JSON.stringify({ answers }),
+  });
+}
+
+// ─── Enrollments endpoints ───────────────────────────────────────────────────
+
+export async function enrollInCourse(courseId: string): Promise<Enrollment> {
+  return apiFetch('/enrollments', {
+    method: 'POST',
+    body: JSON.stringify({ courseId }),
+  });
+}
+
+export async function getMyEnrollments(): Promise<Enrollment[]> {
+  return apiFetch('/enrollments/my');
+}
+
+export async function getEnrollmentStatus(courseId: string): Promise<EnrollmentStatus> {
+  return apiFetch(`/enrollments/${courseId}/status`);
+}
+
+// ─── Progress endpoints ──────────────────────────────────────────────────────
+
+export async function markChapterComplete(courseId: string, chapterId: string): Promise<CourseProgress> {
+  return apiFetch('/progress', {
+    method: 'POST',
+    body: JSON.stringify({ courseId, chapterId }),
+  });
+}
+
+export async function getCourseProgressApi(courseId: string): Promise<CourseProgress> {
+  return apiFetch(`/progress/${courseId}`);
+}
+
+// ─── Leaderboard endpoint ────────────────────────────────────────────────────
+
+export async function getLeaderboard(): Promise<LeaderboardUser[]> {
+  return apiFetch('/leaderboard');
+}
+
+// ─── Chatbot endpoint ────────────────────────────────────────────────────────
+
+export async function sendChatbotMessage(
+  message: string,
+  sessionId: string,
+): Promise<ChatbotMessageResponse> {
+  return apiFetch('/chatbot/message', {
+    method: 'POST',
+    body: JSON.stringify({ message, sessionId }),
+  });
+}
+
+// ─── Storage endpoints ───────────────────────────────────────────────────────
+
+export async function getUploadUrl(data: {
+  fileName: string;
+  contentType: string;
+  folder?: string;
+}): Promise<UploadUrlResponse> {
+  return apiFetch('/storage/upload-url', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getDownloadUrl(fileId: string, path?: string): Promise<DownloadUrlResponse> {
+  const qs = path ? `?path=${encodeURIComponent(path)}` : '';
+  return apiFetch(`/storage/download-url/${fileId}${qs}`);
+}

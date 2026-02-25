@@ -1,122 +1,143 @@
-// User types
-export type UserRole = 'student' | 'admin';
-
-export interface UserProfile {
-    uid: string;
-    email: string;
-    displayName: string;
-    photoURL?: string;
-    role: UserRole;
-    totalPoints: number;
-    createdAt: string;
-    updatedAt: string;
+// ─── API response wrappers ───
+export interface ApiSuccessResponse<T> {
+  success: true;
+  data: T;
 }
 
-// Course types
+export interface ApiErrorResponse {
+  success: false;
+  error: {
+    code: string;
+    message: string;
+  };
+}
+
+export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+// ─── User types ───
+export type UserRole = 'student' | 'admin' | 'instructor';
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  name: string;
+  displayName?: string;
+  photoURL?: string;
+  role: UserRole;
+  totalPoints: number;
+  isActive?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+// ─── Course types ───
 export interface Course {
-    id: string;
-    title: string;
-    description: string;
-    totalChapters: number;
-    imageUrl: string;
-    price?: number;
-    categoryId?: string;
-    isPublished?: boolean;
-    createdAt?: string;
-    updatedAt?: string;
+  id: string;
+  title: string;
+  description: string;
+  thumbnailUrl?: string;
+  imageUrl?: string;
+  totalChapters?: number;
+  isPublished?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Chapter {
-    id: string;
-    courseId: string;
-    title: string;
-    content: string;
-    order: number;
-    videoUrl: string;
-    isFree?: boolean;
-    isPublished?: boolean;
-    createdAt?: string;
-    updatedAt?: string;
+  id: string;
+  courseId?: string;
+  title: string;
+  content: string;
+  order: number;
+  videoUrl: string;
+  isFree?: boolean;
+  isPublished?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-// Assessment types
+// ─── Assessment types ───
 export type GamificationType = 'standard' | 'timeAttack' | 'survival';
 
-export interface Quiz {
-    id: string;
-    courseId: string;
-    title: string;
-    gamificationType: GamificationType;
-    questions: QuizQuestion[];
-    createdAt?: string;
-    updatedAt?: string;
-}
-
 export interface QuizQuestion {
-    questionText: string;
-    options: string[];
-    correctAnswerIndex: number; // index of correct option
-    points: number;
+  question: string;
+  questionText?: string;
+  options: string[];
+  correctAnswer?: number;
+  correctAnswerIndex?: number;
+  correctAnswerText?: string;
+  points?: number;
+  type?: string;
 }
 
-export interface QuizAttempt {
-    id: string;
-    userId: string;
-    quizId: string;
-    answers: number[]; // indices of selected options
-    score: number;
-    passed: boolean;
-    completedAt: string;
+export interface Quiz {
+  id: string;
+  courseId?: string;
+  title: string;
+  type?: 'preTest' | 'postTest' | 'standard';
+  gamificationType?: GamificationType;
+  questions: QuizQuestion[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface Assignment {
-    id: string;
-    chapterId: string;
-    courseId: string;
-    title: string;
-    description: string;
-    instructions?: string;
-    dueDate?: string;
-    maxPoints: number;
-    isPublished: boolean;
-    createdAt: string;
-    updatedAt: string;
+export interface QuizSubmitResult {
+  id: string;
+  userId: string;
+  courseId: string;
+  quizId: string;
+  answers: number[];
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  submittedAt: string | null;
 }
 
-export interface AssignmentSubmission {
-    id: string;
-    assignmentId: string;
-    userId: string;
-    content: string;
-    fileUrl?: string;
-    submittedAt: string;
-    grade?: number;
-    feedback?: string;
-    gradedAt?: string;
-    gradedBy?: string; // instructor uid
-}
-
-// Progress tracking
-export interface UserCourseProgress {
-    chapterId: string;
-    isCompleted: boolean;
-    pointsAwarded: number;
-}
-
-export interface UserProgress {
-    id: string;
-    userId: string;
-    courseId: string;
-    chapters: UserCourseProgress[];
-    lastAccessedChapter?: string;
-    updatedAt: string;
-}
-
+// ─── Enrollment types ───
 export interface Enrollment {
-    id: string;
-    userId: string;
-    courseId: string;
-    enrolledAt: string;
-    status: 'active' | 'completed' | 'cancelled';
-    completedAt?: string;
+  id: string;
+  userId: string;
+  courseId: string;
+  enrolledAt: string;
+  status?: 'active' | 'completed' | 'cancelled';
+  completedAt?: string;
+}
+
+export interface EnrollmentStatus {
+  enrolled: boolean;
+}
+
+// ─── Progress tracking ───
+export interface CourseProgress {
+  id?: string;
+  userId: string;
+  courseId: string;
+  completedChapters: string[];
+  percentage: number;
+  updatedAt?: string;
+}
+
+// ─── Leaderboard ───
+export interface LeaderboardUser {
+  uid: string;
+  name: string;
+  displayName?: string;
+  totalPoints: number;
+}
+
+// ─── Storage ───
+export interface UploadUrlResponse {
+  uploadUrl: string;
+  filePath: string;
+}
+
+export interface DownloadUrlResponse {
+  downloadUrl: string;
+  filePath: string;
+}
+
+// ─── Chatbot ───
+export interface ChatbotMessageResponse {
+  sessionId: string;
+  response: string;
 }

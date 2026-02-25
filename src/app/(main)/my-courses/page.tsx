@@ -1,9 +1,9 @@
 'use client';
 
 import { CheckCircle, Clock } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { subscribeToCourses, subscribeToUserProgress } from '@/lib/firestore';
+import { getCourses, getCourseProgressApi } from '@/lib/api';
 
 import { CourseList } from '@/components/course-list/CourseList';
 import { InfoCard } from '@/components/course-list/InfoCard';
@@ -25,80 +25,57 @@ export default function MyCoursesPage() {
   const [courses, setCourses] = useState<DisplayCourse[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (authLoading) return;
+  const fetchCourses = useCallback(async () => {
     if (!user) {
       setLoading(false);
       return;
     }
 
-    let userProgressData: Record<string, unknown>[] = [];
-    let coursesData: Record<string, unknown>[] = [];
+    try {
+      const allCourses = await getCourses();
 
-    const calculateCourses = () => {
-      // Map: courseId -> number of chapters completed
-      const completedChapterCounts: Record<string, number> = {};
-      userProgressData.forEach((progress) => {
-        const courseId = progress.courseId as string;
-        if (courseId) {
-          completedChapterCounts[courseId] =
-            (completedChapterCounts[courseId] || 0) + 1;
-        }
-      });
-
-      // Calculate progress for each course
-      const mapped: DisplayCourse[] = coursesData
-        .map((course) => {
-          const completedChapters =
-            completedChapterCounts[course.id as string] || 0;
-          const totalChapters = (course.totalChapters as number) || 0;
-          const progressPct =
-            totalChapters > 0
-              ? Math.round((completedChapters / totalChapters) * 100)
-              : 0;
+      // Fetch progress for each course in parallel
+      const coursesWithProgress = await Promise.all(
+        allCourses.map(async (course) => {
+          let progressPct = 0;
+          try {
+            const progress = await getCourseProgressApi(course.id);
+            progressPct = progress.percentage || 0;
+          } catch {
+            // No progress yet — default to 0
+          }
 
           return {
-            id: course.id as string,
-            title: (course.title as string) || 'Untitled Course',
-            imageUrl: (course.imageUrl as string) || null,
+            id: course.id,
+            title: course.title || 'Untitled Course',
+            imageUrl: course.thumbnailUrl || course.imageUrl || null,
             progress: progressPct,
-            category: (course.categoryId as string) || '',
-            chaptersLength: totalChapters,
-            createdAt: (course.createdAt as string) || undefined,
+            category: '',
+            chaptersLength: course.totalChapters || 0,
+            createdAt: course.createdAt || undefined,
           };
-        })
-        // sort courses based on createdAt (newest first)
-        .sort((a, b) => {
-          const ad = a.createdAt ? Date.parse(a.createdAt) : 0;
-          const bd = b.createdAt ? Date.parse(b.createdAt) : 0;
-          return bd - ad;
-        });
+        }),
+      );
 
-      setCourses(mapped);
+      // Sort newest first
+      coursesWithProgress.sort((a, b) => {
+        const ad = a.createdAt ? Date.parse(a.createdAt) : 0;
+        const bd = b.createdAt ? Date.parse(b.createdAt) : 0;
+        return bd - ad;
+      });
+
+      setCourses(coursesWithProgress);
+    } catch (err) {
+      console.error('Failed to fetch courses:', err);
+    } finally {
       setLoading(false);
-    };
+    }
+  }, [user]);
 
-    // Subscribe to user progress
-    const unsubProgress = subscribeToUserProgress(user.uid, (progress) => {
-      userProgressData = progress;
-      if (coursesData.length > 0) {
-        calculateCourses();
-      }
-    });
-
-    // Subscribe to courses
-    const unsubCourses = subscribeToCourses((courses) => {
-      coursesData = courses;
-      if (userProgressData.length > 0 || coursesData.length > 0) {
-        calculateCourses();
-      }
-    });
-
-    return () => {
-      unsubProgress();
-      unsubCourses();
-    };
-  }, [authLoading, user]);
+  useEffect(() => {
+    if (authLoading) return;
+    fetchCourses();
+  }, [authLoading, fetchCourses]);
 
   if (authLoading || loading) {
     return (

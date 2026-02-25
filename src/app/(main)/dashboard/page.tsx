@@ -1,40 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
-import { subscribeToLeaderboard } from '@/lib/firestore';
-
 import { AchievementBadges } from '@/components/dashboard/AchievementBadges';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import { ProfileOverview } from '@/components/dashboard/ProfileOverview';
-
-interface LeaderboardUser {
-  uid: string;
-  displayName: string;
-  totalPoints: number;
-}
+import { useLeaderboard } from '@/hooks/use-realtime';
 
 export default function DashboardPage() {
-  const [leaderboardUsers, setLeaderboardUsers] = useState<LeaderboardUser[]>(
-    []
-  );
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToLeaderboard((users) => {
-      const mappedUsers: LeaderboardUser[] = users.map((user) => ({
-        uid: user.uid as string,
-        displayName: user.displayName as string,
-        totalPoints: user.totalPoints as number,
-      }));
-      setLeaderboardUsers(mappedUsers);
-      setLoading(false);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const { users: leaderboardUsers, loading } = useLeaderboard();
 
   return (
     <div className='p-6 bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen'>

@@ -1,26 +1,23 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
-import {
-    subscribeToChaptersByCourse,
-    subscribeToCourseDetail,
-    subscribeToProgressByCourse,
-} from "@/lib/firestore";
+import { getCourse, getChapters } from "@/lib/api";
+import { useCourseProgress } from "@/hooks/use-realtime";
 
 import { CourseNavbar } from "@/components/course/CourseNavbar";
 import { CourseSidebar } from "@/components/course/CourseSidebar";
 
 import { useAuth } from "@/contexts/AuthContext";
 
-interface Course {
+interface CourseData {
     id: string;
     title: string;
     price: number;
 }
 
-interface Chapter {
+interface ChapterData {
     id: string;
     courseId: string;
     title: string;
@@ -37,78 +34,60 @@ interface CourseLayoutClientProps {
 
 function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
     const router = useRouter();
-    const pathname = usePathname();
     const { user } = useAuth();
-    const [course, setCourse] = useState<Course | null>(null);
-    const [chapters, setChapters] = useState<Chapter[]>([]);
-    const [completedChapterIds, setCompletedChapterIds] = useState<Set<string>>(new Set());
+    const [course, setCourse] = useState<CourseData | null>(null);
+    const [chapters, setChapters] = useState<ChapterData[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const { completedChapters } = useCourseProgress(courseId);
+    const completedChapterIds = new Set(completedChapters);
+
+    const fetchCourseData = useCallback(async () => {
+        try {
+            const [courseData, chaptersData] = await Promise.all([
+                getCourse(courseId),
+                getChapters(courseId),
+            ]);
+
+            if (!courseData) {
+                router.push("/");
+                return;
+            }
+
+            setCourse({
+                id: courseData.id,
+                title: courseData.title || "Untitled Course",
+                price: 0,
+            });
+
+            const formatted: ChapterData[] = chaptersData
+                .map((ch) => ({
+                    id: ch.id,
+                    courseId: courseId,
+                    title: ch.title || "Untitled Chapter",
+                    content: ch.content || "",
+                    videoUrl: ch.videoUrl || "",
+                    order: ch.order || 0,
+                    isFree: ch.isFree || false,
+                }))
+                .sort((a, b) => a.order - b.order);
+
+            setChapters(formatted);
+        } catch (err) {
+            console.error("Failed to load course:", err);
+            router.push("/");
+        } finally {
+            setLoading(false);
+        }
+    }, [courseId, router]);
 
     useEffect(() => {
         if (!user) {
             setLoading(false);
             return;
         }
-
-        // Subscribe to course detail
-        const unsubCourse = subscribeToCourseDetail(courseId, (courseData) => {
-            if (!courseData) {
-                router.push("/");
-                return;
-            }
-
-            type CourseData = { title?: string; price?: number };
-            const data = courseData as CourseData;
-
-            setCourse({
-                id: courseData.id as string,
-                title: data.title || "Untitled Course",
-                price: data.price || 0,
-            });
-            setLoading(false);
-        });
-
-        // Subscribe to chapters
-        const unsubChapters = subscribeToChaptersByCourse(courseId, (chaptersData) => {
-            type ChapterData = {
-                id: string;
-                title?: string;
-                content?: string;
-                videoUrl?: string;
-                order?: number;
-                isFree?: boolean;
-            };
-            const formattedChapters: Chapter[] = chaptersData.map((doc) => {
-                const data = doc as ChapterData;
-                return {
-                    id: doc.id as string,
-                    courseId: courseId,
-                    title: data.title || "Untitled Chapter",
-                    content: data.content || "",
-                    videoUrl: data.videoUrl || "",
-                    order: data.order || 0,
-                    isFree: data.isFree || false,
-                };
-            });
-            setChapters(formattedChapters);
-        });
-
-        // Subscribe to progress
-        const unsubProgress = subscribeToProgressByCourse(user.uid, courseId, (progressData) => {
-            const completed = new Set<string>(
-                progressData.progressDetail
-                    .filter((p) => p.isCompleted)
-                    .map((p) => p.chapterId)
-            );
-            setCompletedChapterIds(completed);
-        });
-
-        return () => {
-            unsubCourse();
-            unsubChapters();
-            unsubProgress();
-        };
-    }, [user, courseId, router, pathname]);
+        fetchCourseData();
+    }, [user, fetchCourseData]);
 
     if (loading || !course) {
         return (

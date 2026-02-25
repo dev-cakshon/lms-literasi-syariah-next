@@ -1,20 +1,17 @@
+'use client';
+
 import { TrendingUp,User } from 'lucide-react';
 
-interface ProfileOverviewProps {
-  name?: string;
-  level?: number;
-  currentXP?: number;
-  nextLevelXP?: number;
-  avatar?: string;
-}
+import { useAuth } from '@/contexts/AuthContext';
 
-export const ProfileOverview = ({
-  name = 'Muhammad Farrel',
-  level = 12,
-  currentXP = 2450,
-  nextLevelXP = 3000,
-  avatar,
-}: ProfileOverviewProps) => {
+export const ProfileOverview = () => {
+  const { userProfile } = useAuth();
+
+  const name = userProfile?.name || userProfile?.displayName || 'Pengguna';
+  const totalPoints = userProfile?.totalPoints || 0;
+  const level = Math.floor(totalPoints / 250) + 1;
+  const currentXP = totalPoints % 250;
+  const nextLevelXP = 250;
   const progressPercentage = (currentXP / nextLevelXP) * 100;
 
   return (
@@ -23,8 +20,8 @@ export const ProfileOverview = ({
         {/* Avatar */}
         <div className="relative mb-4">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 via-cyan-500 to-blue-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-            {avatar ? (
-              <img src={avatar} alt={name} className="w-full h-full rounded-full object-cover" />
+            {userProfile?.photoURL ? (
+              <img src={userProfile.photoURL} alt={name} className="w-full h-full rounded-full object-cover" />
             ) : (
               <User className="w-12 h-12" />
             )}

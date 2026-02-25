@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { subscribeToQuizzesByCourse } from "@/lib/firestore";
+import { getQuizzes } from "@/lib/api";
 
 import { CourseSidebarItem } from "./CourseSidebarItem";
 import { CourseProgress } from "../course-list/CourseProgress";
@@ -40,36 +40,38 @@ export const CourseSidebar = ({
     const completedChapters = chapters.filter((chapter) => completedChapterIds.has(chapter.id)).length;
     const progressCount = chapters.length > 0 ? (completedChapters / chapters.length) * 100 : 0;
 
-    useEffect(() => {
-        const unsubscribe = subscribeToQuizzesByCourse(course.id, (fetchedQuizzes) => {
-            const preTestQuizzes = fetchedQuizzes.filter((q) =>
-                (q as { type?: string }).type === "preTest"
-            ).map((q) => ({
-                id: q.id as string,
-                title: (q as { title?: string }).title || "Pre-Test",
-                type: "preTest",
-            }));
+    const fetchQuizzes = useCallback(async () => {
+        try {
+            const quizzes = await getQuizzes(course.id);
 
-            const postTestQuizzes = fetchedQuizzes.filter((q) =>
-                (q as { type?: string }).type === "postTest"
-            ).map((q) => ({
-                id: q.id as string,
-                title: (q as { title?: string }).title || "Post-Test",
-                type: "postTest",
-            }));
+            const preTestQuizzes = quizzes
+                .filter((q) => q.type === "preTest")
+                .map((q) => ({
+                    id: q.id,
+                    title: q.title || "Pre-Test",
+                    type: "preTest",
+                }));
+
+            const postTestQuizzes = quizzes
+                .filter((q) => q.type === "postTest")
+                .map((q) => ({
+                    id: q.id,
+                    title: q.title || "Post-Test",
+                    type: "postTest",
+                }));
 
             setPreTest(preTestQuizzes);
             setPostTest(postTestQuizzes);
-
-            // TODO: Fetch actual completion status from progress
-            // For now, assume pre-test is completed if it exists
             setPreTestCompleted(preTestQuizzes.length === 0);
-        });
-
-        return () => {
-            unsubscribe();
-        };
+        } catch (err) {
+            console.error("Failed to fetch quizzes:", err);
+            setPreTestCompleted(true); // Allow access on error
+        }
     }, [course.id]);
+
+    useEffect(() => {
+        fetchQuizzes();
+    }, [fetchQuizzes]);
 
     return (
         <div className="h-full border-r flex flex-col overflow-y-auto shadow-sm">

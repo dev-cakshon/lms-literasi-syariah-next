@@ -2,7 +2,7 @@
 import { Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { getQuizDetail } from "@/lib/firestore";
+import { getQuiz, submitQuiz } from "@/lib/api";
 
 import Button from "@/components/buttons/Button";
 import { type Question, MultipleAnswer } from "@/components/quiz/MultipleAnswer";
@@ -35,7 +35,7 @@ export default function QuizPage({ params }: QuizPageProps) {
         });
     }, [params]);
 
-    // Fetch quiz data from Firestore
+    // Fetch quiz data from API
     useEffect(() => {
         if (!courseId || !quizId) return;
 
@@ -43,44 +43,29 @@ export default function QuizPage({ params }: QuizPageProps) {
             if (!courseId || !quizId) return;
 
             try {
-                const quizDetail = await getQuizDetail(courseId, quizId);
+                const quiz = await getQuiz(courseId, quizId);
 
-                if (quizDetail) {
-                    const quiz = quizDetail as {
-                        title?: string;
-                        questions?: Array<{
-                            type: string;
-                            questionText: string;
-                            options: string[];
-                            correctAnswerIndex: number;
-                            correctAnswerText: string;
-                            points: number;
-                        }>;
-                    };
+                if (quiz.title) {
+                    setQuizTitle(quiz.title);
+                }
 
-                    if (quiz.title) {
-                        setQuizTitle(quiz.title);
-                    }
+                if (quiz.questions && Array.isArray(quiz.questions)) {
+                    const mappedQuestions: Question[] = quiz.questions
+                        .filter((q) => q.type === "multipleChoice")
+                        .map((q, index) => ({
+                            id: index + 1,
+                            question: q.questionText || q.question,
+                            options: q.options,
+                            correctAnswer: q.correctAnswerIndex ?? q.correctAnswer ?? 0,
+                            points: q.points || 10,
+                        }));
 
-                    if (quiz.questions && Array.isArray(quiz.questions)) {
-                        // Map API response to Question format
-                        const mappedQuestions: Question[] = quiz.questions
-                            .filter((q) => q.type === "multipleChoice")
-                            .map((q, index) => ({
-                                id: index + 1,
-                                question: q.questionText,
-                                options: q.options,
-                                correctAnswer: q.correctAnswerIndex,
-                                points: q.points,
-                            }));
-
-                        if (mappedQuestions.length > 0) {
-                            setQuizData(mappedQuestions);
-                        }
+                    if (mappedQuestions.length > 0) {
+                        setQuizData(mappedQuestions);
                     }
                 }
             } catch (error) {
-                // Use dummy data as fallback
+                console.error("Failed to load quiz:", error);
             } finally {
                 setLoading(false);
             }
@@ -113,6 +98,13 @@ export default function QuizPage({ params }: QuizPageProps) {
 
     const handleSubmit = () => {
         setShowResult(true);
+
+        // Submit answers to backend for scoring/tracking
+        if (courseId && quizId) {
+            submitQuiz(courseId, quizId, selectedAnswers).catch((err) =>
+                console.error("Failed to submit quiz:", err)
+            );
+        }
     };
 
     const calculateScore = () => {

@@ -5,6 +5,10 @@ export const showLogger = isLocal
   ? true
   : process.env.NEXT_PUBLIC_SHOW_LOGGER === 'true';
 
+// Backend API base URL
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
 // Chatbot API public config (ensure set in .env.local)
-export const CHATBOT_API_BASE = process.env.NEXT_PUBLIC_CHATBOT_API_BASE || 'https://treasury-nomination-helpful-walnut.trycloudflare.com';
+export const CHATBOT_API_BASE = process.env.NEXT_PUBLIC_CHATBOT_API_BASE || '';
 export const CHATBOT_API_KEY = process.env.NEXT_PUBLIC_CHATBOT_API_KEY || '';
+

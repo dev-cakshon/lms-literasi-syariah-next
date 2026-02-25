@@ -106,7 +106,7 @@ export const Leaderboard = ({ users, loading = false }: LeaderboardProps) => {
                   <p className='font-semibold text-gray-800'>
                     {user.displayName}
                   </p>
-                  <p className='text-sm text-gray-500'>Rank #{user.rank}</p>
+                  <p className='text-sm text-gray-500'>Ranking #{user.rank}</p>
                 </div>
               </div>
             </div>

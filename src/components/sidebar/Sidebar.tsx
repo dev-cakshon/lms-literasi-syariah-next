@@ -9,7 +9,7 @@ import { Logo } from "./Logo";
 import SidebarRoutes from "./SidebarRoutes";
 
 export const Sidebar = () => {
-    const { user, logout } = useAuth();
+    const { user, userProfile, logout } = useAuth();
     const router = useRouter();
 
     const handleSignOut = async () => {
@@ -33,7 +33,7 @@ export const Sidebar = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-700 truncate">
-                            {user?.email || "User"}
+                            {userProfile?.name || user?.email || "User"}
                         </p>
                     </div>
                 </div>

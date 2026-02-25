@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { subscribeToCourses } from '@/lib/firestore';
+import { getCourses } from '@/lib/api';
 
 import { CourseList } from '@/components/course-list/CourseList';
 
@@ -19,32 +19,34 @@ export default function AdminCoursePage() {
   const [courses, setCourses] = useState<AdminCourse[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = subscribeToCourses((coursesData) => {
-      const mappedCourses: AdminCourse[] = coursesData
+  const fetchCourses = useCallback(async () => {
+    try {
+      const data = await getCourses();
+      const mapped: AdminCourse[] = data
         .map((course) => ({
-          id: course.id as string,
-          title: (course.title as string) || 'Untitled Course',
-          imageUrl: (course.imageUrl as string) || null,
-          progress: 0, // Admin view doesn't need progress
-          chaptersLength: (course.totalChapters as number) || 0,
-          createdAt: (course.createdAt as string) || undefined,
+          id: course.id,
+          title: course.title || 'Untitled Course',
+          imageUrl: course.thumbnailUrl || course.imageUrl || null,
+          progress: 0,
+          chaptersLength: course.totalChapters || 0,
+          createdAt: course.createdAt || undefined,
         }))
-        // Sort by createdAt (newest first)
         .sort((a, b) => {
           const ad = a.createdAt ? Date.parse(a.createdAt) : 0;
           const bd = b.createdAt ? Date.parse(b.createdAt) : 0;
           return bd - ad;
         });
-
-      setCourses(mappedCourses);
+      setCourses(mapped);
+    } catch (err) {
+      console.error('Failed to fetch courses:', err);
+    } finally {
       setLoading(false);
-    });
-
-    return () => {
-      unsubscribe();
-    };
+    }
   }, []);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   if (loading) {
     return (

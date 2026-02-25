@@ -1,34 +1,75 @@
-import { redirect } from "next/navigation";
+"use client";
 
-import { getChaptersByCourse, getQuizzesByCourse } from "@/lib/firestore";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default async function CourseIdPage({
+import { getChapters, getQuizzes } from "@/lib/api";
+
+export default function CourseIdPage({
     params,
 }: {
     params: Promise<{ courseId: string }>;
 }) {
-    const { courseId } = await params;
+    const router = useRouter();
+    const [courseId, setCourseId] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const chapters = await getChaptersByCourse(courseId);
-    const quizzes = await getQuizzesByCourse(courseId);
-    
-    // Check if there's a pre-test quiz
-    const preTest = quizzes.find((q) => (q as { type?: string }).type === "preTest");
-    
-    if (preTest) {
-        // Redirect to pre-test if it exists
-        redirect(`/course/${courseId}/quiz/${preTest.id}`);
-    }
+    useEffect(() => {
+        params.then((p) => setCourseId(p.courseId));
+    }, [params]);
 
-    if (chapters.length === 0) {
+    useEffect(() => {
+        if (!courseId) return;
+
+        async function loadAndRedirect() {
+            try {
+                const [chapters, quizzes] = await Promise.all([
+                    getChapters(courseId!),
+                    getQuizzes(courseId!),
+                ]);
+
+                // Check for a pre-test quiz
+                const preTest = quizzes.find((q) => q.type === "preTest");
+                if (preTest) {
+                    router.replace(`/course/${courseId}/quiz/${preTest.id}`);
+                    return;
+                }
+
+                if (chapters.length === 0) {
+                    setError("No Chapter Found");
+                    setLoading(false);
+                    return;
+                }
+
+                // Sort by order and redirect to first chapter
+                const sorted = [...chapters].sort((a, b) => a.order - b.order);
+                router.replace(`/course/${courseId}/chapter/${sorted[0].id}`);
+            } catch (err) {
+                console.error("Failed to load course:", err);
+                setError("Gagal memuat kursus");
+                setLoading(false);
+            }
+        }
+
+        loadAndRedirect();
+    }, [courseId, router]);
+
+    if (error) {
         return (
             <div className="h-full flex items-center justify-center">
-                <p className="text-muted-foreground">No Chapter Found</p>
+                <p className="text-muted-foreground">{error}</p>
             </div>
         );
     }
 
-    // Redirect to first chapter if no pre-test
-    const firstChapter = chapters[0];
-    redirect(`/course/${courseId}/chapter/${firstChapter.id}`);
+    if (loading) {
+        return (
+            <div className="h-full flex items-center justify-center">
+                <p className="text-muted-foreground">Memuat kursus...</p>
+            </div>
+        );
+    }
+
+    return null;
 }

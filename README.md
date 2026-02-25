@@ -42,6 +42,31 @@ You can also check all of the **details and demos** on my blog post:
 
 ## Getting Started
 
+## Project Setup (Frontend + External Backend)
+
+This repository now acts as frontend-only (`lms-next`) and consumes API from `lms-be-firebase`.
+
+1. In `lms-be-firebase`:
+
+   ```bash
+   pnpm install
+   pnpm dev
+   ```
+
+2. In `lms-next`, set backend URL in `.env.local`:
+
+   ```dotenv
+   NEXT_PUBLIC_BACKEND_API_BASE="http://localhost:8080"
+   BACKEND_API_BASE="http://localhost:8080"
+   ```
+
+3. Start frontend:
+
+   ```bash
+   pnpm install
+   pnpm dev
+   ```
+
 ### 1. Clone this template using one of the three ways
 
 1. Use this repository as template
