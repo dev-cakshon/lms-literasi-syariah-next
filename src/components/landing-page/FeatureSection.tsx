@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { FeatureCard, FeatureCardProps } from "./FeatureCard";
+
+import { FeatureCard } from "./FeatureCard";
 
 // Feature data type - using the same interface from FeatureCard
 interface Feature {

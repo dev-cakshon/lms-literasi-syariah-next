@@ -3,7 +3,7 @@
 import { CheckCircle, Clock } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { getCourses, getCourseProgressApi } from '@/lib/api';
+import { getCourseProgressApi,getCourses } from '@/lib/api';
 
 import { CourseList } from '@/components/course-list/CourseList';
 import { InfoCard } from '@/components/course-list/InfoCard';

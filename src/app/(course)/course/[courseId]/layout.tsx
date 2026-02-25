@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-import { getCourse, getChapters } from "@/lib/api";
+import { getChapters,getCourse } from "@/lib/api";
 import { useCourseProgress } from "@/hooks/use-realtime";
 
 import { CourseNavbar } from "@/components/course/CourseNavbar";

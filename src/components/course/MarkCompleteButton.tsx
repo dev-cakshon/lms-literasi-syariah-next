@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { markChapterComplete, getChapters } from "@/lib/api";
+import { getChapters,markChapterComplete } from "@/lib/api";
 import { useCourseProgress } from "@/hooks/use-realtime";
 
 import Button from "@/components/buttons/Button";

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { CourseCardProps, LandingCourseCard } from "./LandingCourseCard";
+import { LandingCourseCard } from "./LandingCourseCard";
 import ButtonLink from "../links/ButtonLink";
 
 // Course data type

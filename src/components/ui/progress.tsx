@@ -1,10 +1,10 @@
 "use client"
 
-import * as React from "react"
 import * as ProgressPrimitive from "@radix-ui/react-progress"
+import { type VariantProps,cva } from "class-variance-authority"
+import * as React from "react"
 
 import { cn } from "@/lib/utils"
-import { cva, type VariantProps } from "class-variance-authority"
 
 const progressVariants = cva(
   "h-full w-full flex-1 bg-primary transition-all",{

@@ -1,9 +1,10 @@
 "use client";
 
-import { Trash2, Shield, Search } from "lucide-react";
+import { Search,Shield, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { getUsers, authAssignRole, deleteUser } from "@/lib/api";
+import { authAssignRole, deleteUser,getUsers } from "@/lib/api";
+
 import type { UserProfile, UserRole } from "@/types";
 
 export default function UserManagementPage() {

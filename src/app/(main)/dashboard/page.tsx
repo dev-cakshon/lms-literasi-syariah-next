@@ -1,9 +1,10 @@
 'use client';
 
+import { useLeaderboard } from '@/hooks/use-realtime';
+
 import { AchievementBadges } from '@/components/dashboard/AchievementBadges';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import { ProfileOverview } from '@/components/dashboard/ProfileOverview';
-import { useLeaderboard } from '@/hooks/use-realtime';
 
 export default function DashboardPage() {
   const { users: leaderboardUsers, loading } = useLeaderboard();

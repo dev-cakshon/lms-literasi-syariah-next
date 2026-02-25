@@ -8,8 +8,9 @@
 import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { getFirestoreInstance } from '@/lib/firebase';
+
+import { useAuth } from '@/contexts/AuthContext';
 
 // ─── useEnrollmentStatus ─────────────────────────────────────────────────────
 

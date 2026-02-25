@@ -2,7 +2,6 @@
 
 import {
   type User,
-  createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,

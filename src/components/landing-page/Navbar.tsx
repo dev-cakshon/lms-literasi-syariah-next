@@ -5,7 +5,6 @@ import * as React from 'react';
 import ButtonLink from '../links/ButtonLink';
 import UnstyledLink from '../links/UnstyledLink';
 
-import Logo from "~/svg/Logo.svg";
 
 export const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
