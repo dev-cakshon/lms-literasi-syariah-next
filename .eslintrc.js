@@ -81,4 +81,13 @@ module.exports = {
     React: true,
     JSX: true,
   },
+  overrides: [
+    {
+      // CommonJS config files legitimately use require()
+      files: ['*.js', '*.cjs'],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off',
+      },
+    },
+  ],
 };
