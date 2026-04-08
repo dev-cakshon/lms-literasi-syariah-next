@@ -1,31 +1,27 @@
-import * as React from "react";
+import * as React from 'react';
 
 // Props interface - defines what data this component needs
 export interface FeatureCardProps {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
 }
 
-export const FeatureCard = ({
-    icon,
-    title,
-    description
-}: FeatureCardProps) => {
-    return (
-        <div className='group rounded-2xl bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-lg'>
-            <div className='flex items-start gap-4'>
-                {/* Icon Container */}
-                <div className='flex-shrink-0 rounded-lg bg-primary-50 p-3 transition-colors duration-300 group-hover:bg-primary-100'>
-                    {icon}
-                </div>
-
-                {/* Text Content */}
-                <div className='flex-1'>
-                    <h3 className='mb-2 text-xl font-bold text-dark'>{title}</h3>
-                    <p className='leading-relaxed text-gray-600'>{description}</p>
-                </div>
-            </div>
+export const FeatureCard = ({ icon, title, description }: FeatureCardProps) => {
+  return (
+    <div className='group rounded-2xl bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-lg'>
+      <div className='flex items-start gap-4'>
+        {/* Icon Container */}
+        <div className='flex-shrink-0 rounded-lg bg-primary-50 p-3 transition-colors duration-300 group-hover:bg-primary-100'>
+          {icon}
         </div>
-    );
-}
+
+        {/* Text Content */}
+        <div className='flex-1'>
+          <h3 className='mb-2 text-xl font-bold text-dark'>{title}</h3>
+          <p className='leading-relaxed text-gray-600'>{description}</p>
+        </div>
+      </div>
+    </div>
+  );
+};

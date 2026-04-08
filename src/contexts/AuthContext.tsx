@@ -1,23 +1,32 @@
-"use client";
+'use client';
 
+import { FirebaseError } from 'firebase/app';
 import {
   type User,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
-} from "firebase/auth";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+} from 'firebase/auth';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
-import { authMe, authRegister, setTokenAccessor } from "@/lib/api";
-import { getAuthInstance } from "@/lib/firebase";
+import { authMe, authRegister } from '@/lib/api';
+import { getAuthInstance } from '@/lib/firebase';
 
-import type { UserProfile } from "@/types";
+import type { UserProfile } from '@/types';
 
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
   idToken: string | null;
+  refreshProfile: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -26,21 +35,43 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function mapFirebaseSignupErrorToIndonesian(code: string): string {
+  switch (code) {
+    case 'auth/weak-password':
+      return 'Password terlalu lemah. Gunakan minimal 8 karakter.';
+    default:
+      return 'Pendaftaran gagal. Silakan coba lagi.';
+  }
+}
+
+function mapSignupErrorToMessage(err: unknown): string {
+  const errorMessageLower =
+    err instanceof Error ? err.message.toLowerCase() : '';
+
+  if (errorMessageLower.includes('already in use')) {
+    return 'Email sudah terdaftar. Silakan gunakan email lain atau masuk (login) ke akun Anda.';
+  }
+
+  if (
+    errorMessageLower.includes('weak password') ||
+    (err instanceof FirebaseError && err.code === 'auth/weak-password')
+  ) {
+    return 'Password terlalu lemah. Gunakan minimal 8 karakter.';
+  }
+
+  if (err instanceof FirebaseError) {
+    return mapFirebaseSignupErrorToIndonesian(err.code);
+  }
+
+  return 'Pendaftaran gagal. Silakan coba lagi.';
+}
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [idToken, setIdToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Wire up the token accessor for the API client
-  useEffect(() => {
-    setTokenAccessor(async () => {
-      const auth = getAuthInstance();
-      const currentUser = auth.currentUser;
-      if (!currentUser) return null;
-      return currentUser.getIdToken();
-    });
-  }, []);
+  const isSigningUp = useRef(false);
 
   // Fetch user profile from backend
   const fetchProfile = useCallback(async (firebaseUser: User) => {
@@ -50,7 +81,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const profile = await authMe();
       setUserProfile(profile);
     } catch (err) {
-      console.error("Failed to fetch user profile:", err);
+      void err;
+      setUserProfile(null);
+    }
+  }, []);
+
+  const refreshProfile = useCallback(async (): Promise<void> => {
+    const auth = getAuthInstance();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      setUserProfile(null);
+      setIdToken(null);
+      return;
+    }
+
+    try {
+      const token = await currentUser.getIdToken();
+      setIdToken(token);
+      const profile = await authMe();
+      setUserProfile(profile);
+    } catch (err) {
+      void err;
       setUserProfile(null);
     }
   }, []);
@@ -60,7 +112,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       setUser(authUser);
       if (authUser) {
-        await fetchProfile(authUser);
+        if (!isSigningUp.current) {
+          await fetchProfile(authUser);
+        }
       } else {
         setUserProfile(null);
         setIdToken(null);
@@ -78,12 +132,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signUp = async (name: string, email: string, password: string) => {
-    // 1. Register on backend (creates Auth user + Firestore profile)
-    await authRegister({ name, email, password });
-    // 2. Sign in with Firebase client SDK to get the session
     const auth = getAuthInstance();
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    await fetchProfile(cred.user);
+    isSigningUp.current = true;
+
+    try {
+      // Step 1: create account/profile via backend.
+      await authRegister({ name, email, password });
+
+      // Step 2: establish client session.
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+
+      // Step 3: force-refresh token to ensure custom role claims are available.
+      await cred.user.getIdToken(true);
+
+      // Final step: fetch profile explicitly.
+      await fetchProfile(cred.user);
+    } catch (err) {
+      throw new Error(mapSignupErrorToMessage(err));
+    } finally {
+      isSigningUp.current = false;
+    }
   };
 
   const logout = async () => {
@@ -93,7 +161,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIdToken(null);
   };
 
-  const isAdmin = userProfile?.role === "admin";
+  const isAdmin = userProfile?.role === 'admin';
 
   return (
     <AuthContext.Provider
@@ -102,6 +170,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         userProfile,
         loading,
         idToken,
+        refreshProfile,
         signIn,
         signUp,
         logout,
@@ -116,7 +185,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
