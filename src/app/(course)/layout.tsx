@@ -1,11 +1,11 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 export default function CourseGroupLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    return <ProtectedRoute>{children}</ProtectedRoute>;
+  return <ProtectedRoute>{children}</ProtectedRoute>;
 }

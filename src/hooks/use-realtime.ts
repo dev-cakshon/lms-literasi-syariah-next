@@ -5,12 +5,28 @@
  * for real-time updates. All other data goes through the API.
  */
 
-import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
 import { getFirestoreInstance } from '@/lib/firebase';
 
 import { useAuth } from '@/contexts/AuthContext';
+
+import type { Badge, LeaderboardUser } from '@/types';
+
+const VALID_BADGES: Badge[] = ['perfect_score', 'top_3'];
+
+const isBadge = (value: unknown): value is Badge => {
+  return typeof value === 'string' && VALID_BADGES.includes(value as Badge);
+};
 
 // ─── useEnrollmentStatus ─────────────────────────────────────────────────────
 
@@ -20,7 +36,9 @@ interface EnrollmentRealtimeData {
   loading: boolean;
 }
 
-export function useEnrollmentStatus(courseId: string | null): EnrollmentRealtimeData {
+export function useEnrollmentStatus(
+  courseId: string | null
+): EnrollmentRealtimeData {
   const { user } = useAuth();
   const [data, setData] = useState<EnrollmentRealtimeData>({
     enrolled: false,
@@ -38,7 +56,7 @@ export function useEnrollmentStatus(courseId: string | null): EnrollmentRealtime
     const q = query(
       collection(db, 'enrollments'),
       where('userId', '==', user.uid),
-      where('courseId', '==', courseId),
+      where('courseId', '==', courseId)
     );
 
     const unsubscribe = onSnapshot(
@@ -57,7 +75,7 @@ export function useEnrollmentStatus(courseId: string | null): EnrollmentRealtime
       (err) => {
         console.error('useEnrollmentStatus error:', err);
         setData({ enrolled: false, enrollmentId: null, loading: false });
-      },
+      }
     );
 
     return unsubscribe;
@@ -74,7 +92,9 @@ interface CourseProgressRealtime {
   loading: boolean;
 }
 
-export function useCourseProgress(courseId: string | null): CourseProgressRealtime {
+export function useCourseProgress(
+  courseId: string | null
+): CourseProgressRealtime {
   const { user } = useAuth();
   const [data, setData] = useState<CourseProgressRealtime>({
     completedChapters: [],
@@ -109,7 +129,7 @@ export function useCourseProgress(courseId: string | null): CourseProgressRealti
       (err) => {
         console.error('useCourseProgress error:', err);
         setData({ completedChapters: [], percentage: 0, loading: false });
-      },
+      }
     );
 
     return unsubscribe;
@@ -120,44 +140,63 @@ export function useCourseProgress(courseId: string | null): CourseProgressRealti
 
 // ─── useLeaderboard (realtime) ───────────────────────────────────────────────
 
-interface LeaderboardEntry {
-  uid: string;
-  displayName: string;
-  totalPoints: number;
+interface LeaderboardRealtimeData {
+  data: LeaderboardUser[];
+  loading: boolean;
 }
 
-export function useLeaderboard() {
-  const [users, setUsers] = useState<LeaderboardEntry[]>([]);
+export function useLeaderboard(): LeaderboardRealtimeData {
+  const [data, setData] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const db = getFirestoreInstance();
-    const usersRef = collection(db, 'users');
+    const usersRef = query(
+      collection(db, 'users'),
+      orderBy('totalPoints', 'desc'),
+      limit(10)
+    );
 
     const unsubscribe = onSnapshot(
       usersRef,
       (snapshot) => {
-        const entries: LeaderboardEntry[] = snapshot.docs
-          .map((doc) => {
-            const d = doc.data();
-            return {
-              uid: doc.id,
-              displayName: (d.name as string) || (d.displayName as string) || '',
-              totalPoints: (d.totalPoints as number) || 0,
-            };
-          })
-          .sort((a, b) => b.totalPoints - a.totalPoints);
-        setUsers(entries);
+        const entries: LeaderboardUser[] = snapshot.docs.map((userDoc) => {
+          const raw = userDoc.data();
+
+          const uidValue = raw.uid;
+          const nameValue = raw.name;
+          const pointsValue = raw.totalPoints;
+          const badgesValue = raw.badges;
+
+          const uid = typeof uidValue === 'string' ? uidValue : userDoc.id;
+          const name = typeof nameValue === 'string' ? nameValue : '';
+          const totalPoints = typeof pointsValue === 'number' ? pointsValue : 0;
+          const badges = Array.isArray(badgesValue)
+            ? badgesValue.filter((badge): badge is Badge => isBadge(badge))
+            : [];
+
+          return {
+            uid,
+            name,
+            totalPoints,
+            badges,
+          };
+        });
+
+        setData(entries);
         setLoading(false);
       },
       (err) => {
         console.error('useLeaderboard error:', err);
+        setData([]);
         setLoading(false);
-      },
+      }
     );
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
-  return { users, loading };
+  return { data, loading };
 }

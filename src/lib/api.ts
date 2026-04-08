@@ -3,10 +3,15 @@
  *
  * All requests go through `apiFetch()` which:
  *   1. Prepends NEXT_PUBLIC_API_URL + /v1
- *   2. Attaches Authorization: Bearer <idToken> when a token is provided
+ *   2. Attaches Authorization: Bearer <idToken> when the user is signed in
  *   3. Parses the standard { success, data } / { success, error } envelope
  *   4. Throws `ApiError` on failure so callers can catch consistently
+ *
+ * The ID token is obtained directly from Firebase Auth's `currentUser.getIdToken()`
+ * — no React wiring needed. This survives HMR and module re-evaluation.
  */
+
+import { getAuthInstance } from '@/lib/firebase';
 
 import { API_URL } from '@/constant/env';
 
@@ -39,20 +44,28 @@ export class ApiError extends Error {
   }
 }
 
-// ─── Token accessor (set by AuthContext) ─────────────────────────────────────
+// ─── Get fresh Firebase ID token ─────────────────────────────────────────────
 
-let _getToken: (() => Promise<string | null>) | null = null;
-
-/** Called once by AuthContext to wire up the token accessor */
-export function setTokenAccessor(fn: () => Promise<string | null>) {
-  _getToken = fn;
+/**
+ * Returns a fresh Firebase ID token (JWT) for the currently signed-in user,
+ * or `null` if no user is signed in. The SDK auto-refreshes expired tokens.
+ */
+async function getFirebaseIdToken(): Promise<string | null> {
+  try {
+    const auth = getAuthInstance();
+    const user = auth.currentUser;
+    if (!user) return null;
+    return await user.getIdToken();
+  } catch {
+    return null;
+  }
 }
 
 // ─── Core fetch wrapper ──────────────────────────────────────────────────────
 
 async function apiFetch<T>(
   path: string,
-  options: RequestInit = {},
+  options: RequestInit = {}
 ): Promise<T> {
   const base = API_URL.replace(/\/+$/, '');
   const url = `${base}/v1${path}`;
@@ -62,12 +75,10 @@ async function apiFetch<T>(
     ...(options.headers as Record<string, string> | undefined),
   };
 
-  // Attach bearer token if available
-  if (_getToken) {
-    const token = await _getToken();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+  // Always attach the Firebase ID token when a user is signed in
+  const idToken = await getFirebaseIdToken();
+  if (idToken) {
+    headers['Authorization'] = `Bearer ${idToken}`;
   }
 
   const res = await fetch(url, { ...options, headers });
@@ -109,7 +120,10 @@ export async function authMe(): Promise<UserProfile> {
   return apiFetch('/auth/me');
 }
 
-export async function authAssignRole(uid: string, role: string): Promise<{ uid: string; role: string }> {
+export async function authAssignRole(
+  uid: string,
+  role: string
+): Promise<{ uid: string; role: string }> {
   return apiFetch('/auth/assign-role', {
     method: 'POST',
     body: JSON.stringify({ uid, role }),
@@ -118,7 +132,10 @@ export async function authAssignRole(uid: string, role: string): Promise<{ uid: 
 
 // ─── Users endpoints (admin) ─────────────────────────────────────────────────
 
-export async function getUsers(params?: { role?: string; search?: string }): Promise<UserProfile[]> {
+export async function getUsers(params?: {
+  role?: string;
+  search?: string;
+}): Promise<UserProfile[]> {
   const qs = new URLSearchParams();
   if (params?.role) qs.set('role', params.role);
   if (params?.search) qs.set('search', params.search);
@@ -130,14 +147,19 @@ export async function getUser(uid: string): Promise<UserProfile> {
   return apiFetch(`/users/${uid}`);
 }
 
-export async function updateUser(uid: string, data: { name?: string; email?: string }): Promise<UserProfile> {
+export async function updateUser(
+  uid: string,
+  data: { name?: string; email?: string }
+): Promise<UserProfile> {
   return apiFetch(`/users/${uid}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
 }
 
-export async function deleteUser(uid: string): Promise<{ uid: string; isActive: boolean }> {
+export async function deleteUser(
+  uid: string
+): Promise<{ uid: string; isActive: boolean }> {
   return apiFetch(`/users/${uid}`, { method: 'DELETE' });
 }
 
@@ -165,7 +187,9 @@ export async function createCourse(data: {
 
 export async function updateCourse(
   courseId: string,
-  data: Partial<Pick<Course, 'title' | 'description' | 'thumbnailUrl' | 'isPublished'>>,
+  data: Partial<
+    Pick<Course, 'title' | 'description' | 'thumbnailUrl' | 'isPublished'>
+  >
 ): Promise<Course> {
   return apiFetch(`/courses/${courseId}`, {
     method: 'PATCH',
@@ -173,7 +197,9 @@ export async function updateCourse(
   });
 }
 
-export async function deleteCourse(courseId: string): Promise<{ id: string; deleted: boolean }> {
+export async function deleteCourse(
+  courseId: string
+): Promise<{ id: string; deleted: boolean }> {
   return apiFetch(`/courses/${courseId}`, { method: 'DELETE' });
 }
 
@@ -183,13 +209,16 @@ export async function getChapters(courseId: string): Promise<Chapter[]> {
   return apiFetch(`/courses/${courseId}/chapters`);
 }
 
-export async function getChapter(courseId: string, chapterId: string): Promise<Chapter> {
+export async function getChapter(
+  courseId: string,
+  chapterId: string
+): Promise<Chapter> {
   return apiFetch(`/courses/${courseId}/chapters/${chapterId}`);
 }
 
 export async function createChapter(
   courseId: string,
-  data: { title: string; content?: string; videoUrl?: string; order?: number },
+  data: { title: string; content?: string; videoUrl?: string; order?: number }
 ): Promise<Chapter> {
   return apiFetch(`/courses/${courseId}/chapters`, {
     method: 'POST',
@@ -200,7 +229,9 @@ export async function createChapter(
 export async function updateChapter(
   courseId: string,
   chapterId: string,
-  data: Partial<Pick<Chapter, 'title' | 'content' | 'videoUrl' | 'order'>>,
+  data: Partial<
+    Pick<Chapter, 'title' | 'content' | 'videoUrl' | 'order' | 'isPublished'>
+  >
 ): Promise<Chapter> {
   return apiFetch(`/courses/${courseId}/chapters/${chapterId}`, {
     method: 'PATCH',
@@ -208,8 +239,13 @@ export async function updateChapter(
   });
 }
 
-export async function deleteChapter(courseId: string, chapterId: string): Promise<{ id: string; deleted: boolean }> {
-  return apiFetch(`/courses/${courseId}/chapters/${chapterId}`, { method: 'DELETE' });
+export async function deleteChapter(
+  courseId: string,
+  chapterId: string
+): Promise<{ id: string; deleted: boolean }> {
+  return apiFetch(`/courses/${courseId}/chapters/${chapterId}`, {
+    method: 'DELETE',
+  });
 }
 
 // ─── Quizzes endpoints ───────────────────────────────────────────────────────
@@ -224,7 +260,7 @@ export async function getQuiz(courseId: string, quizId: string): Promise<Quiz> {
 
 export async function createQuiz(
   courseId: string,
-  data: { title: string; questions: Quiz['questions'] },
+  data: { title: string; questions: Quiz['questions'] }
 ): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes`, {
     method: 'POST',
@@ -235,7 +271,7 @@ export async function createQuiz(
 export async function updateQuiz(
   courseId: string,
   quizId: string,
-  data: Partial<Pick<Quiz, 'title' | 'questions'>>,
+  data: Partial<Pick<Quiz, 'title' | 'questions'>>
 ): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes/${quizId}`, {
     method: 'PATCH',
@@ -243,14 +279,19 @@ export async function updateQuiz(
   });
 }
 
-export async function deleteQuiz(courseId: string, quizId: string): Promise<{ id: string; deleted: boolean }> {
-  return apiFetch(`/courses/${courseId}/quizzes/${quizId}`, { method: 'DELETE' });
+export async function deleteQuiz(
+  courseId: string,
+  quizId: string
+): Promise<{ id: string; deleted: boolean }> {
+  return apiFetch(`/courses/${courseId}/quizzes/${quizId}`, {
+    method: 'DELETE',
+  });
 }
 
 export async function submitQuiz(
   courseId: string,
   quizId: string,
-  answers: number[],
+  answers: number[]
 ): Promise<QuizSubmitResult> {
   return apiFetch(`/courses/${courseId}/quizzes/${quizId}/submit`, {
     method: 'POST',
@@ -267,25 +308,42 @@ export async function enrollInCourse(courseId: string): Promise<Enrollment> {
   });
 }
 
+export async function adminEnrollUser(
+  courseId: string,
+  userId: string
+): Promise<Enrollment> {
+  return apiFetch('/enrollments', {
+    method: 'POST',
+    body: JSON.stringify({ courseId, userId }),
+  });
+}
+
 export async function getMyEnrollments(): Promise<Enrollment[]> {
   return apiFetch('/enrollments/my');
 }
 
-export async function getEnrollmentStatus(courseId: string): Promise<EnrollmentStatus> {
+export async function getEnrollmentStatus(
+  courseId: string
+): Promise<EnrollmentStatus> {
   return apiFetch(`/enrollments/${courseId}/status`);
 }
 
 // ─── Progress endpoints ──────────────────────────────────────────────────────
 
-export async function markChapterComplete(courseId: string, chapterId: string): Promise<CourseProgress> {
-  return apiFetch('/progress', {
+export async function markChapterComplete(
+  courseId: string,
+  chapterId: string
+): Promise<CourseProgress> {
+  return apiFetch(`/courses/${courseId}/progress`, {
     method: 'POST',
-    body: JSON.stringify({ courseId, chapterId }),
+    body: JSON.stringify({ chapterId }),
   });
 }
 
-export async function getCourseProgressApi(courseId: string): Promise<CourseProgress> {
-  return apiFetch(`/progress/${courseId}`);
+export async function getCourseProgressApi(
+  courseId: string
+): Promise<CourseProgress> {
+  return apiFetch(`/courses/${courseId}/progress`);
 }
 
 // ─── Leaderboard endpoint ────────────────────────────────────────────────────
@@ -298,7 +356,7 @@ export async function getLeaderboard(): Promise<LeaderboardUser[]> {
 
 export async function sendChatbotMessage(
   message: string,
-  sessionId: string,
+  sessionId: string
 ): Promise<ChatbotMessageResponse> {
   return apiFetch('/chatbot/message', {
     method: 'POST',
@@ -319,7 +377,10 @@ export async function getUploadUrl(data: {
   });
 }
 
-export async function getDownloadUrl(fileId: string, path?: string): Promise<DownloadUrlResponse> {
+export async function getDownloadUrl(
+  fileId: string,
+  path?: string
+): Promise<DownloadUrlResponse> {
   const qs = path ? `?path=${encodeURIComponent(path)}` : '';
   return apiFetch(`/storage/download-url/${fileId}${qs}`);
 }

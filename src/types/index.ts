@@ -16,6 +16,7 @@ export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 // ─── User types ───
 export type UserRole = 'student' | 'admin' | 'instructor';
+export type Badge = 'perfect_score' | 'top_3';
 
 export interface UserProfile {
   uid: string;
@@ -25,6 +26,7 @@ export interface UserProfile {
   photoURL?: string;
   role: UserRole;
   totalPoints: number;
+  badges: Badge[];
   isActive?: boolean;
   createdAt: string;
   updatedAt?: string;
@@ -82,15 +84,15 @@ export interface Quiz {
 }
 
 export interface QuizSubmitResult {
-  id: string;
-  userId: string;
-  courseId: string;
-  quizId: string;
-  answers: number[];
   score: number;
-  correctCount: number;
-  totalQuestions: number;
-  submittedAt: string | null;
+  total: number;
+  passed: boolean;
+  pointsAwarded: number;
+  badges: Badge[];
+  answers: {
+    questionId: string;
+    correct: boolean;
+  }[];
 }
 
 // ─── Enrollment types ───
@@ -114,6 +116,8 @@ export interface CourseProgress {
   courseId: string;
   completedChapters: string[];
   percentage: number;
+  pointsAwarded?: number;
+  badges?: Badge[];
   updatedAt?: string;
 }
 
@@ -123,6 +127,7 @@ export interface LeaderboardUser {
   name: string;
   displayName?: string;
   totalPoints: number;
+  badges: Badge[];
 }
 
 // ─── Storage ───
