@@ -1,83 +1,98 @@
 'use client';
 
-import { TrendingUp,User } from 'lucide-react';
+import { User } from 'lucide-react';
 
 import { useAuth } from '@/contexts/AuthContext';
 
-export const ProfileOverview = () => {
-  const { userProfile } = useAuth();
+import type { UserProfile } from '@/types';
 
-  const name = userProfile?.name || userProfile?.displayName || 'Pengguna';
-  const totalPoints = userProfile?.totalPoints || 0;
-  const level = Math.floor(totalPoints / 250) + 1;
-  const currentXP = totalPoints % 250;
-  const nextLevelXP = 250;
-  const progressPercentage = (currentXP / nextLevelXP) * 100;
+const isProfileLoading = (
+  loading: boolean,
+  profile: UserProfile | null
+): profile is null => {
+  return loading || profile === null;
+};
+
+export const ProfilePicture = () => {
+  const { userProfile, loading } = useAuth();
+
+  if (isProfileLoading(loading, userProfile)) {
+    return (
+      <div className='flex items-center justify-center h-full'>
+        <div className='w-32 h-32 lg:w-40 lg:h-40 rounded-full bg-gray-200 animate-pulse border-4 border-white' />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg border shadow-sm p-6">
-      <div className="flex flex-col items-center">
-        {/* Avatar */}
-        <div className="relative mb-4">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-400 via-cyan-500 to-blue-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-            {userProfile?.photoURL ? (
-              <img src={userProfile.photoURL} alt={name} className="w-full h-full rounded-full object-cover" />
-            ) : (
-              <User className="w-12 h-12" />
-            )}
-          </div>
-          {/* Level Badge */}
-          <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-lg border-4 border-white">
-            {level}
-          </div>
+    <div className='flex items-center justify-center h-full'>
+      <div className='w-32 h-32 lg:w-40 lg:h-40 rounded-full bg-linear-to-br from-primary-400 via-cyan-500 to-blue-500 flex items-center justify-center text-white shadow-lg border-4 border-white'>
+        {userProfile.photoURL ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={userProfile.photoURL}
+            alt={userProfile.name}
+            className='w-full h-full rounded-full object-cover'
+          />
+        ) : (
+          <User className='w-16 h-16' />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export const ProfileInfo = () => {
+  const { userProfile, loading } = useAuth();
+
+  if (isProfileLoading(loading, userProfile)) {
+    return (
+      <div className='flex flex-col justify-center h-full space-y-4 animate-pulse'>
+        <div className='space-y-2'>
+          <div className='h-6 w-44 rounded bg-gray-300' />
+          <div className='h-4 w-56 rounded bg-gray-200' />
         </div>
-
-        {/* Name */}
-        <h3 className="text-xl font-bold text-gray-800 mb-1">{name}</h3>
-        <p className="text-sm text-gray-500 mb-4">Level {level} - Pelajar Ekonomi Syariah</p>
-
-        {/* XP Progress */}
-        <div className="w-full mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-semibold text-gray-600">Experience</span>
-            <span className="text-xs font-bold text-emerald-600">
-              {currentXP} / {nextLevelXP} XP
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-emerald-500 to-cyan-500 h-full rounded-full transition-all duration-500 ease-out shadow-sm"
-              style={{ width: `${progressPercentage}%` }}
-            />
-          </div>
-          <div className="flex items-center justify-center gap-1 mt-2">
-            <TrendingUp className="w-4 h-4 text-emerald-600" />
-            <span className="text-xs text-gray-500">
-              {nextLevelXP - currentXP} XP to level {level + 1}
-            </span>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="w-full grid grid-cols-2 gap-3">
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-100">
-            <p className="text-2xl font-bold text-blue-600">4</p>
-            <p className="text-xs text-gray-600">Kursus</p>
-          </div>
-          <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg p-3 border border-emerald-100">
-            <p className="text-2xl font-bold text-emerald-600">2</p>
-            <p className="text-xs text-gray-600">Selesai</p>
-          </div>
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-100">
-            <p className="text-2xl font-bold text-purple-600">28</p>
-            <p className="text-xs text-gray-600">Bab</p>
-          </div>
-          <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-lg p-3 border border-orange-100">
-            <p className="text-2xl font-bold text-orange-600">42j</p>
-            <p className="text-xs text-gray-600">Belajar</p>
-          </div>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+          <div className='h-10 rounded bg-gray-200' />
+          <div className='h-10 rounded bg-gray-200' />
+          <div className='h-10 rounded bg-gray-200' />
+          <div className='h-10 rounded bg-gray-200' />
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className='flex flex-col justify-center h-full space-y-4'>
+      <div>
+        <h3 className='text-xl font-bold text-gray-800'>{userProfile.name}</h3>
+        <p className='text-sm text-gray-500'>{userProfile.email}</p>
+      </div>
+
+      <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+        <div className='bg-primary-100 text-primary-700 rounded-md px-3 py-2'>
+          <p className='text-xs text-gray-600'>Total Poin</p>
+          <p className='font-bold text-sm'>{userProfile.totalPoints}</p>
+        </div>
+        <div className='bg-blue-100 text-blue-700 rounded-md px-3 py-2'>
+          <p className='text-xs text-gray-600'>Jumlah Badge</p>
+          <p className='font-bold text-sm'>{userProfile.badges.length}</p>
+        </div>
+        <div className='bg-emerald-100 text-emerald-700 rounded-md px-3 py-2 sm:col-span-2'>
+          <p className='text-xs text-gray-600'>Role</p>
+          <p className='font-bold text-sm capitalize'>{userProfile.role}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Keep backward-compatible export
+export const ProfileOverview = () => {
+  return (
+    <div className='flex items-center gap-6'>
+      <ProfilePicture />
+      <ProfileInfo />
     </div>
   );
 };

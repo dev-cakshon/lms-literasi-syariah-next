@@ -1,22 +1,149 @@
-import { Award, Medal, Trophy } from 'lucide-react';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from 'firebase/firestore';
+import { Medal, Trophy } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
-interface LeaderboardUser {
-  uid: string;
-  displayName: string;
-  totalPoints: number;
-}
+import { getFirestoreInstance } from '@/lib/firebase';
+import { useLeaderboard } from '@/hooks/use-realtime';
+
+import { useAuth } from '@/contexts/AuthContext';
+
+import type { Badge, LeaderboardUser } from '@/types';
 
 interface LeaderboardProps {
-  users: LeaderboardUser[];
-  loading?: boolean;
+  users?: unknown;
+  loading?: unknown;
 }
 
-export const Leaderboard = ({ users, loading = false }: LeaderboardProps) => {
-  // Add rank to users
-  const leaderboardData = users.map((user, index) => ({
-    ...user,
-    rank: index + 1,
-  }));
+interface RankedLeaderboardUser extends LeaderboardUser {
+  rank: number;
+}
+
+interface CurrentUserRankState {
+  user: LeaderboardUser;
+  rank: number;
+}
+
+const VALID_BADGES: Badge[] = ['perfect_score', 'top_3'];
+
+const isBadge = (value: unknown): value is Badge => {
+  return typeof value === 'string' && VALID_BADGES.includes(value as Badge);
+};
+
+const getSafeBadgeArray = (value: unknown): Badge[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.filter((item): item is Badge => isBadge(item));
+};
+
+const mapUserDocToLeaderboardUser = (
+  raw: unknown,
+  fallbackUid: string
+): LeaderboardUser => {
+  const parsed =
+    typeof raw === 'object' && raw !== null
+      ? (raw as Record<string, unknown>)
+      : {};
+
+  const uidValue = parsed.uid;
+  const nameValue = parsed.name;
+  const pointsValue = parsed.totalPoints;
+  const badgesValue = parsed.badges;
+
+  return {
+    uid: typeof uidValue === 'string' ? uidValue : fallbackUid,
+    name: typeof nameValue === 'string' ? nameValue : '',
+    totalPoints: typeof pointsValue === 'number' ? pointsValue : 0,
+    badges: getSafeBadgeArray(badgesValue),
+  };
+};
+
+export const Leaderboard = (_props: LeaderboardProps) => {
+  const { data, loading } = useLeaderboard();
+  const { user } = useAuth();
+  const currentUserUid = user?.uid ?? null;
+  const [currentUserRankState, setCurrentUserRankState] =
+    useState<CurrentUserRankState | null>(null);
+
+  const leaderboardData = useMemo<RankedLeaderboardUser[]>(
+    () =>
+      data.map((leaderboardUser, index) => ({
+        ...leaderboardUser,
+        rank: index + 1,
+      })),
+    [data]
+  );
+
+  const currentUserTopTenEntry = useMemo(
+    () =>
+      currentUserUid
+        ? leaderboardData.find(
+            (leaderboardUser) => leaderboardUser.uid === currentUserUid
+          ) ?? null
+        : null,
+    [currentUserUid, leaderboardData]
+  );
+
+  useEffect(() => {
+    if (!currentUserUid || loading || currentUserTopTenEntry) {
+      setCurrentUserRankState(null);
+      return;
+    }
+
+    let active = true;
+
+    const fetchCurrentUserRank = async () => {
+      try {
+        const db = getFirestoreInstance();
+        const userRef = doc(db, 'users', currentUserUid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          if (active) {
+            setCurrentUserRankState(null);
+          }
+          return;
+        }
+
+        const userData = mapUserDocToLeaderboardUser(
+          userSnap.data(),
+          userSnap.id
+        );
+
+        const higherScoreQuery = query(
+          collection(db, 'users'),
+          where('totalPoints', '>', userData.totalPoints)
+        );
+        const higherScoreSnapshot = await getDocs(higherScoreQuery);
+        const rank = higherScoreSnapshot.size + 1;
+
+        if (active) {
+          setCurrentUserRankState({
+            user: userData,
+            rank,
+          });
+        }
+      } catch (err) {
+        console.error('Leaderboard current user rank error:', err);
+        if (active) {
+          setCurrentUserRankState(null);
+        }
+      }
+    };
+
+    void fetchCurrentUserRank();
+
+    return () => {
+      active = false;
+    };
+  }, [currentUserUid, loading, currentUserTopTenEntry]);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -31,28 +158,29 @@ export const Leaderboard = ({ users, loading = false }: LeaderboardProps) => {
     }
   };
 
-  const getRankBadgeColor = (rank: number) => {
+  const getRankStyle = (rank: number) => {
     switch (rank) {
       case 1:
-        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+        return 'bg-yellow-400 text-white';
       case 2:
-        return 'bg-gray-100 text-gray-700 border-gray-300';
+        return 'bg-gray-300 text-white';
       case 3:
-        return 'bg-amber-100 text-amber-700 border-amber-300';
+        return 'bg-amber-500 text-white';
       default:
-        return 'bg-slate-100 text-slate-600 border-slate-200';
+        return 'bg-primary-100 text-primary-700';
     }
   };
 
   if (loading) {
     return (
-      <div className='bg-white rounded-lg border shadow-sm p-6'>
-        <div className='flex items-center gap-2 mb-6'>
-          <Award className='w-6 h-6 text-emerald-600' />
-          <h2 className='text-2xl font-bold text-gray-800'>Leaderboard</h2>
-        </div>
-        <div className='text-center py-8 text-gray-500'>
-          <p>Memuat leaderboard...</p>
+      <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
+        <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
+        <div className='space-y-3 animate-pulse'>
+          <div className='h-12 rounded-lg bg-gray-200' />
+          <div className='h-12 rounded-lg bg-gray-200' />
+          <div className='h-12 rounded-lg bg-gray-200' />
+          <div className='h-12 rounded-lg bg-gray-200' />
+          <div className='h-12 rounded-lg bg-gray-200' />
         </div>
       </div>
     );
@@ -60,11 +188,8 @@ export const Leaderboard = ({ users, loading = false }: LeaderboardProps) => {
 
   if (leaderboardData.length === 0) {
     return (
-      <div className='bg-white rounded-lg border shadow-sm p-6'>
-        <div className='flex items-center gap-2 mb-6'>
-          <Award className='w-6 h-6 text-emerald-600' />
-          <h2 className='text-2xl font-bold text-gray-800'>Leaderboard</h2>
-        </div>
+      <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
+        <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
         <div className='text-center py-8 text-gray-500'>
           <p>Belum ada data leaderboard.</p>
         </div>
@@ -73,52 +198,113 @@ export const Leaderboard = ({ users, loading = false }: LeaderboardProps) => {
   }
 
   return (
-    <div className='bg-white rounded-lg border shadow-sm p-6'>
-      <div className='flex items-center gap-2 mb-6'>
-        <Award className='w-6 h-6 text-emerald-600' />
-        <h2 className='text-2xl font-bold text-gray-800'>Leaderboard</h2>
-      </div>
+    <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
+      <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
 
-      <div className='space-y-3'>
-        {leaderboardData.map((user) => (
-          <div
-            key={user.uid}
-            className={`flex items-center justify-between p-4 rounded-lg border transition-all hover:shadow-md ${
-              user.rank <= 3
-                ? 'bg-gradient-to-r from-slate-50 to-white'
-                : 'bg-white'
-            }`}
-          >
-            <div className='flex items-center gap-4 flex-1'>
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 font-bold ${getRankBadgeColor(
-                  user.rank
-                )}`}
-              >
-                {user.rank <= 3 ? getRankIcon(user.rank) : `#${user.rank}`}
-              </div>
+      <div className='overflow-hidden rounded-xl'>
+        <table className='w-full'>
+          <thead>
+            <tr className='bg-primary-600 text-white text-sm'>
+              <th className='py-3 px-4 text-left font-semibold'>Rank</th>
+              <th className='py-3 px-4 text-left font-semibold'>Nama</th>
+              <th className='py-3 px-4 text-right font-semibold'>Poin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leaderboardData.map((leaderboardUser, index) => {
+              const isCurrentUser =
+                currentUserUid !== null &&
+                leaderboardUser.uid === currentUserUid;
 
-              <div className='flex items-center gap-3 flex-1'>
-                <div className='w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-white font-semibold'>
-                  {user.displayName.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <p className='font-semibold text-gray-800'>
-                    {user.displayName}
-                  </p>
-                  <p className='text-sm text-gray-500'>Ranking #{user.rank}</p>
-                </div>
-              </div>
-            </div>
+              return (
+                <tr
+                  key={leaderboardUser.uid}
+                  className={`border-b border-gray-100 transition-colors hover:bg-gray-50 ${
+                    isCurrentUser
+                      ? 'bg-primary-100'
+                      : index % 2 === 0
+                      ? 'bg-white'
+                      : 'bg-gray-100/80'
+                  }`}
+                >
+                  <td className='py-3 px-4'>
+                    <div className='flex items-center gap-2'>
+                      <span
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
+                          leaderboardUser.rank
+                        )}`}
+                      >
+                        {leaderboardUser.rank <= 3
+                          ? getRankIcon(leaderboardUser.rank)
+                          : leaderboardUser.rank}
+                      </span>
+                    </div>
+                  </td>
+                  <td className='py-3 px-4'>
+                    <div className='flex items-center gap-3'>
+                      <div className='w-9 h-9 rounded-full bg-linear-to-br from-primary-400 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm'>
+                        {leaderboardUser.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className='font-medium text-gray-800'>
+                        {leaderboardUser.name}
+                      </span>
+                    </div>
+                  </td>
+                  <td className='py-3 px-4 text-right'>
+                    <span className='font-bold text-primary-600'>
+                      {leaderboardUser.totalPoints.toLocaleString()}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
 
-            <div className='text-right'>
-              <p className='text-lg font-bold text-emerald-600'>
-                {user.totalPoints.toLocaleString()}
-              </p>
-              <p className='text-xs text-gray-500'>points</p>
-            </div>
-          </div>
-        ))}
+            {currentUserUid &&
+            !currentUserTopTenEntry &&
+            currentUserRankState ? (
+              <>
+                <tr>
+                  <td colSpan={3} className='py-2 px-4'>
+                    <div className='border-t border-dashed border-primary-300' />
+                    <p className='text-xs text-primary-700 font-semibold mt-2'>
+                      Your rank
+                    </p>
+                  </td>
+                </tr>
+                <tr className='bg-primary-100 border-b border-gray-100'>
+                  <td className='py-3 px-4'>
+                    <div className='flex items-center gap-2'>
+                      <span
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
+                          currentUserRankState.rank
+                        )}`}
+                      >
+                        {currentUserRankState.rank <= 3
+                          ? getRankIcon(currentUserRankState.rank)
+                          : currentUserRankState.rank}
+                      </span>
+                    </div>
+                  </td>
+                  <td className='py-3 px-4'>
+                    <div className='flex items-center gap-3'>
+                      <div className='w-9 h-9 rounded-full bg-linear-to-br from-primary-400 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm'>
+                        {currentUserRankState.user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className='font-medium text-gray-800'>
+                        {currentUserRankState.user.name}
+                      </span>
+                    </div>
+                  </td>
+                  <td className='py-3 px-4 text-right'>
+                    <span className='font-bold text-primary-600'>
+                      {currentUserRankState.user.totalPoints.toLocaleString()}
+                    </span>
+                  </td>
+                </tr>
+              </>
+            ) : null}
+          </tbody>
+        </table>
       </div>
     </div>
   );

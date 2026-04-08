@@ -1,42 +1,55 @@
-import { CourseCard } from "./CourseCard"
+import { CourseCard } from './CourseCard';
 
-type CourseWithProgress = {
-    id: string;
-    userId?: string;
-    categoryId?: string;
-    imageUrl: string | null;
-    title: string;
-    description?: string;
-    progress: number;
-    chaptersLength: number;
+interface CourseItem {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl: string | null;
+  chaptersLength: number;
+  isPublished?: boolean;
+  category?: string;
+  activities?: number;
+  author?: string;
+  points?: number;
+  originalPoints?: number;
+  progress?: number;
+  locked?: boolean;
+  editUrl?: string;
 }
 
 interface CourseListProps {
-    items: CourseWithProgress[];
+  items: CourseItem[];
 }
 
 export const CourseList = ({ items }: CourseListProps) => {
-
-    return (
-        <>
-            <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-                {items.map((item) => (
-                    <CourseCard
-                        key={item.id}
-                        id={item.id}
-                        title={item.title}
-                        imageUrl={item.imageUrl}
-                        progress={item.progress}
-                        chaptersLength={item.chaptersLength}
-                    />
-                ))}
-
-            </div>
-            {items.length === 0 && (
-                <div className="text-center text-sm text-muted-foreground mt-10">
-                    No course found
-                </div>
-            )}
-        </>
-    )
-}
+  return (
+    <>
+      <div className='grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4'>
+        {items.map((item) => (
+          <CourseCard
+            key={item.id}
+            id={item.id}
+            title={item.title}
+            description={item.description}
+            imageUrl={item.imageUrl}
+            chaptersLength={item.chaptersLength}
+            isPublished={item.isPublished}
+            category={item.category}
+            activities={item.activities}
+            author={item.author}
+            points={item.points}
+            originalPoints={item.originalPoints}
+            progress={item.progress}
+            locked={item.locked}
+            editUrl={item.editUrl}
+          />
+        ))}
+      </div>
+      {items.length === 0 && (
+        <div className='text-center text-sm text-muted-foreground mt-10'>
+          No course found
+        </div>
+      )}
+    </>
+  );
+};

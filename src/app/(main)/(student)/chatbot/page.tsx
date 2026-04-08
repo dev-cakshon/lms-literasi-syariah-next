@@ -155,7 +155,7 @@ export default function ChatbotPage() {
   };
 
   return (
-    <div className='flex h-full max-h-screen bg-gray-50'>
+    <div className='flex h-[calc(100vh-4rem)] bg-gray-50'>
       {/* Chat Sidebar */}
       <ChatSidebar
         chats={chats}
@@ -165,29 +165,44 @@ export default function ChatbotPage() {
       />
 
       {/* Main Chat Area */}
-      <div className='flex flex-col flex-1'>
+      <div className='flex flex-col flex-1 min-w-0'>
         {/* Chat Messages */}
         <div className='flex-1 overflow-y-auto p-6'>
           <div className='max-w-4xl mx-auto space-y-4'>
             {error && (
-              <div className='flex items-center gap-2 p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm'>
-                <AlertCircle className='w-4 h-4' />
+              <div className='flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm'>
+                <AlertCircle className='w-4 h-4 shrink-0' />
                 <span>{error}</span>
               </div>
             )}
             {messages.length === 0 ? (
               // Empty State
               <div className='flex flex-col items-center justify-center h-full text-center py-20'>
-                <div className='w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mb-4'>
-                  <Bot className='w-8 h-8 text-primary-600' />
+                <div className='w-20 h-20 rounded-2xl bg-primary-100 flex items-center justify-center mb-5'>
+                  <Bot className='w-10 h-10 text-primary-600' />
                 </div>
                 <h2 className='text-2xl font-bold text-gray-800 mb-2'>
                   Asisten AI Syariah
                 </h2>
-                <p className='text-gray-600 max-w-md'>
+                <p className='text-gray-500 max-w-md mb-6'>
                   Tanyakan apa saja tentang ekonomi syariah, perbankan Islam,
                   atau materi pembelajaran. Saya siap membantu Anda!
                 </p>
+                <div className='flex flex-wrap justify-center gap-2'>
+                  {[
+                    'Apa itu akad mudharabah?',
+                    'Jelaskan prinsip riba',
+                    'Perbedaan bank syariah & konvensional',
+                  ].map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => handleSendMessage(suggestion)}
+                      className='px-4 py-2 text-sm bg-white border border-primary-200 text-primary-700 rounded-full hover:bg-primary-50 transition-colors'
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
               // Messages List
@@ -201,14 +216,14 @@ export default function ChatbotPage() {
                 ))}
                 {isLoading && (
                   <div className='flex gap-3'>
-                    <div className='flex-shrink-0 w-10 h-10 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center'>
+                    <div className='shrink-0 w-10 h-10 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center'>
                       <Bot className='w-5 h-5' />
                     </div>
-                    <div className='flex-1 max-w-[70%] rounded-lg p-4 bg-gray-100'>
-                      <div className='flex gap-1'>
-                        <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' />
-                        <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]' />
-                        <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.4s]' />
+                    <div className='flex-1 max-w-[70%] rounded-2xl p-4 bg-primary-50'>
+                      <div className='flex gap-1.5'>
+                        <div className='w-2 h-2 bg-primary-400 rounded-full animate-bounce' />
+                        <div className='w-2 h-2 bg-primary-400 rounded-full animate-bounce [animation-delay:0.2s]' />
+                        <div className='w-2 h-2 bg-primary-400 rounded-full animate-bounce [animation-delay:0.4s]' />
                       </div>
                     </div>
                   </div>
