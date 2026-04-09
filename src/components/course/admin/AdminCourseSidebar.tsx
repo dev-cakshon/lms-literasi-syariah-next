@@ -6,7 +6,13 @@ import {
   Draggable,
   Droppable,
 } from '@hello-pangea/dnd';
-import { FileText, GripVertical, Plus, Trash2 } from 'lucide-react';
+import {
+  ChevronDown,
+  FileText,
+  GripVertical,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
 
 import {
@@ -17,6 +23,7 @@ import {
 } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
+import { ActivityCreationModal } from '@/components/admin/ActivityCreationModal';
 import { Badge } from '@/components/ui/badge';
 
 import type { Chapter, Course } from '@/types';
@@ -37,6 +44,8 @@ export const AdminCourseSidebar = ({
   onChaptersChanged,
 }: AdminCourseSidebarProps) => {
   const [adding, setAdding] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleAddChapter = async () => {
@@ -216,14 +225,55 @@ export const AdminCourseSidebar = ({
       </DragDropContext>
 
       {/* Add chapter button */}
-      <button
-        onClick={handleAddChapter}
-        disabled={adding}
-        className='flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700 pl-6 py-4 transition hover:bg-slate-50 disabled:opacity-50'
-      >
-        <Plus size={16} />
-        {adding ? 'Menambahkan...' : 'Tambah Bab'}
-      </button>
+      <div className='relative'>
+        <button
+          onClick={() => setIsDropdownOpen((prev) => !prev)}
+          className='w-full flex items-center justify-between gap-2 text-sm font-medium text-primary-600 hover:text-primary-700 pl-6 pr-4 py-4 transition hover:bg-slate-50'
+        >
+          <span className='flex items-center gap-2'>
+            <Plus size={16} />
+            Tambah Konten
+          </span>
+          <ChevronDown
+            size={16}
+            className={cn(
+              'transition-transform',
+              isDropdownOpen && 'rotate-180'
+            )}
+          />
+        </button>
+
+        {isDropdownOpen && (
+          <div className='absolute left-6 right-4 bottom-14 z-20 overflow-hidden rounded-md border bg-white shadow-lg'>
+            <button
+              onClick={() => {
+                setIsDropdownOpen(false);
+                void handleAddChapter();
+              }}
+              disabled={adding}
+              className='w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 disabled:opacity-50'
+            >
+              {adding ? 'Menambahkan...' : 'Bab (Chapter)'}
+            </button>
+            <button
+              onClick={() => {
+                setIsDropdownOpen(false);
+                setIsActivityModalOpen(true);
+              }}
+              className='w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 border-t'
+            >
+              Aktivitas
+            </button>
+          </div>
+        )}
+      </div>
+
+      <ActivityCreationModal
+        isOpen={isActivityModalOpen}
+        onClose={() => setIsActivityModalOpen(false)}
+        courseId={course.id}
+        onActivityCreated={onChaptersChanged}
+      />
     </div>
   );
 };

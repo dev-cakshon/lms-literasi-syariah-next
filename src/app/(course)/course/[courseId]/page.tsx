@@ -1,14 +1,15 @@
 'use client';
 
+import { CheckSquare, Grid2X2, Search } from 'lucide-react';
 import { useMemo } from 'react';
 import { useEffect, useState } from 'react';
 
-import { getChapters, getCourse } from '@/lib/api';
-import { useCourseProgress } from '@/hooks/use-realtime';
+import { getCourse, getCourseContent } from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 import { CourseSidebarItem } from '@/components/course/CourseSidebarItem';
 
-import type { Chapter, Course } from '@/types';
+import type { Course, CourseContentItem } from '@/types';
 
 export default function CourseIdPage({
   params,
@@ -17,11 +18,9 @@ export default function CourseIdPage({
 }) {
   const [courseId, setCourseId] = useState<string | null>(null);
   const [course, setCourse] = useState<Course | null>(null);
-  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const { completedChapters } = useCourseProgress(courseId);
 
   useEffect(() => {
     params.then((p) => setCourseId(p.courseId));
@@ -33,13 +32,13 @@ export default function CourseIdPage({
 
     async function loadOverviewData() {
       try {
-        const [courseData, chaptersData] = await Promise.all([
+        const [courseData, courseContentData] = await Promise.all([
           getCourse(resolvedCourseId),
-          getChapters(resolvedCourseId),
+          getCourseContent(resolvedCourseId),
         ]);
 
         setCourse(courseData);
-        setChapters(chaptersData);
+        setContentItems(courseContentData);
       } catch (err) {
         console.error('Failed to load course overview:', err);
         setError('Gagal memuat kursus');
@@ -51,18 +50,13 @@ export default function CourseIdPage({
     loadOverviewData();
   }, [courseId]);
 
-  const sortedChapters = useMemo(
-    () => [...chapters].sort((a, b) => a.order - b.order),
-    [chapters]
+  const sortedContentItems = useMemo(
+    () => [...contentItems].sort((a, b) => a.position - b.position),
+    [contentItems]
   );
 
-  const completedChapterSet = useMemo(
-    () => new Set(completedChapters),
-    [completedChapters]
-  );
-
-  const completedCount = sortedChapters.filter((chapter) =>
-    completedChapterSet.has(chapter.id)
+  const completedCount = sortedContentItems.filter(
+    (item) => item.completed
   ).length;
 
   if (error) {
@@ -99,33 +93,80 @@ export default function CourseIdPage({
           {course.description || 'Deskripsi kursus belum tersedia.'}
         </p>
         <p className='mt-4 text-sm font-medium text-slate-700'>
-          Progress: {completedCount}/{sortedChapters.length} bab selesai
+          Progress: {completedCount}/{sortedContentItems.length} konten selesai
         </p>
       </section>
 
       <section className='rounded-lg border bg-white p-6 shadow-sm'>
         <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-lg font-semibold text-slate-900'>Daftar Bab</h2>
+          <h2 className='text-lg font-semibold text-slate-900'>
+            Daftar Konten
+          </h2>
           <span className='text-sm text-slate-500'>
             Urut berdasarkan materi
           </span>
         </div>
 
-        {sortedChapters.length === 0 ? (
-          <p className='text-sm text-slate-500'>Belum ada bab yang tersedia.</p>
+        {sortedContentItems.length === 0 ? (
+          <p className='text-sm text-slate-500'>
+            Belum ada konten yang tersedia.
+          </p>
         ) : (
           <div className='overflow-hidden rounded-md border'>
-            {sortedChapters.map((chapter) => (
-              <CourseSidebarItem
-                key={chapter.id}
-                id={chapter.id}
-                courseId={courseId}
-                label={`${chapter.order}. ${chapter.title}`}
-                isCompleted={completedChapterSet.has(chapter.id)}
-                isLocked={false}
-                type='chapter'
-              />
-            ))}
+            {sortedContentItems.map((item) => {
+              if (item.itemType === 'chapter') {
+                return (
+                  <CourseSidebarItem
+                    key={item.id}
+                    id={item.id}
+                    courseId={courseId}
+                    label={`${item.position}. ${item.title}`}
+                    isCompleted={item.completed}
+                    isLocked={item.locked}
+                    type='chapter'
+                  />
+                );
+              }
+
+              const activityLabelPrefix = `${item.position}.`;
+              const ActivityIcon =
+                item.type === 'drag_drop'
+                  ? Grid2X2
+                  : item.type === 'word_search'
+                  ? Search
+                  : CheckSquare;
+              const bestScorePercent = item.bestScorePercent ?? 0;
+
+              return (
+                <a
+                  key={item.id}
+                  href='#'
+                  // TODO TA-51/52/53: wire activity player route
+                  onClick={(e) => e.preventDefault()}
+                  aria-disabled={item.locked}
+                  className={cn(
+                    'flex items-center gap-x-2 text-slate-500 text-sm font-medium pl-6 py-4 transition-all hover:text-slate-600 hover:bg-slate-300/20',
+                    item.completed && 'text-primary-700 hover:text-primary-700',
+                    item.locked &&
+                      'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-slate-500'
+                  )}
+                >
+                  <ActivityIcon
+                    size={22}
+                    className={cn(
+                      'text-slate-500',
+                      item.completed && 'text-primary-700'
+                    )}
+                  />
+                  <span>{`${activityLabelPrefix} ${item.title}`}</span>
+                  {bestScorePercent > 0 && (
+                    <span className='ml-auto text-xs font-medium text-primary-700 bg-primary-50 rounded px-2 py-0.5'>
+                      {bestScorePercent}%
+                    </span>
+                  )}
+                </a>
+              );
+            })}
           </div>
         )}
       </section>
