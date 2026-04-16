@@ -16,9 +16,11 @@ import { getAuthInstance } from '@/lib/firebase';
 import { API_URL } from '@/constant/env';
 
 import type {
+  AdminActivity,
   Chapter,
   ChatbotMessageResponse,
   Course,
+  CourseContentItem,
   CourseProgress,
   DownloadUrlResponse,
   Enrollment,
@@ -26,6 +28,9 @@ import type {
   LeaderboardUser,
   Quiz,
   QuizSubmitResult,
+  StudentActivity,
+  SubmitActivityRequest,
+  SubmitActivityResponse,
   UploadUrlResponse,
   UserProfile,
 } from '@/types';
@@ -384,3 +389,60 @@ export async function getDownloadUrl(
   const qs = path ? `?path=${encodeURIComponent(path)}` : '';
   return apiFetch(`/storage/download-url/${fileId}${qs}`);
 }
+
+// ─── Activity helpers ────────────────────────────────────────────────────────
+
+// Admin CRUD
+export const createActivity = (
+  courseId: string,
+  body: Omit<AdminActivity, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<{ activityId: string }> =>
+  apiFetch(`/courses/${courseId}/activities`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+
+export const getActivityAdmin = (
+  courseId: string,
+  activityId: string
+): Promise<AdminActivity> =>
+  apiFetch(`/courses/${courseId}/activities/${activityId}`);
+
+export const updateActivity = (
+  courseId: string,
+  activityId: string,
+  body: Partial<Omit<AdminActivity, 'id' | 'type' | 'createdAt' | 'updatedAt'>>
+): Promise<{ message: string }> =>
+  apiFetch(`/courses/${courseId}/activities/${activityId}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+
+export const deleteActivity = (
+  courseId: string,
+  activityId: string
+): Promise<{ message: string }> =>
+  apiFetch(`/courses/${courseId}/activities/${activityId}`, {
+    method: 'DELETE',
+  });
+
+// Student endpoints
+export const getCourseContent = (
+  courseId: string
+): Promise<CourseContentItem[]> => apiFetch(`/courses/${courseId}/content`);
+
+export const getStudentActivity = (
+  courseId: string,
+  activityId: string
+): Promise<StudentActivity> =>
+  apiFetch(`/courses/${courseId}/activities/${activityId}/student`);
+
+export const submitActivity = (
+  courseId: string,
+  activityId: string,
+  body: SubmitActivityRequest
+): Promise<SubmitActivityResponse> =>
+  apiFetch(`/courses/${courseId}/activities/${activityId}/submit`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });

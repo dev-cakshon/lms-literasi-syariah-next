@@ -146,3 +146,106 @@ export interface ChatbotMessageResponse {
   sessionId: string;
   response: string;
 }
+
+// ─── Activity Types ─────────────────────────────────────────────────────────
+export type ActivityType = 'drag_drop' | 'word_search' | 'true_or_false';
+
+// Admin payloads (include answer data)
+export interface DragDropActivity {
+  id: string;
+  type: 'drag_drop';
+  title: string;
+  position: number;
+  maxPoints: number;
+  categories: string[];
+  items: { id: string; label: string; correctCategory: string }[];
+  feedbackMode: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WordSearchActivity {
+  id: string;
+  type: 'word_search';
+  title: string;
+  position: number;
+  maxPoints: number;
+  wordList: string[];
+  gridSize: { rows: number; cols: number };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TrueOrFalseActivity {
+  id: string;
+  type: 'true_or_false';
+  title: string;
+  position: number;
+  maxPoints: number;
+  statements: { id: string; text: string; correct: boolean }[];
+  feedbackMode: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AdminActivity =
+  | DragDropActivity
+  | WordSearchActivity
+  | TrueOrFalseActivity;
+
+// Student-facing variants (answers stripped)
+export type StudentDragDropActivity = Omit<DragDropActivity, 'items'> & {
+  items: { id: string; label: string }[];
+};
+
+export type StudentWordSearchActivity = WordSearchActivity;
+
+export type StudentTrueOrFalseActivity = Omit<
+  TrueOrFalseActivity,
+  'statements'
+> & {
+  statements: { id: string; text: string }[];
+};
+
+export type StudentActivity =
+  | StudentDragDropActivity
+  | StudentWordSearchActivity
+  | StudentTrueOrFalseActivity;
+
+// Course content list item (chapter OR activity, discriminated by itemType)
+export interface CourseContentChapterItem {
+  itemType: 'chapter';
+  id: string;
+  title: string;
+  position: number;
+  locked: boolean;
+  completed: boolean;
+}
+
+export interface CourseContentActivityItem {
+  itemType: 'activity';
+  id: string;
+  type: ActivityType;
+  title: string;
+  position: number;
+  locked: boolean;
+  completed: boolean;
+  bestScorePercent?: number;
+}
+
+export type CourseContentItem =
+  | CourseContentChapterItem
+  | CourseContentActivityItem;
+
+// Submit activity
+export interface SubmitActivityRequest {
+  answers: Record<string, unknown>;
+}
+
+export interface SubmitActivityResponse {
+  score: number;
+  maxPoints: number;
+  scorePercent: number;
+  pointsEarned: number;
+  feedback?: Record<string, unknown>;
+}
