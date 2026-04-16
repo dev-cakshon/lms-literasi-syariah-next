@@ -1,7 +1,13 @@
 'use client';
 
+import { useState } from 'react';
+
+import { resetCourseProgressApi } from '@/lib/api';
+
 import { CourseSidebarItem } from './CourseSidebarItem';
 import { CourseProgress } from '../course-list/CourseProgress';
+
+import type { CourseContentItem } from '@/types';
 
 interface CourseSidebarProps {
   course: {
@@ -9,25 +15,32 @@ interface CourseSidebarProps {
     title: string;
     price?: number;
   };
-  chapters: {
-    id: string;
-    courseId: string;
-    title: string;
-    order: number;
-  }[];
-  completedChapterIds: Set<string>;
+  contentItems: CourseContentItem[];
 }
 
-export const CourseSidebar = ({
-  course,
-  chapters,
-  completedChapterIds,
-}: CourseSidebarProps) => {
-  const completedChapters = chapters.filter((chapter) =>
-    completedChapterIds.has(chapter.id)
-  ).length;
+export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
+  const [isResetting, setIsResetting] = useState(false);
+
+  const completedItems = contentItems.filter((item) => item.completed).length;
   const progressCount =
-    chapters.length > 0 ? (completedChapters / chapters.length) * 100 : 0;
+    contentItems.length > 0 ? (completedItems / contentItems.length) * 100 : 0;
+
+  const handleResetProgress = async () => {
+    const isConfirmed = window.confirm(
+      'Reset all progress for this course? This is for dev/testing only.'
+    );
+    if (!isConfirmed) return;
+
+    setIsResetting(true);
+    try {
+      await resetCourseProgressApi(course.id);
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to reset progress:', error);
+      alert('Failed to reset progress');
+      setIsResetting(false);
+    }
+  };
 
   return (
     <div className='h-full border-r flex flex-col overflow-y-auto shadow-sm'>
@@ -36,19 +49,41 @@ export const CourseSidebar = ({
         <div className='mt-10'>
           <CourseProgress variant='success' value={progressCount} />
         </div>
+        {process.env.NODE_ENV !== 'production' && (
+          <button
+            type='button'
+            onClick={handleResetProgress}
+            disabled={isResetting}
+            className='mt-4 text-left text-xs text-red-600 hover:underline disabled:opacity-50'
+          >
+            {isResetting ? 'Mereset progress...' : 'Reset Progress (Dev)'}
+          </button>
+        )}
       </div>
       <div className='flex flex-col w-full'>
-        {chapters.map((chapter) => (
-          <CourseSidebarItem
-            key={chapter.id}
-            id={chapter.id}
-            courseId={chapter.courseId}
-            label={chapter.title}
-            isCompleted={completedChapterIds.has(chapter.id)}
-            isLocked={false}
-            type='chapter'
-          />
-        ))}
+        {contentItems.map((item) =>
+          item.itemType === 'chapter' ? (
+            <CourseSidebarItem
+              key={item.id}
+              id={item.id}
+              courseId={course.id}
+              label={item.title}
+              isCompleted={item.completed}
+              isLocked={item.locked}
+              type='chapter'
+            />
+          ) : (
+            <CourseSidebarItem
+              key={item.id}
+              id={item.id}
+              courseId={course.id}
+              label={item.title}
+              isCompleted={item.completed}
+              isLocked={item.locked}
+              type={item.type}
+            />
+          )
+        )}
       </div>
     </div>
   );

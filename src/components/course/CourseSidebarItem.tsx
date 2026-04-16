@@ -1,6 +1,13 @@
 'use client';
 
-import { CheckCircle, Lock, PlayCircle } from 'lucide-react';
+import {
+  CheckCircle,
+  CheckSquare,
+  Grid2X2,
+  Lock,
+  PlayCircle,
+  Search,
+} from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
@@ -11,7 +18,7 @@ interface CourseSidebarItemProps {
   isCompleted: boolean;
   isLocked?: boolean;
   courseId: string;
-  type?: 'chapter' | 'quiz';
+  type?: 'chapter' | 'quiz' | 'drag_drop' | 'word_search' | 'true_or_false';
 }
 
 export const CourseSidebarItem = ({
@@ -24,18 +31,35 @@ export const CourseSidebarItem = ({
 }: CourseSidebarItemProps) => {
   const pathname = usePathname();
   const router = useRouter();
-  const Icon = isLocked ? Lock : isCompleted ? CheckCircle : PlayCircle;
+  const ActivityIcon =
+    type === 'drag_drop'
+      ? Grid2X2
+      : type === 'word_search'
+      ? Search
+      : type === 'true_or_false'
+      ? CheckSquare
+      : PlayCircle;
+
+  const Icon = isLocked ? Lock : isCompleted ? CheckCircle : ActivityIcon;
 
   const isActive = pathname?.includes(id);
 
   const onClick = () => {
     if (isLocked) return;
+
     if (type === 'quiz') {
       router.push(`/course/${courseId}/quiz/${id}`);
+    } else if (type === 'drag_drop') {
+      router.push(`/course/${courseId}/drag-drop/${id}`);
+    } else if (type === 'word_search') {
+      router.push(`/course/${courseId}/activity/${id}/word-search`);
+    } else if (type === 'true_or_false') {
+      router.push(`/course/${courseId}/activity/${id}/true-or-false`);
     } else {
       router.push(`/course/${courseId}/chapter/${id}`);
     }
   };
+
   return (
     <button
       onClick={onClick}

@@ -351,6 +351,18 @@ export async function getCourseProgressApi(
   return apiFetch(`/courses/${courseId}/progress`);
 }
 
+export async function resetCourseProgressApi(
+  courseId: string
+): Promise<{
+  deleted: boolean;
+  quizResultsCleared: number;
+  activityProgressCleared: number;
+}> {
+  return apiFetch(`/courses/${courseId}/progress`, {
+    method: 'DELETE',
+  });
+}
+
 // ─── Leaderboard endpoint ────────────────────────────────────────────────────
 
 export async function getLeaderboard(): Promise<LeaderboardUser[]> {
@@ -435,7 +447,7 @@ export const getStudentActivity = (
   courseId: string,
   activityId: string
 ): Promise<StudentActivity> =>
-  apiFetch(`/courses/${courseId}/activities/${activityId}/student`);
+  apiFetch(`/courses/${courseId}/activities/${activityId}`);
 
 export const submitActivity = (
   courseId: string,

@@ -1,14 +1,15 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-import { getChapters, markChapterComplete } from '@/lib/api';
+import { markChapterComplete } from '@/lib/api';
 import { useCourseProgress } from '@/hooks/use-realtime';
 
 import Button from '@/components/buttons/Button';
 import { BadgeAwardModal, PointsToast } from '@/components/gamification';
 
+import { CourseLayoutContext } from '@/app/(course)/course/[courseId]/CourseLayoutContext';
 import { useAuth } from '@/contexts/AuthContext';
 
 import type { Badge } from '@/types';
@@ -30,6 +31,7 @@ export const MarkCompleteButton = ({
   const [awardedBadges, setAwardedBadges] = useState<Badge[]>([]);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
 
+  const { contentItems, refreshContentItems } = useContext(CourseLayoutContext);
   const { completedChapters } = useCourseProgress(courseId);
   const isCompleted = completedChapters.includes(chapterId);
 
@@ -60,21 +62,27 @@ export const MarkCompleteButton = ({
         setShowBadgeModal(true);
       }
 
+      const currentIndex = contentItems.findIndex(
+        (item) => item.id === chapterId
+      );
+      const nextItem =
+        currentIndex !== -1 && currentIndex < contentItems.length - 1
+          ? contentItems[currentIndex + 1]
+          : null;
+      const nextPath = nextItem
+        ? nextItem.itemType === 'chapter'
+          ? `/course/${courseId}/chapter/${nextItem.id}`
+          : `/course/${courseId}/activity/${nextItem.id}/${
+              nextItem.type === 'drag_drop'
+                ? 'drag-drop'
+                : nextItem.type === 'word_search'
+                ? 'word-search'
+                : 'true-or-false'
+            }`
+        : `/course/${courseId}`;
+
       await refreshProfile();
-
-      // Fetch chapters to find the next one
-      const chapters = await getChapters(courseId);
-      const sortedChapters = [...chapters].sort(
-        (a, b) => (a.order || 0) - (b.order || 0)
-      );
-
-      const currentIndex = sortedChapters.findIndex(
-        (ch) => ch.id === chapterId
-      );
-      const nextPath =
-        currentIndex !== -1 && currentIndex < sortedChapters.length - 1
-          ? `/course/${courseId}/chapter/${sortedChapters[currentIndex + 1].id}`
-          : `/course/${courseId}`;
+      refreshContentItems();
       setIsLoading(false);
 
       if (awarded > 0) {

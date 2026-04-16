@@ -150,8 +150,8 @@ export const ActivityCreationModal = ({
           title: data.title,
           position: 0,
           maxPoints: data.maxPoints,
-          statements: data.statements.map((statement) => ({
-            id: '',
+          statements: data.statements.map((statement, index) => ({
+            id: `tof_${Date.now()}_${index}`,
             text: statement.text,
             correct: statement.isTrue,
           })),

@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckSquare, Grid2X2, Search } from 'lucide-react';
+import Link from 'next/link';
 import { useMemo } from 'react';
 import { useEffect, useState } from 'react';
 
@@ -136,21 +137,15 @@ export default function CourseIdPage({
                   ? Search
                   : CheckSquare;
               const bestScorePercent = item.bestScorePercent ?? 0;
+              const activityHref =
+                item.type === 'drag_drop'
+                  ? `/course/${courseId}/drag-drop/${item.id}`
+                  : item.type === 'word_search'
+                  ? `/course/${courseId}/activity/${item.id}/word-search`
+                  : `/course/${courseId}/activity/${item.id}/true-or-false`;
 
-              return (
-                <a
-                  key={item.id}
-                  href='#'
-                  // TODO TA-51/52/53: wire activity player route
-                  onClick={(e) => e.preventDefault()}
-                  aria-disabled={item.locked}
-                  className={cn(
-                    'flex items-center gap-x-2 text-slate-500 text-sm font-medium pl-6 py-4 transition-all hover:text-slate-600 hover:bg-slate-300/20',
-                    item.completed && 'text-primary-700 hover:text-primary-700',
-                    item.locked &&
-                      'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-slate-500'
-                  )}
-                >
+              const activityContent = (
+                <>
                   <ActivityIcon
                     size={22}
                     className={cn(
@@ -164,7 +159,31 @@ export default function CourseIdPage({
                       {bestScorePercent}%
                     </span>
                   )}
-                </a>
+                </>
+              );
+
+              if (item.locked) {
+                return (
+                  <div
+                    key={item.id}
+                    className='flex items-center gap-x-2 text-slate-500 text-sm font-medium pl-6 py-4 opacity-50 cursor-not-allowed'
+                  >
+                    {activityContent}
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.id}
+                  href={activityHref}
+                  className={cn(
+                    'flex items-center gap-x-2 text-slate-500 text-sm font-medium pl-6 py-4 transition-all hover:text-slate-600 hover:bg-slate-300/20',
+                    item.completed && 'text-primary-700 hover:text-primary-700'
+                  )}
+                >
+                  {activityContent}
+                </Link>
               );
             })}
           </div>
