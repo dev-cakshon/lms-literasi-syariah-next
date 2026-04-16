@@ -102,7 +102,7 @@ export const CourseCard = ({
             {typeof isPublished === 'boolean' && (
               <span
                 className={cn(
-                  'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                  'rounded-full px-2 py-0.5 text-[11px] font-semibold',
                   isPublished
                     ? 'bg-emerald-100 text-emerald-700'
                     : 'bg-amber-100 text-amber-700'

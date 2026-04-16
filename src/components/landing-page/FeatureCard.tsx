@@ -12,9 +12,11 @@ export const FeatureCard = ({ icon, title, description }: FeatureCardProps) => {
     <div className='group rounded-2xl bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-lg'>
       <div className='flex items-start gap-4'>
         {/* Icon Container */}
-        <div className='flex-shrink-0 rounded-lg bg-primary-50 p-3 transition-colors duration-300 group-hover:bg-primary-100'>
-          {icon}
-        </div>
+        {icon && (
+          <div className='flex-shrink-0 rounded-lg bg-primary-50 p-3 transition-colors duration-300 group-hover:bg-primary-100'>
+            {icon}
+          </div>
+        )}
 
         {/* Text Content */}
         <div className='flex-1'>
