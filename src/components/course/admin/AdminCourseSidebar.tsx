@@ -19,6 +19,7 @@ import {
   ApiError,
   createChapter,
   deleteChapter,
+  updateActivity,
   updateChapter,
 } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -26,22 +27,22 @@ import { cn } from '@/lib/utils';
 import { ActivityCreationModal } from '@/components/admin/ActivityCreationModal';
 import { Badge } from '@/components/ui/badge';
 
-import type { Chapter, Course } from '@/types';
+import type { Course, CourseContentItem } from '@/types';
 
 interface AdminCourseSidebarProps {
   course: Course;
-  chapters: Chapter[];
+  contentItems: CourseContentItem[];
   activeTab: string;
   onTabChange: (tab: string) => void;
-  onChaptersChanged: () => void;
+  onContentChanged: () => void;
 }
 
 export const AdminCourseSidebar = ({
   course,
-  chapters,
+  contentItems,
   activeTab,
   onTabChange,
-  onChaptersChanged,
+  onContentChanged,
 }: AdminCourseSidebarProps) => {
   const [adding, setAdding] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -53,8 +54,8 @@ export const AdminCourseSidebar = ({
       setAdding(true);
       setError(null);
       const nextOrder =
-        chapters.length > 0
-          ? Math.max(...chapters.map((chapter) => chapter.order || 0)) + 1
+        contentItems.length > 0
+          ? Math.max(...contentItems.map((item) => item.position || 0)) + 1
           : 1;
 
       const newChapter = await createChapter(course.id, {
@@ -63,8 +64,8 @@ export const AdminCourseSidebar = ({
         videoUrl: '',
         order: nextOrder,
       });
-      onChaptersChanged();
-      onTabChange(newChapter.id);
+      onContentChanged();
+      onTabChange(`chapter:${newChapter.id}`);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -81,10 +82,10 @@ export const AdminCourseSidebar = ({
     try {
       setError(null);
       await deleteChapter(course.id, chapterId);
-      if (activeTab === chapterId) {
+      if (activeTab === `chapter:${chapterId}` || activeTab === chapterId) {
         onTabChange('info');
       }
-      onChaptersChanged();
+      onContentChanged();
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -100,36 +101,41 @@ export const AdminCourseSidebar = ({
     const destIdx = result.destination.index;
     if (srcIdx === destIdx) return;
 
-    const reordered = Array.from(chapters);
+    const reordered = Array.from(contentItems);
     const [moved] = reordered.splice(srcIdx, 1);
     reordered.splice(destIdx, 0, moved);
 
     try {
       setError(null);
-      const changedOrders = reordered
-        .map((chapter, idx) => ({
-          chapter,
-          nextOrder: idx + 1,
+      const changedPositions = reordered
+        .map((item, idx) => ({
+          item,
+          nextPosition: idx + 1,
         }))
-        .filter(({ chapter, nextOrder }) => (chapter.order || 0) !== nextOrder);
+        .filter(
+          ({ item, nextPosition }) => (item.position || 0) !== nextPosition
+        );
 
-      if (changedOrders.length === 0) {
+      if (changedPositions.length === 0) {
         return;
       }
 
       await Promise.all(
-        changedOrders.map(({ chapter, nextOrder }) =>
-          updateChapter(course.id, chapter.id, { order: nextOrder })
-        )
+        changedPositions.map(({ item, nextPosition }) => {
+          if (item.itemType === 'chapter') {
+            return updateChapter(course.id, item.id, { order: nextPosition });
+          }
+          return updateActivity(course.id, item.id, { position: nextPosition });
+        })
       );
-      onChaptersChanged();
+      onContentChanged();
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
         setError('Gagal mengurutkan ulang bab.');
       }
-      onChaptersChanged(); // refetch to restore
+      onContentChanged(); // refetch to restore
     }
   };
 
@@ -161,19 +167,19 @@ export const AdminCourseSidebar = ({
         Info Kursus
       </button>
 
-      {/* Chapter list with DnD */}
+      {/* Content list with DnD */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId='chapters'>
+        <Droppable droppableId='content-items'>
           {(provided) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
               className='flex flex-col'
             >
-              {chapters.map((chapter, index) => (
+              {contentItems.map((item, index) => (
                 <Draggable
-                  key={chapter.id}
-                  draggableId={chapter.id}
+                  key={`${item.itemType}:${item.id}`}
+                  draggableId={`${item.itemType}:${item.id}`}
                   index={index}
                 >
                   {(provided, snapshot) => (
@@ -182,7 +188,7 @@ export const AdminCourseSidebar = ({
                       {...provided.draggableProps}
                       className={cn(
                         'flex items-center text-sm text-slate-600 transition-all hover:bg-slate-100 group',
-                        activeTab === chapter.id &&
+                        activeTab === `${item.itemType}:${item.id}` &&
                           'bg-primary-50 text-primary-700 border-r-2 border-primary-700',
                         snapshot.isDragging && 'bg-slate-200 shadow-md'
                       )}
@@ -197,23 +203,27 @@ export const AdminCourseSidebar = ({
 
                       {/* Chapter label */}
                       <button
-                        onClick={() => onTabChange(chapter.id)}
+                        onClick={() =>
+                          onTabChange(`${item.itemType}:${item.id}`)
+                        }
                         className='flex-1 text-left py-4 pl-1 pr-2 font-medium truncate'
                       >
-                        {chapter.title}
+                        {item.title}
                       </button>
 
                       {/* Delete button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteChapter(chapter.id);
-                        }}
-                        className='p-2 mr-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition'
-                        title='Hapus bab'
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      {item.itemType === 'chapter' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteChapter(item.id);
+                          }}
+                          className='p-2 mr-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition'
+                          title='Hapus bab'
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   )}
                 </Draggable>
@@ -272,7 +282,7 @@ export const AdminCourseSidebar = ({
         isOpen={isActivityModalOpen}
         onClose={() => setIsActivityModalOpen(false)}
         courseId={course.id}
-        onActivityCreated={onChaptersChanged}
+        onActivityCreated={onContentChanged}
       />
     </div>
   );
