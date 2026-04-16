@@ -126,7 +126,7 @@ export default function AdminCoursePage() {
           <div className='flex items-center justify-between'>
             <div>
               <h1 className='text-3xl font-bold text-white mb-1'>
-                Admin Course Page
+                Kelola Kursus
               </h1>
               <p className='text-primary-100'>
                 Buat, edit, dan kelola kursus ekonomi syariah Anda di sini.
@@ -171,7 +171,7 @@ export default function AdminCoursePage() {
                 <CourseCard
                   key={course.id}
                   id={course.id}
-                  title={course.title || 'Untitled Course'}
+                  title={course.title || 'Kursus Tanpa Judul'}
                   description={course.description}
                   imageUrl={course.thumbnailUrl || null}
                   chaptersLength={course.totalChapters || 0}
@@ -205,7 +205,7 @@ export default function AdminCoursePage() {
 
             {filteredCourses.length === 0 && (
               <div className='text-center text-sm text-muted-foreground mt-10'>
-                No course found
+                Tidak ada kursus ditemukan
               </div>
             )}
           </>
