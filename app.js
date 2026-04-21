@@ -1,10 +1,20 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const { parse } = require('url');
 const next = require('next');
 
-const dev = process.env.NODE_ENV !== 'production';
+const buildIdPath = path.join(__dirname, '.next', 'BUILD_ID');
+const hasProductionBuild = fs.existsSync(buildIdPath);
+const dev = process.env.NODE_ENV !== 'production' || !hasProductionBuild;
 const hostname = process.env.HOST || '0.0.0.0';
 const port = Number(process.env.PORT || 3000);
+
+if (!hasProductionBuild) {
+  process.stdout.write(
+    'No production build found (.next/BUILD_ID). Starting in development mode.\n',
+  );
+}
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
@@ -24,6 +34,8 @@ app
       });
   })
   .catch((err) => {
-    console.error('Failed to start Next.js server:', err);
+    process.stderr.write(
+      `Failed to start Next.js server: ${err?.stack || String(err)}\n`,
+    );
     process.exit(1);
   });
