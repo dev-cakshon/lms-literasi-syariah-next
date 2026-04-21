@@ -23,8 +23,6 @@ import type {
   CourseContentItem,
   CourseProgress,
   DownloadUrlResponse,
-  Enrollment,
-  EnrollmentStatus,
   LeaderboardUser,
   Quiz,
   QuizSubmitResult,
@@ -70,7 +68,7 @@ async function getFirebaseIdToken(): Promise<string | null> {
 
 async function apiFetch<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const base = API_URL.replace(/\/+$/, '');
   const url = `${base}/v1${path}`;
@@ -127,7 +125,7 @@ export async function authMe(): Promise<UserProfile> {
 
 export async function authAssignRole(
   uid: string,
-  role: string
+  role: string,
 ): Promise<{ uid: string; role: string }> {
   return apiFetch('/auth/assign-role', {
     method: 'POST',
@@ -154,7 +152,7 @@ export async function getUser(uid: string): Promise<UserProfile> {
 
 export async function updateUser(
   uid: string,
-  data: { name?: string; email?: string }
+  data: { name?: string; email?: string },
 ): Promise<UserProfile> {
   return apiFetch(`/users/${uid}`, {
     method: 'PATCH',
@@ -163,7 +161,7 @@ export async function updateUser(
 }
 
 export async function deleteUser(
-  uid: string
+  uid: string,
 ): Promise<{ uid: string; isActive: boolean }> {
   return apiFetch(`/users/${uid}`, { method: 'DELETE' });
 }
@@ -194,7 +192,7 @@ export async function updateCourse(
   courseId: string,
   data: Partial<
     Pick<Course, 'title' | 'description' | 'thumbnailUrl' | 'isPublished'>
-  >
+  >,
 ): Promise<Course> {
   return apiFetch(`/courses/${courseId}`, {
     method: 'PATCH',
@@ -203,7 +201,7 @@ export async function updateCourse(
 }
 
 export async function deleteCourse(
-  courseId: string
+  courseId: string,
 ): Promise<{ id: string; deleted: boolean }> {
   return apiFetch(`/courses/${courseId}`, { method: 'DELETE' });
 }
@@ -216,14 +214,14 @@ export async function getChapters(courseId: string): Promise<Chapter[]> {
 
 export async function getChapter(
   courseId: string,
-  chapterId: string
+  chapterId: string,
 ): Promise<Chapter> {
   return apiFetch(`/courses/${courseId}/chapters/${chapterId}`);
 }
 
 export async function createChapter(
   courseId: string,
-  data: { title: string; content?: string; videoUrl?: string; order?: number }
+  data: { title: string; content?: string; videoUrl?: string; order?: number },
 ): Promise<Chapter> {
   return apiFetch(`/courses/${courseId}/chapters`, {
     method: 'POST',
@@ -236,7 +234,7 @@ export async function updateChapter(
   chapterId: string,
   data: Partial<
     Pick<Chapter, 'title' | 'content' | 'videoUrl' | 'order' | 'isPublished'>
-  >
+  >,
 ): Promise<Chapter> {
   return apiFetch(`/courses/${courseId}/chapters/${chapterId}`, {
     method: 'PATCH',
@@ -246,7 +244,7 @@ export async function updateChapter(
 
 export async function deleteChapter(
   courseId: string,
-  chapterId: string
+  chapterId: string,
 ): Promise<{ id: string; deleted: boolean }> {
   return apiFetch(`/courses/${courseId}/chapters/${chapterId}`, {
     method: 'DELETE',
@@ -265,7 +263,7 @@ export async function getQuiz(courseId: string, quizId: string): Promise<Quiz> {
 
 export async function createQuiz(
   courseId: string,
-  data: { title: string; questions: Quiz['questions'] }
+  data: { title: string; questions: Quiz['questions'] },
 ): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes`, {
     method: 'POST',
@@ -276,7 +274,7 @@ export async function createQuiz(
 export async function updateQuiz(
   courseId: string,
   quizId: string,
-  data: Partial<Pick<Quiz, 'title' | 'questions'>>
+  data: Partial<Pick<Quiz, 'title' | 'questions'>>,
 ): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes/${quizId}`, {
     method: 'PATCH',
@@ -286,7 +284,7 @@ export async function updateQuiz(
 
 export async function deleteQuiz(
   courseId: string,
-  quizId: string
+  quizId: string,
 ): Promise<{ id: string; deleted: boolean }> {
   return apiFetch(`/courses/${courseId}/quizzes/${quizId}`, {
     method: 'DELETE',
@@ -296,7 +294,7 @@ export async function deleteQuiz(
 export async function submitQuiz(
   courseId: string,
   quizId: string,
-  answers: number[]
+  answers: number[],
 ): Promise<QuizSubmitResult> {
   return apiFetch(`/courses/${courseId}/quizzes/${quizId}/submit`, {
     method: 'POST',
@@ -304,40 +302,11 @@ export async function submitQuiz(
   });
 }
 
-// ─── Enrollments endpoints ───────────────────────────────────────────────────
-
-export async function enrollInCourse(courseId: string): Promise<Enrollment> {
-  return apiFetch('/enrollments', {
-    method: 'POST',
-    body: JSON.stringify({ courseId }),
-  });
-}
-
-export async function adminEnrollUser(
-  courseId: string,
-  userId: string
-): Promise<Enrollment> {
-  return apiFetch('/enrollments', {
-    method: 'POST',
-    body: JSON.stringify({ courseId, userId }),
-  });
-}
-
-export async function getMyEnrollments(): Promise<Enrollment[]> {
-  return apiFetch('/enrollments/my');
-}
-
-export async function getEnrollmentStatus(
-  courseId: string
-): Promise<EnrollmentStatus> {
-  return apiFetch(`/enrollments/${courseId}/status`);
-}
-
 // ─── Progress endpoints ──────────────────────────────────────────────────────
 
 export async function markChapterComplete(
   courseId: string,
-  chapterId: string
+  chapterId: string,
 ): Promise<CourseProgress> {
   return apiFetch(`/courses/${courseId}/progress`, {
     method: 'POST',
@@ -346,14 +315,12 @@ export async function markChapterComplete(
 }
 
 export async function getCourseProgressApi(
-  courseId: string
+  courseId: string,
 ): Promise<CourseProgress> {
   return apiFetch(`/courses/${courseId}/progress`);
 }
 
-export async function resetCourseProgressApi(
-  courseId: string
-): Promise<{
+export async function resetCourseProgressApi(courseId: string): Promise<{
   deleted: boolean;
   quizResultsCleared: number;
   activityProgressCleared: number;
@@ -373,7 +340,7 @@ export async function getLeaderboard(): Promise<LeaderboardUser[]> {
 
 export async function sendChatbotMessage(
   message: string,
-  sessionId: string
+  sessionId: string,
 ): Promise<ChatbotMessageResponse> {
   return apiFetch('/chatbot/message', {
     method: 'POST',
@@ -396,7 +363,7 @@ export async function getUploadUrl(data: {
 
 export async function getDownloadUrl(
   fileId: string,
-  path?: string
+  path?: string,
 ): Promise<DownloadUrlResponse> {
   const qs = path ? `?path=${encodeURIComponent(path)}` : '';
   return apiFetch(`/storage/download-url/${fileId}${qs}`);
@@ -407,7 +374,7 @@ export async function getDownloadUrl(
 // Admin CRUD
 export const createActivity = (
   courseId: string,
-  body: Omit<AdminActivity, 'id' | 'createdAt' | 'updatedAt'>
+  body: Omit<AdminActivity, 'id' | 'createdAt' | 'updatedAt'>,
 ): Promise<{ activityId: string }> =>
   apiFetch(`/courses/${courseId}/activities`, {
     method: 'POST',
@@ -416,14 +383,14 @@ export const createActivity = (
 
 export const getActivityAdmin = (
   courseId: string,
-  activityId: string
+  activityId: string,
 ): Promise<AdminActivity> =>
   apiFetch(`/courses/${courseId}/activities/${activityId}`);
 
 export const updateActivity = (
   courseId: string,
   activityId: string,
-  body: Partial<Omit<AdminActivity, 'id' | 'type' | 'createdAt' | 'updatedAt'>>
+  body: Partial<Omit<AdminActivity, 'id' | 'type' | 'createdAt' | 'updatedAt'>>,
 ): Promise<{ message: string }> =>
   apiFetch(`/courses/${courseId}/activities/${activityId}`, {
     method: 'PUT',
@@ -432,7 +399,7 @@ export const updateActivity = (
 
 export const deleteActivity = (
   courseId: string,
-  activityId: string
+  activityId: string,
 ): Promise<{ message: string }> =>
   apiFetch(`/courses/${courseId}/activities/${activityId}`, {
     method: 'DELETE',
@@ -440,19 +407,19 @@ export const deleteActivity = (
 
 // Student endpoints
 export const getCourseContent = (
-  courseId: string
+  courseId: string,
 ): Promise<CourseContentItem[]> => apiFetch(`/courses/${courseId}/content`);
 
 export const getStudentActivity = (
   courseId: string,
-  activityId: string
+  activityId: string,
 ): Promise<StudentActivity> =>
   apiFetch(`/courses/${courseId}/activities/${activityId}`);
 
 export const submitActivity = (
   courseId: string,
   activityId: string,
-  body: SubmitActivityRequest
+  body: SubmitActivityRequest,
 ): Promise<SubmitActivityResponse> =>
   apiFetch(`/courses/${courseId}/activities/${activityId}/submit`, {
     method: 'POST',

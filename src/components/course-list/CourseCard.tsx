@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Gamepad2, Lock } from 'lucide-react';
+import { BookOpen, Gamepad2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -19,7 +19,6 @@ interface CourseCardProps {
   points?: number;
   originalPoints?: number;
   progress?: number;
-  locked?: boolean;
   editUrl?: string;
   actions?: React.ReactNode;
 }
@@ -35,7 +34,6 @@ export const CourseCard = ({
   author,
   points,
   originalPoints,
-  locked = false,
   editUrl,
   actions,
 }: CourseCardProps) => {
@@ -44,17 +42,6 @@ export const CourseCard = ({
       ? imageUrl
       : `/${imageUrl}`
     : null;
-
-  if (locked) {
-    return (
-      <div className='bg-white border rounded-xl overflow-hidden h-full opacity-70'>
-        <div className='relative w-full aspect-video bg-slate-200 flex flex-col items-center justify-center gap-2'>
-          <Lock className='w-10 h-10 text-slate-400' />
-          <span className='text-sm font-medium text-slate-500'>Terkunci</span>
-        </div>
-      </div>
-    );
-  }
 
   const href = editUrl || `/course/${id}`;
 
@@ -105,7 +92,7 @@ export const CourseCard = ({
                   'rounded-full px-2 py-0.5 text-[11px] font-semibold',
                   isPublished
                     ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-amber-100 text-amber-700'
+                    : 'bg-amber-100 text-amber-700',
                 )}
               >
                 {isPublished ? 'Diterbitkan' : 'Draft'}

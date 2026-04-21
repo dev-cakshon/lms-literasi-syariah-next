@@ -1,5 +1,5 @@
 /**
- * Realtime Firestore hooks for enrollment and progress.
+ * Realtime Firestore hooks for progress and leaderboard.
  *
  * These use Firestore `onSnapshot` directly from the client SDK
  * for real-time updates. All other data goes through the API.
@@ -12,7 +12,6 @@ import {
   onSnapshot,
   orderBy,
   query,
-  where,
 } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
@@ -28,62 +27,6 @@ const isBadge = (value: unknown): value is Badge => {
   return typeof value === 'string' && VALID_BADGES.includes(value as Badge);
 };
 
-// ─── useEnrollmentStatus ─────────────────────────────────────────────────────
-
-interface EnrollmentRealtimeData {
-  enrolled: boolean;
-  enrollmentId: string | null;
-  loading: boolean;
-}
-
-export function useEnrollmentStatus(
-  courseId: string | null
-): EnrollmentRealtimeData {
-  const { user } = useAuth();
-  const [data, setData] = useState<EnrollmentRealtimeData>({
-    enrolled: false,
-    enrollmentId: null,
-    loading: true,
-  });
-
-  useEffect(() => {
-    if (!user || !courseId) {
-      setData({ enrolled: false, enrollmentId: null, loading: false });
-      return;
-    }
-
-    const db = getFirestoreInstance();
-    const q = query(
-      collection(db, 'enrollments'),
-      where('userId', '==', user.uid),
-      where('courseId', '==', courseId)
-    );
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        if (snapshot.empty) {
-          setData({ enrolled: false, enrollmentId: null, loading: false });
-        } else {
-          setData({
-            enrolled: true,
-            enrollmentId: snapshot.docs[0].id,
-            loading: false,
-          });
-        }
-      },
-      (err) => {
-        console.error('useEnrollmentStatus error:', err);
-        setData({ enrolled: false, enrollmentId: null, loading: false });
-      }
-    );
-
-    return unsubscribe;
-  }, [user, courseId]);
-
-  return data;
-}
-
 // ─── useCourseProgress ───────────────────────────────────────────────────────
 
 interface CourseProgressRealtime {
@@ -93,7 +36,7 @@ interface CourseProgressRealtime {
 }
 
 export function useCourseProgress(
-  courseId: string | null
+  courseId: string | null,
 ): CourseProgressRealtime {
   const { user } = useAuth();
   const [data, setData] = useState<CourseProgressRealtime>({
@@ -129,7 +72,7 @@ export function useCourseProgress(
       (err) => {
         console.error('useCourseProgress error:', err);
         setData({ completedChapters: [], percentage: 0, loading: false });
-      }
+      },
     );
 
     return unsubscribe;
@@ -154,7 +97,7 @@ export function useLeaderboard(): LeaderboardRealtimeData {
     const usersRef = query(
       collection(db, 'users'),
       orderBy('totalPoints', 'desc'),
-      limit(10)
+      limit(10),
     );
 
     const unsubscribe = onSnapshot(
@@ -190,7 +133,7 @@ export function useLeaderboard(): LeaderboardRealtimeData {
         console.error('useLeaderboard error:', err);
         setData([]);
         setLoading(false);
-      }
+      },
     );
 
     return () => {

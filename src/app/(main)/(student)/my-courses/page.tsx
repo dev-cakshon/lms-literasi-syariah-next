@@ -3,20 +3,15 @@
 import { Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { ApiError, getCourses, getMyEnrollments } from '@/lib/api';
+import { ApiError, getCourses } from '@/lib/api';
 
 import { CourseList } from '@/components/course-list/CourseList';
 
-import type { Course, Enrollment } from '@/types';
-
-interface CourseWithEnrollment extends Course {
-  isEnrolled: boolean;
-}
+import type { Course } from '@/types';
 
 export default function MyCoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState<Course[]>([]);
-  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,17 +22,12 @@ export default function MyCoursesPage() {
       try {
         setLoading(true);
         setError(null);
-
-        const [myEnrollments, allCourses] = await Promise.all([
-          getMyEnrollments(),
-          getCourses(),
-        ]);
+        const allCourses = await getCourses();
 
         if (!active) {
           return;
         }
 
-        setEnrollments(myEnrollments);
         setCourses(allCourses);
       } catch (err) {
         if (!active) {
@@ -65,25 +55,11 @@ export default function MyCoursesPage() {
     };
   }, []);
 
-  const enrolledIds = useMemo(
-    () => new Set(enrollments.map((enrollment) => enrollment.courseId)),
-    [enrollments]
-  );
-
-  const coursesWithStatus = useMemo<CourseWithEnrollment[]>(
-    () =>
-      courses.map((course) => ({
-        ...course,
-        isEnrolled: enrolledIds.has(course.id),
-      })),
-    [courses, enrolledIds]
-  );
-
   const filteredCourses = useMemo(
     () =>
-      coursesWithStatus
+      courses
         .filter((course) =>
-          course.title.toLowerCase().includes(searchQuery.toLowerCase())
+          course.title.toLowerCase().includes(searchQuery.toLowerCase()),
         )
         .map((course) => ({
           id: course.id,
@@ -92,9 +68,8 @@ export default function MyCoursesPage() {
           imageUrl: course.thumbnailUrl ?? course.imageUrl ?? null,
           chaptersLength: course.totalChapters ?? 0,
           isPublished: course.isPublished,
-          locked: !course.isEnrolled,
         })),
-    [coursesWithStatus, searchQuery]
+    [courses, searchQuery],
   );
 
   return (

@@ -13,7 +13,6 @@ interface CourseItem {
   points?: number;
   originalPoints?: number;
   progress?: number;
-  locked?: boolean;
   editUrl?: string;
 }
 
@@ -40,7 +39,6 @@ export const CourseList = ({ items }: CourseListProps) => {
             points={item.points}
             originalPoints={item.originalPoints}
             progress={item.progress}
-            locked={item.locked}
             editUrl={item.editUrl}
           />
         ))}

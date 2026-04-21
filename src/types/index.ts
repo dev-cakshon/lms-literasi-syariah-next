@@ -95,20 +95,6 @@ export interface QuizSubmitResult {
   }[];
 }
 
-// ─── Enrollment types ───
-export interface Enrollment {
-  id: string;
-  userId: string;
-  courseId: string;
-  enrolledAt: string;
-  status?: 'active' | 'completed' | 'cancelled';
-  completedAt?: string;
-}
-
-export interface EnrollmentStatus {
-  enrolled: boolean;
-}
-
 // ─── Progress tracking ───
 export interface CourseProgress {
   id?: string;

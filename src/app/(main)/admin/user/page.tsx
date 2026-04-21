@@ -3,27 +3,15 @@
 import { Search, Shield, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import {
-  adminEnrollUser,
-  ApiError,
-  authAssignRole,
-  deleteUser,
-  getCourses,
-  getUsers,
-} from '@/lib/api';
+import { ApiError, authAssignRole, deleteUser, getUsers } from '@/lib/api';
 
-import type { Course, UserProfile, UserRole } from '@/types';
+import type { UserProfile, UserRole } from '@/types';
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [students, setStudents] = useState<UserProfile[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState('');
-  const [selectedCourseId, setSelectedCourseId] = useState('');
-  const [enrolling, setEnrolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -43,24 +31,6 @@ export default function UserManagementPage() {
     }
   }, [search]);
 
-  const fetchEnrollmentOptions = useCallback(async () => {
-    try {
-      setError(null);
-      const [studentData, courseData] = await Promise.all([
-        getUsers({ role: 'student' }),
-        getCourses(),
-      ]);
-      setStudents(studentData);
-      setCourses(courseData);
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Gagal memuat data enrollment.');
-      }
-    }
-  }, []);
-
   useEffect(() => {
     setLoading(true);
     const timeout = setTimeout(() => {
@@ -69,10 +39,6 @@ export default function UserManagementPage() {
     return () => clearTimeout(timeout);
   }, [fetchUsers]);
 
-  useEffect(() => {
-    fetchEnrollmentOptions();
-  }, [fetchEnrollmentOptions]);
-
   const handleRoleChange = async (uid: string, newRole: UserRole) => {
     setActionLoading(uid);
     try {
@@ -80,7 +46,7 @@ export default function UserManagementPage() {
       setSuccessMessage(null);
       await authAssignRole(uid, newRole);
       setUsers((prev) =>
-        prev.map((u) => (u.uid === uid ? { ...u, role: newRole } : u))
+        prev.map((u) => (u.uid === uid ? { ...u, role: newRole } : u)),
       );
     } catch (err) {
       if (err instanceof ApiError) {
@@ -109,45 +75,6 @@ export default function UserManagementPage() {
       }
     } finally {
       setActionLoading(null);
-    }
-  };
-
-  const handleEnrollUser = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!selectedUserId || !selectedCourseId) {
-      setSuccessMessage(null);
-      setError('Pilih siswa dan kursus terlebih dahulu.');
-      return;
-    }
-
-    try {
-      setEnrolling(true);
-      setError(null);
-      setSuccessMessage(null);
-      await adminEnrollUser(selectedCourseId, selectedUserId);
-
-      const selectedStudent = students.find(
-        (student) => student.uid === selectedUserId
-      );
-      const selectedCourse = courses.find(
-        (course) => course.id === selectedCourseId
-      );
-      const studentName =
-        selectedStudent?.name || selectedStudent?.displayName || 'Siswa';
-      const courseTitle = selectedCourse?.title || 'kursus';
-
-      setSuccessMessage(
-        `Berhasil mendaftarkan ${studentName} ke ${courseTitle}.`
-      );
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Gagal mendaftarkan siswa ke kursus.');
-      }
-    } finally {
-      setEnrolling(false);
     }
   };
 
@@ -188,57 +115,6 @@ export default function UserManagementPage() {
         {successMessage && (
           <p className='text-sm text-green-600'>{successMessage}</p>
         )}
-
-        <div className='bg-white rounded-lg border shadow-sm p-4 md:p-6'>
-          <h2 className='text-lg font-semibold text-slate-800'>
-            Enroll Siswa ke Kursus
-          </h2>
-          <p className='text-sm text-slate-500 mt-1'>
-            Pilih siswa dan kursus, lalu klik tombol enroll.
-          </p>
-
-          <form
-            onSubmit={handleEnrollUser}
-            className='mt-4 grid grid-cols-1 md:grid-cols-3 gap-3'
-          >
-            <select
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
-              className='px-3 py-2 border border-slate-300 rounded text-sm'
-              disabled={enrolling}
-            >
-              <option value=''>Pilih siswa</option>
-              {students.map((student) => (
-                <option key={student.uid} value={student.uid}>
-                  {student.name || student.displayName || 'Tanpa Nama'} (
-                  {student.email})
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={selectedCourseId}
-              onChange={(e) => setSelectedCourseId(e.target.value)}
-              className='px-3 py-2 border border-slate-300 rounded text-sm'
-              disabled={enrolling}
-            >
-              <option value=''>Pilih kursus</option>
-              {courses.map((course) => (
-                <option key={course.id} value={course.id}>
-                  {course.title}
-                </option>
-              ))}
-            </select>
-
-            <button
-              type='submit'
-              disabled={enrolling}
-              className='bg-primary-600 hover:bg-primary-700 text-white font-semibold px-4 py-2 rounded transition disabled:opacity-50'
-            >
-              {enrolling ? 'Memproses...' : 'Enroll Siswa'}
-            </button>
-          </form>
-        </div>
 
         {loading ? (
           <p className='text-sm text-muted-foreground'>Memuat pengguna...</p>
