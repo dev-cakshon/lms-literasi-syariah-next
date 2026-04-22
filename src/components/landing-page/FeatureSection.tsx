@@ -42,7 +42,7 @@ export const FeatureSection = () => {
   ];
 
   return (
-    <section id='feature' className='bg-gray-50 py-20'>
+    <section id='feature' className='bg-ivory py-20'>
       <div className='layout'>
         {/* Section Title */}
         <h2 className='mb-12 text-center text-3xl font-bold text-dark md:text-4xl'>

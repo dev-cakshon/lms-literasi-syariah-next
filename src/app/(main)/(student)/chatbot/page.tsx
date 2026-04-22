@@ -95,7 +95,7 @@ export default function ChatbotPage() {
         // Create new chat for first message
         const response: CreateChatResponse = await createNewChat(
           user.uid,
-          content.trim()
+          content.trim(),
         );
         botReply = response.reply;
         const newChatId = response.chatId;
@@ -127,8 +127,8 @@ export default function ChatbotPage() {
                       : botReply,
                   timestamp: new Date(),
                 }
-              : chat
-          )
+              : chat,
+          ),
         );
       }
 
@@ -155,7 +155,7 @@ export default function ChatbotPage() {
   };
 
   return (
-    <div className='flex h-[calc(100vh-4rem)] bg-gray-50'>
+    <div className='flex h-[calc(100vh-4rem)] bg-ivory'>
       {/* Chat Sidebar */}
       <ChatSidebar
         chats={chats}

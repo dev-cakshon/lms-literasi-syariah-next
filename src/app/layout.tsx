@@ -6,6 +6,8 @@ import '@/styles/globals.css';
 import { siteConfig } from '@/constant/config';
 import { AuthProvider } from '@/contexts/AuthContext';
 
+import { fraunces, inter } from './fonts';
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
@@ -44,8 +46,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='id'>
-      <body>
+    <html lang='id' className={`${inter.variable} ${fraunces.variable}`}>
+      <body className='font-primary bg-ivory text-ink antialiased'>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
