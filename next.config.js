@@ -1,4 +1,21 @@
 /** @type {import('next').NextConfig} */
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+const apiRemotePatterns = [];
+
+if (apiUrl) {
+  try {
+    const parsed = new URL(apiUrl);
+    apiRemotePatterns.push({
+      protocol: parsed.protocol.replace(':', ''),
+      hostname: parsed.hostname,
+      port: parsed.port || undefined,
+    });
+  } catch {
+    // Keep list empty when NEXT_PUBLIC_API_URL is not a valid URL.
+  }
+}
+
 const nextConfig = {
   eslint: {
     dirs: ['src'],
@@ -8,18 +25,13 @@ const nextConfig = {
 
   // Uncoment to add domain whitelist
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
-    ],
+    remotePatterns: apiRemotePatterns,
   },
 
   webpack(config) {
     // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find((rule) =>
-      rule.test?.test?.('.svg')
+      rule.test?.test?.('.svg'),
     );
 
     config.module.rules.push(
@@ -39,7 +51,7 @@ const nextConfig = {
           dimensions: false,
           titleProp: true,
         },
-      }
+      },
     );
 
     // Modify the file loader rule to ignore *.svg, since we have it handled now.

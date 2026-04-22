@@ -4,6 +4,7 @@ import { BookOpen, Gamepad2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { buildMediaViewUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 
 interface CourseCardProps {
@@ -37,11 +38,7 @@ export const CourseCard = ({
   editUrl,
   actions,
 }: CourseCardProps) => {
-  const normalizedImageUrl = imageUrl
-    ? imageUrl.startsWith('http') || imageUrl.startsWith('/')
-      ? imageUrl
-      : `/${imageUrl}`
-    : null;
+  const normalizedImageUrl = imageUrl ? buildMediaViewUrl(imageUrl) : null;
 
   const href = editUrl || `/course/${id}`;
 

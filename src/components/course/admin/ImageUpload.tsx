@@ -4,7 +4,8 @@ import { ImageIcon, Loader2, X } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 
-import { ApiError, getDownloadUrl, getUploadUrl } from '@/lib/api';
+import { ApiError, getUploadUrl } from '@/lib/api';
+import { buildMediaViewUrl } from '@/lib/media';
 
 interface ImageUploadProps {
   value: string;
@@ -22,27 +23,8 @@ export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
       return;
     }
 
-    let active = true;
-
-    const resolvePreview = async () => {
-      try {
-        const { downloadUrl } = await getDownloadUrl('', value);
-        if (active) {
-          setPreviewUrl(downloadUrl);
-        }
-      } catch {
-        if (active) {
-          setPreviewUrl(null);
-          setError('Gagal memuat pratinjau thumbnail.');
-        }
-      }
-    };
-
-    resolvePreview();
-
-    return () => {
-      active = false;
-    };
+    setPreviewUrl(buildMediaViewUrl(value));
+    setError(null);
   }, [value]);
 
   const handleFileChange = useCallback(
@@ -83,9 +65,8 @@ export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
 
         onChange(filePath);
 
-        // Resolve a display URL while storing filePath as permanent value
-        const { downloadUrl } = await getDownloadUrl('', filePath);
-        setPreviewUrl(downloadUrl);
+        // Display through backend resolver while keeping filePath in DB.
+        setPreviewUrl(buildMediaViewUrl(filePath));
       } catch (err) {
         if (err instanceof ApiError) {
           setError(err.message);
@@ -96,7 +77,7 @@ export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
         setUploading(false);
       }
     },
-    [onChange]
+    [onChange],
   );
 
   const handleRemove = () => {

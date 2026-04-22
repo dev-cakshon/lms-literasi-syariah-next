@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { ApiError, updateCourse } from '@/lib/api';
+import { extractStoragePath } from '@/lib/media';
 
 import { ImageUpload } from '@/components/course/admin/ImageUpload';
 import { Button } from '@/components/ui/button';
@@ -82,6 +83,9 @@ export const CourseInfoForm = ({
       setSaving(true);
       setError(null);
       const patch: CoursePatchPayload = {};
+      const normalizedThumbnail = values.thumbnailUrl
+        ? extractStoragePath(values.thumbnailUrl)
+        : '';
 
       if (values.title !== course.title) {
         patch.title = values.title;
@@ -91,8 +95,8 @@ export const CourseInfoForm = ({
         patch.description = values.description || '';
       }
 
-      if ((values.thumbnailUrl || '') !== (course.thumbnailUrl || '')) {
-        patch.thumbnailUrl = values.thumbnailUrl || undefined;
+      if ((normalizedThumbnail || '') !== (course.thumbnailUrl || '')) {
+        patch.thumbnailUrl = normalizedThumbnail || undefined;
       }
 
       if ((values.isPublished ?? false) !== (course.isPublished ?? false)) {
