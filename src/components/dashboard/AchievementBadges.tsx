@@ -1,12 +1,34 @@
 'use client';
 
-import { Lock, ShieldCheck, Trophy } from 'lucide-react';
+import {
+  BookOpenCheck,
+  Lock,
+  Medal,
+  PartyPopper,
+  ShieldCheck,
+  Trophy,
+} from 'lucide-react';
 
 import { useAuth } from '@/contexts/AuthContext';
 
 import type { UserProfile } from '@/types';
 
 const ALL_BADGES = [
+  {
+    key: 'newcomer',
+    label: 'Newcomer',
+    description: 'Membuat akun pertama di platform',
+  },
+  {
+    key: 'first_step',
+    label: 'First Step',
+    description: 'Menyelesaikan chapter pertama',
+  },
+  {
+    key: 'active_learner',
+    label: 'Active Learner',
+    description: 'Menyelesaikan aktivitas belajar',
+  },
   {
     key: 'perfect_score',
     label: 'Perfect Score',
@@ -17,15 +39,28 @@ const ALL_BADGES = [
     label: 'Top 3',
     description: 'Ranked in the top 3 on the leaderboard',
   },
+  {
+    key: 'number_1',
+    label: 'Number 1',
+    description: 'Menjadi peringkat 1 di leaderboard',
+  },
 ] as const;
 
 type BadgeKey = (typeof ALL_BADGES)[number]['key'];
 
 const getBadgeIcon = (badgeKey: BadgeKey) => {
-  if (badgeKey === 'perfect_score') {
-    return <ShieldCheck className='w-6 h-6' />;
+  switch (badgeKey) {
+    case 'newcomer':
+      return <PartyPopper className='w-6 h-6' />;
+    case 'first_step':
+      return <BookOpenCheck className='w-6 h-6' />;
+    case 'active_learner':
+      return <Medal className='w-6 h-6' />;
+    case 'perfect_score':
+      return <ShieldCheck className='w-6 h-6' />;
+    default:
+      return <Trophy className='w-6 h-6' />;
   }
-  return <Trophy className='w-6 h-6' />;
 };
 
 const hasBadge = (profile: UserProfile, badgeKey: BadgeKey): boolean => {
@@ -50,7 +85,7 @@ export const AchievementBadges = () => {
   return (
     <div className='flex flex-col justify-center h-full'>
       <h3 className='text-lg font-bold text-gray-800 mb-4'>Badges</h3>
-      <div className='grid grid-cols-2 gap-3'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
         {ALL_BADGES.map((badge) => {
           const unlocked = hasBadge(profile, badge.key);
 

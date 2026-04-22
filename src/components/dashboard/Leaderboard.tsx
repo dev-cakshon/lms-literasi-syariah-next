@@ -15,6 +15,7 @@ import { useLeaderboard } from '@/hooks/use-realtime';
 import { useAuth } from '@/contexts/AuthContext';
 
 import type { Badge, LeaderboardUser } from '@/types';
+import { BADGE_IDS } from '@/types';
 
 interface LeaderboardProps {
   users?: unknown;
@@ -30,10 +31,10 @@ interface CurrentUserRankState {
   rank: number;
 }
 
-const VALID_BADGES: Badge[] = ['perfect_score', 'top_3'];
+const VALID_BADGES = new Set<string>(BADGE_IDS);
 
 const isBadge = (value: unknown): value is Badge => {
-  return typeof value === 'string' && VALID_BADGES.includes(value as Badge);
+  return typeof value === 'string' && VALID_BADGES.has(value);
 };
 
 const getSafeBadgeArray = (value: unknown): Badge[] => {
@@ -45,7 +46,7 @@ const getSafeBadgeArray = (value: unknown): Badge[] => {
 
 const mapUserDocToLeaderboardUser = (
   raw: unknown,
-  fallbackUid: string
+  fallbackUid: string,
 ): LeaderboardUser => {
   const parsed =
     typeof raw === 'object' && raw !== null
@@ -78,17 +79,17 @@ export const Leaderboard = (_props: LeaderboardProps) => {
         ...leaderboardUser,
         rank: index + 1,
       })),
-    [data]
+    [data],
   );
 
   const currentUserTopTenEntry = useMemo(
     () =>
       currentUserUid
-        ? leaderboardData.find(
-            (leaderboardUser) => leaderboardUser.uid === currentUserUid
-          ) ?? null
+        ? (leaderboardData.find(
+            (leaderboardUser) => leaderboardUser.uid === currentUserUid,
+          ) ?? null)
         : null,
-    [currentUserUid, leaderboardData]
+    [currentUserUid, leaderboardData],
   );
 
   useEffect(() => {
@@ -114,12 +115,12 @@ export const Leaderboard = (_props: LeaderboardProps) => {
 
         const userData = mapUserDocToLeaderboardUser(
           userSnap.data(),
-          userSnap.id
+          userSnap.id,
         );
 
         const higherScoreQuery = query(
           collection(db, 'users'),
-          where('totalPoints', '>', userData.totalPoints)
+          where('totalPoints', '>', userData.totalPoints),
         );
         const higherScoreSnapshot = await getDocs(higherScoreQuery);
         const rank = higherScoreSnapshot.size + 1;
@@ -223,15 +224,15 @@ export const Leaderboard = (_props: LeaderboardProps) => {
                     isCurrentUser
                       ? 'bg-primary-100'
                       : index % 2 === 0
-                      ? 'bg-white'
-                      : 'bg-gray-100/80'
+                        ? 'bg-white'
+                        : 'bg-gray-100/80'
                   }`}
                 >
                   <td className='py-3 px-4'>
                     <div className='flex items-center gap-2'>
                       <span
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
-                          leaderboardUser.rank
+                          leaderboardUser.rank,
                         )}`}
                       >
                         {leaderboardUser.rank <= 3
@@ -276,7 +277,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
                     <div className='flex items-center gap-2'>
                       <span
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
-                          currentUserRankState.rank
+                          currentUserRankState.rank,
                         )}`}
                       >
                         {currentUserRankState.rank <= 3
