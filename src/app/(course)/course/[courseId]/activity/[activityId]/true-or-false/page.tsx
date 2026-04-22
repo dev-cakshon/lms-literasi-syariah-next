@@ -1,11 +1,12 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 
 import { getStudentActivity, submitActivity } from '@/lib/api';
 
 import { ActivityResultScreen } from '@/components/activity/ActivityResultScreen';
-import Button from '@/components/buttons/Button';
+import { Button } from '@/components/ui/button';
 
 import { CourseLayoutContext } from '@/app/(course)/course/[courseId]/CourseLayoutContext';
 
@@ -30,7 +31,7 @@ export default function TrueOrFalseActivityPage({
   const [courseId, setCourseId] = useState<string | null>(null);
   const [activityId, setActivityId] = useState<string | null>(null);
   const [activity, setActivity] = useState<StudentTrueOrFalseActivity | null>(
-    null
+    null,
   );
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [result, setResult] = useState<SubmitActivityResponse | null>(null);
@@ -57,7 +58,7 @@ export default function TrueOrFalseActivityPage({
       try {
         const data = (await getStudentActivity(
           resolvedCourseId,
-          resolvedActivityId
+          resolvedActivityId,
         )) as StudentActivity;
 
         if (data.type !== 'true_or_false') {
@@ -168,7 +169,7 @@ export default function TrueOrFalseActivityPage({
               </p>
               <div className='flex gap-2'>
                 <Button
-                  variant={answers[answerKey] === true ? 'primary' : 'outline'}
+                  variant={answers[answerKey] === true ? 'default' : 'outline'}
                   size='sm'
                   onClick={() => setStatementAnswer(answerKey, true)}
                   className={
@@ -180,7 +181,7 @@ export default function TrueOrFalseActivityPage({
                   Benar
                 </Button>
                 <Button
-                  variant={answers[answerKey] === false ? 'primary' : 'outline'}
+                  variant={answers[answerKey] === false ? 'default' : 'outline'}
                   size='sm'
                   onClick={() => setStatementAnswer(answerKey, false)}
                   className={
@@ -198,12 +199,9 @@ export default function TrueOrFalseActivityPage({
       </div>
 
       <div className='flex justify-end'>
-        <Button
-          onClick={onSubmit}
-          isLoading={submitting}
-          disabled={!isAllAnswered}
-        >
-          Kirim Jawaban
+        <Button onClick={onSubmit} disabled={!isAllAnswered || submitting}>
+          {submitting ? <Loader2 className='h-4 w-4 animate-spin' /> : null}
+          <span>Kirim Jawaban</span>
         </Button>
       </div>
     </div>

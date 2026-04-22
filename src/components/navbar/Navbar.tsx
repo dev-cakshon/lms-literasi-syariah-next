@@ -2,9 +2,15 @@
 
 import { ChevronDown, LogOut, Menu, User, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { Logo } from '@/components/sidebar/Logo';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -14,27 +20,11 @@ export const Navbar = () => {
   const { user, userProfile, logout } = useAuth();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = async () => {
     await logout();
     router.push('/');
   };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setUserDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   return (
     <nav className='sticky top-0 z-50 w-full bg-white shadow-sm'>
@@ -51,38 +41,31 @@ export const Navbar = () => {
           </div>
 
           {/* User Dropdown (Desktop) */}
-          <div className='hidden md:block relative' ref={dropdownRef}>
-            <button
-              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className='flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 transition cursor-pointer'
-            >
-              <div className='w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center'>
-                <User className='w-4 h-4 text-primary-600' />
-              </div>
-              <span className='text-sm font-medium text-slate-700 max-w-30 truncate'>
-                {userProfile?.displayName || user?.email || 'Student'}
-              </span>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-500 transition-transform ${
-                  userDropdownOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
-
-            {userDropdownOpen && (
-              <div className='absolute right-0 mt-1 w-48 bg-white rounded-md border shadow-lg py-1'>
-                <button
-                  onClick={() => {
-                    setUserDropdownOpen(false);
-                    handleSignOut();
-                  }}
-                  className='w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer'
-                >
-                  <LogOut className='w-4 h-4' />
-                  Keluar
+          <div className='hidden md:block'>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className='flex items-center gap-2 rounded-md px-3 py-2 transition hover:bg-slate-100 cursor-pointer'>
+                  <div className='flex h-8 w-8 items-center justify-center rounded-full bg-primary-100'>
+                    <User className='h-4 w-4 text-primary-600' />
+                  </div>
+                  <span className='max-w-30 truncate text-sm font-medium text-slate-700'>
+                    {userProfile?.displayName || user?.email || 'Student'}
+                  </span>
+                  <ChevronDown className='h-4 w-4 text-slate-500' />
                 </button>
-              </div>
-            )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-48'>
+                <DropdownMenuItem
+                  onClick={() => {
+                    void handleSignOut();
+                  }}
+                  className='cursor-pointer text-slate-600 focus:text-slate-900'
+                >
+                  <LogOut className='mr-2 h-4 w-4' />
+                  Keluar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Mobile Menu Button */}

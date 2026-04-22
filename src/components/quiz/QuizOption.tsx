@@ -1,6 +1,6 @@
 'use client';
 
-import Button from '@/components/buttons/Button';
+import { Button } from '@/components/ui/button';
 
 interface QuizOptionProps {
   option: string;
@@ -19,7 +19,7 @@ export const QuizOption = ({
     <Button
       onClick={onSelect}
       variant='outline'
-      className={`w-full justify-start text-left p-4 rounded-xl ${
+      className={`h-auto w-full justify-start rounded-xl p-4 text-left ${
         isSelected
           ? 'bg-primary-50 border-primary-500'
           : 'hover:bg-white hover:border-primary-400'
