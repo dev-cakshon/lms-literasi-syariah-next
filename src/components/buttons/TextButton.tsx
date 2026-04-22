@@ -17,7 +17,7 @@ const TextButton = React.forwardRef<HTMLButtonElement, TextButtonProps>(
       disabled: buttonDisabled,
       ...rest
     },
-    ref
+    ref,
   ) => {
     return (
       <button
@@ -34,19 +34,19 @@ const TextButton = React.forwardRef<HTMLButtonElement, TextButtonProps>(
             'disabled:text-primary-200',
           ],
           variant === 'basic' && [
-            'text-black hover:text-gray-600 active:text-gray-800',
+            'text-black hover:text-gray-600 active:text-ink',
             'disabled:text-gray-300',
           ],
           //#endregion  //*======== Variant ===========
           'disabled:cursor-not-allowed disabled:brightness-105 disabled:hover:underline',
-          className
+          className,
         )}
         {...rest}
       >
         {children}
       </button>
     );
-  }
+  },
 );
 
 export default TextButton;

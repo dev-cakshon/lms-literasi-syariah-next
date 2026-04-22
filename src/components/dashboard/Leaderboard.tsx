@@ -45,7 +45,7 @@ const getSafeBadgeArray = (value: unknown): Badge[] => {
 
 const mapUserDocToLeaderboardUser = (
   raw: unknown,
-  fallbackUid: string
+  fallbackUid: string,
 ): LeaderboardUser => {
   const parsed =
     typeof raw === 'object' && raw !== null
@@ -78,17 +78,17 @@ export const Leaderboard = (_props: LeaderboardProps) => {
         ...leaderboardUser,
         rank: index + 1,
       })),
-    [data]
+    [data],
   );
 
   const currentUserTopTenEntry = useMemo(
     () =>
       currentUserUid
-        ? leaderboardData.find(
-            (leaderboardUser) => leaderboardUser.uid === currentUserUid
-          ) ?? null
+        ? (leaderboardData.find(
+            (leaderboardUser) => leaderboardUser.uid === currentUserUid,
+          ) ?? null)
         : null,
-    [currentUserUid, leaderboardData]
+    [currentUserUid, leaderboardData],
   );
 
   useEffect(() => {
@@ -114,12 +114,12 @@ export const Leaderboard = (_props: LeaderboardProps) => {
 
         const userData = mapUserDocToLeaderboardUser(
           userSnap.data(),
-          userSnap.id
+          userSnap.id,
         );
 
         const higherScoreQuery = query(
           collection(db, 'users'),
-          where('totalPoints', '>', userData.totalPoints)
+          where('totalPoints', '>', userData.totalPoints),
         );
         const higherScoreSnapshot = await getDocs(higherScoreQuery);
         const rank = higherScoreSnapshot.size + 1;
@@ -174,7 +174,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
   if (loading) {
     return (
       <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
-        <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
+        <h2 className='text-xl font-bold text-ink mb-6'>Leaderboard</h2>
         <div className='space-y-3 animate-pulse'>
           <div className='h-12 rounded-lg bg-gray-200' />
           <div className='h-12 rounded-lg bg-gray-200' />
@@ -189,7 +189,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
   if (leaderboardData.length === 0) {
     return (
       <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
-        <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
+        <h2 className='text-xl font-bold text-ink mb-6'>Leaderboard</h2>
         <div className='text-center py-8 text-gray-500'>
           <p>Belum ada data leaderboard.</p>
         </div>
@@ -199,7 +199,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
 
   return (
     <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
-      <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
+      <h2 className='text-xl font-bold text-ink mb-6'>Leaderboard</h2>
 
       <div className='overflow-hidden rounded-xl'>
         <table className='w-full'>
@@ -223,15 +223,15 @@ export const Leaderboard = (_props: LeaderboardProps) => {
                     isCurrentUser
                       ? 'bg-primary-100'
                       : index % 2 === 0
-                      ? 'bg-white'
-                      : 'bg-gray-100/80'
+                        ? 'bg-white'
+                        : 'bg-gray-100/80'
                   }`}
                 >
                   <td className='py-3 px-4'>
                     <div className='flex items-center gap-2'>
                       <span
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
-                          leaderboardUser.rank
+                          leaderboardUser.rank,
                         )}`}
                       >
                         {leaderboardUser.rank <= 3
@@ -245,7 +245,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
                       <div className='w-9 h-9 rounded-full bg-linear-to-br from-primary-400 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm'>
                         {leaderboardUser.name.charAt(0).toUpperCase()}
                       </div>
-                      <span className='font-medium text-gray-800'>
+                      <span className='font-medium text-ink'>
                         {leaderboardUser.name}
                       </span>
                     </div>
@@ -276,7 +276,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
                     <div className='flex items-center gap-2'>
                       <span
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
-                          currentUserRankState.rank
+                          currentUserRankState.rank,
                         )}`}
                       >
                         {currentUserRankState.rank <= 3
@@ -290,7 +290,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
                       <div className='w-9 h-9 rounded-full bg-linear-to-br from-primary-400 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm'>
                         {currentUserRankState.user.name.charAt(0).toUpperCase()}
                       </div>
-                      <span className='font-medium text-gray-800'>
+                      <span className='font-medium text-ink'>
                         {currentUserRankState.user.name}
                       </span>
                     </div>

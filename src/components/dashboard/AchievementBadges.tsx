@@ -38,7 +38,7 @@ export const AchievementBadges = () => {
   if (loading || profile === null) {
     return (
       <div className='flex flex-col justify-center h-full'>
-        <h3 className='text-lg font-bold text-gray-800 mb-4'>Badges</h3>
+        <h3 className='text-lg font-bold text-ink mb-4'>Badges</h3>
         <div className='grid grid-cols-2 gap-3 animate-pulse'>
           <div className='h-20 rounded-xl bg-gray-200' />
           <div className='h-20 rounded-xl bg-gray-200' />
@@ -49,7 +49,7 @@ export const AchievementBadges = () => {
 
   return (
     <div className='flex flex-col justify-center h-full'>
-      <h3 className='text-lg font-bold text-gray-800 mb-4'>Badges</h3>
+      <h3 className='text-lg font-bold text-ink mb-4'>Badges</h3>
       <div className='grid grid-cols-2 gap-3'>
         {ALL_BADGES.map((badge) => {
           const unlocked = hasBadge(profile, badge.key);

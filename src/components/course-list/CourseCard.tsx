@@ -101,7 +101,7 @@ export const CourseCard = ({
           </div>
 
           {/* Title */}
-          <h3 className='font-semibold text-sm text-gray-800 group-hover:text-primary-700 transition line-clamp-2 mb-1'>
+          <h3 className='font-semibold text-sm text-ink group-hover:text-primary-700 transition line-clamp-2 mb-1'>
             {title}
           </h3>
 

@@ -25,7 +25,7 @@ export const ChatMessage = ({ role, content }: ChatMessageProps) => {
       {/* Message Content */}
       <div
         className={`flex-1 max-w-[70%] rounded-2xl p-4 ${
-          isBot ? 'bg-primary-50 text-gray-800' : 'bg-primary-600 text-white'
+          isBot ? 'bg-primary-50 text-ink' : 'bg-primary-600 text-white'
         }`}
       >
         <div

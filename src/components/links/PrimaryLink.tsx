@@ -27,17 +27,17 @@ const PrimaryLink = React.forwardRef<HTMLAnchorElement, PrimaryLinkProps>(
             'disabled:text-primary-200',
           ],
           variant === 'basic' && [
-            'text-black hover:text-gray-600 active:text-gray-800',
+            'text-black hover:text-gray-600 active:text-ink',
             'disabled:text-gray-300',
           ],
           //#endregion  //*======== Variant ===========
-          className
+          className,
         )}
       >
         {children}
       </UnstyledLink>
     );
-  }
+  },
 );
 
 export default PrimaryLink;

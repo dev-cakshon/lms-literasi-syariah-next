@@ -8,7 +8,7 @@ import type { UserProfile } from '@/types';
 
 const isProfileLoading = (
   loading: boolean,
-  profile: UserProfile | null
+  profile: UserProfile | null,
 ): profile is null => {
   return loading || profile === null;
 };
@@ -65,7 +65,7 @@ export const ProfileInfo = () => {
   return (
     <div className='flex flex-col justify-center h-full space-y-4'>
       <div>
-        <h3 className='text-xl font-bold text-gray-800'>{userProfile.name}</h3>
+        <h3 className='text-xl font-bold text-ink'>{userProfile.name}</h3>
         <p className='text-sm text-gray-500'>{userProfile.email}</p>
       </div>
 

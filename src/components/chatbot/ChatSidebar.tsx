@@ -38,9 +38,7 @@ export const ChatSidebar = ({
       {/* Header */}
       <div className='p-3 border-b border-gray-200 flex items-center justify-between gap-2'>
         {!isCollapsed && (
-          <h2 className='font-semibold text-gray-800 text-sm pl-1'>
-            Riwayat Chat
-          </h2>
+          <h2 className='font-semibold text-ink text-sm pl-1'>Riwayat Chat</h2>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}

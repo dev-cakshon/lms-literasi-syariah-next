@@ -181,7 +181,7 @@ export default function ChatbotPage() {
                 <div className='w-20 h-20 rounded-2xl bg-primary-100 flex items-center justify-center mb-5'>
                   <Bot className='w-10 h-10 text-primary-600' />
                 </div>
-                <h2 className='text-2xl font-bold text-gray-800 mb-2'>
+                <h2 className='text-2xl font-bold text-ink mb-2'>
                   Asisten AI Syariah
                 </h2>
                 <p className='text-gray-500 max-w-md mb-6'>
