@@ -1,6 +1,13 @@
 'use client';
 
-import { Award, ShieldCheck, Trophy } from 'lucide-react';
+import {
+  Award,
+  BookOpenCheck,
+  Medal,
+  PartyPopper,
+  ShieldCheck,
+  Trophy,
+} from 'lucide-react';
 
 import Button from '@/components/buttons/Button';
 import { Badge as UIBadge } from '@/components/ui/badge';
@@ -22,6 +29,18 @@ interface BadgeAwardModalProps {
 }
 
 const BADGE_COPY: Record<Badge, { label: string; description: string }> = {
+  newcomer: {
+    label: 'Newcomer',
+    description: 'Selamat datang. Akunmu berhasil dibuat dan siap belajar.',
+  },
+  first_step: {
+    label: 'First Step',
+    description: 'Kamu menyelesaikan chapter pertamamu. Lanjutkan!',
+  },
+  active_learner: {
+    label: 'Active Learner',
+    description: 'Kamu aktif menyelesaikan aktivitas pembelajaran.',
+  },
   perfect_score: {
     label: 'Perfect Score',
     description: 'You achieved 100% on a quiz. Excellent work!',
@@ -30,14 +49,25 @@ const BADGE_COPY: Record<Badge, { label: string; description: string }> = {
     label: 'Top 3',
     description: 'You reached the top 3 on the leaderboard.',
   },
+  number_1: {
+    label: 'Number 1',
+    description: 'Luar biasa. Kamu berada di posisi puncak leaderboard.',
+  },
 };
 
 const getBadgeIcon = (badge: Badge) => {
-  if (badge === 'perfect_score') {
-    return <ShieldCheck className='h-5 w-5 text-primary-700' />;
+  switch (badge) {
+    case 'newcomer':
+      return <PartyPopper className='h-5 w-5 text-primary-700' />;
+    case 'first_step':
+      return <BookOpenCheck className='h-5 w-5 text-primary-700' />;
+    case 'active_learner':
+      return <Medal className='h-5 w-5 text-primary-700' />;
+    case 'perfect_score':
+      return <ShieldCheck className='h-5 w-5 text-primary-700' />;
+    default:
+      return <Trophy className='h-5 w-5 text-primary-700' />;
   }
-
-  return <Trophy className='h-5 w-5 text-primary-700' />;
 };
 
 export const BadgeAwardModal = ({

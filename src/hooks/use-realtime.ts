@@ -20,11 +20,12 @@ import { getFirestoreInstance } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 
 import type { Badge, LeaderboardUser } from '@/types';
+import { BADGE_IDS } from '@/types';
 
-const VALID_BADGES: Badge[] = ['perfect_score', 'top_3'];
+const VALID_BADGES = new Set<string>(BADGE_IDS);
 
 const isBadge = (value: unknown): value is Badge => {
-  return typeof value === 'string' && VALID_BADGES.includes(value as Badge);
+  return typeof value === 'string' && VALID_BADGES.has(value);
 };
 
 // ─── useCourseProgress ───────────────────────────────────────────────────────

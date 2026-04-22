@@ -51,7 +51,8 @@ export const MarkCompleteButton = ({
     try {
       const result = await markChapterComplete(courseId, chapterId);
       const awarded = result.pointsAwarded ?? 0;
-      const badges = result.badges ?? [];
+      const badges =
+        result.badges ?? result.earnedBadges?.map((badge) => badge.id) ?? [];
 
       if (awarded > 0) {
         setToastPoints(awarded);
@@ -63,7 +64,7 @@ export const MarkCompleteButton = ({
       }
 
       const currentIndex = contentItems.findIndex(
-        (item) => item.id === chapterId
+        (item) => item.id === chapterId,
       );
       const nextItem =
         currentIndex !== -1 && currentIndex < contentItems.length - 1
@@ -76,8 +77,8 @@ export const MarkCompleteButton = ({
               nextItem.type === 'drag_drop'
                 ? 'drag-drop'
                 : nextItem.type === 'word_search'
-                ? 'word-search'
-                : 'true-or-false'
+                  ? 'word-search'
+                  : 'true-or-false'
             }`
         : `/course/${courseId}`;
 
