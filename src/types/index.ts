@@ -248,6 +248,7 @@ export interface SubmitActivityRequest {
 
 export interface SubmitActivityResponse {
   score: number;
+  totalItems: number;
   maxPoints: number;
   scorePercent: number;
   pointsEarned: number;

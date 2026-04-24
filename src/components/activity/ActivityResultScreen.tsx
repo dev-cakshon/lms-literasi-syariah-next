@@ -63,7 +63,7 @@ export const ActivityResultScreen = ({
               Hasil Aktivitas
             </p>
             <h1 className='mt-3 text-5xl font-bold text-slate-900'>
-              {result.score} / {result.maxPoints}
+              {result.score} / {result.totalItems}
             </h1>
             <p className='mt-2 text-lg font-medium text-slate-600'>
               {result.scorePercent}%
