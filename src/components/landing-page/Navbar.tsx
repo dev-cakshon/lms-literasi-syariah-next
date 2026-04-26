@@ -1,5 +1,6 @@
 'use client';
 
+import { Menu, X } from 'lucide-react';
 import * as React from 'react';
 
 import ButtonLink from '../links/ButtonLink';
@@ -13,7 +14,6 @@ export const Navbar = () => {
       <nav className='layout flex items-center justify-between py-4'>
         {/* Logo */}
         <div className='flex items-center'>
-          {/* <Logo className='h-8 w-8' /> */}
           <h1>EaSyariah</h1>
         </div>
 
@@ -37,13 +37,9 @@ export const Navbar = () => {
           >
             Fitur
           </UnstyledLink>
-          {/* <ButtonLink href='/dashboard'>Dashboard</ButtonLink> */}
           <ButtonLink href='/login' variant='primary'>
             Masuk
           </ButtonLink>
-          {/* <ButtonLink href='/signup' variant='primary'>
-                        Daftar
-                    </ButtonLink> */}
         </div>
 
         {/* Mobile Menu Button */}
@@ -52,21 +48,11 @@ export const Navbar = () => {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label='Toggle menu'
         >
-          <svg
-            className='h-6 w-6 text-gray-700'
-            fill='none'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            strokeWidth='2'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-          >
-            {isMobileMenuOpen ? (
-              <path d='M6 18L18 6M6 6l12 12' />
-            ) : (
-              <path d='M4 6h16M4 12h16M4 18h16' />
-            )}
-          </svg>
+          {isMobileMenuOpen ? (
+            <X className='h-6 w-6 text-gray-700' />
+          ) : (
+            <Menu className='h-6 w-6 text-gray-700' />
+          )}
         </button>
       </nav>
 

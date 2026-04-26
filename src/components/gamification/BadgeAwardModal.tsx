@@ -9,8 +9,8 @@ import {
   Trophy,
 } from 'lucide-react';
 
-import Button from '@/components/buttons/Button';
 import { Badge as UIBadge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,

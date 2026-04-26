@@ -28,7 +28,7 @@ export const SearchInput = () => {
           title: debounceValue,
         },
       },
-      { skipNull: true, skipEmptyString: true }
+      { skipNull: true, skipEmptyString: true },
     );
     router.push(url);
   }, [pathname, debounceValue, currentCategoryId, router]);
@@ -37,9 +37,10 @@ export const SearchInput = () => {
     <div className='relative'>
       <Search className='h-4 w-4 mr-2 absolute top-3 left-3 text-slate-600' />
       <Input
+        variant='pill'
         onChange={(e) => setValue(e.target.value)}
         value={value}
-        className='pl-9 w-full md:w-[300px] rounded-full bg-slate-100 focus-visible:ring-slate-200'
+        className='pl-9 w-full md:w-[300px] bg-slate-100 focus-visible:ring-slate-200'
         placeholder='Cari nama kursus...'
       />
     </div>
