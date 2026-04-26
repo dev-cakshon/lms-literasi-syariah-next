@@ -2,10 +2,21 @@
 @plugin '@tailwindcss/forms';
 
 @theme {
-  /* Font configuration */
-  --font-primary: 'Inter', system-ui, sans-serif;
+  /* Fonts — reference CSS vars injected by next/font/google on <html> */
+  --font-display: var(--font-fraunces), 'Fraunces', Georgia, serif;
+  --font-primary: var(--font-inter), system-ui, sans-serif;
 
-  /* Primary color palette - converted to modern oklch format */
+  /* Typography scale */
+  --tracking-tight: -0.02em;
+  --tracking-display: -0.04em;
+  --leading-display: 1.1;
+  --leading-body: 1.6;
+
+  /* Brand colors */
+  --color-ivory: oklch(0.98 0.01 85);
+  --color-ink: oklch(0.25 0.02 250);
+
+  /* Primary color palette */
   --color-primary-50: oklch(0.979 0.021 166.113); /* #ecfdf5 */
   --color-primary-100: oklch(0.95 0.052 163.051); /* #d1fae5 */
   --color-primary-200: oklch(0.905 0.093 164.15); /* #a7f3d0 */
@@ -21,7 +32,7 @@
   /* Dark color */
   --color-dark: #222222;
 
-  /* Sky color palette - for active states */
+  /* Sky color palette */
   --color-sky-50: #f0f9ff;
   --color-sky-100: #e0f2fe;
   --color-sky-200: #bae6fd;
@@ -34,7 +45,7 @@
   --color-sky-900: #0c4a6e;
   --color-sky-950: #082f49;
 
-  /* Slate color palette - for neutral UI elements */
+  /* Slate color palette */
   --color-slate-50: #f8fafc;
   --color-slate-100: #f1f5f9;
   --color-slate-200: #e2e8f0;
@@ -47,7 +58,7 @@
   --color-slate-900: #0f172a;
   --color-slate-950: #020617;
 
-  /* Gray color palette - for general UI */
+  /* Gray color palette */
   --color-gray-50: #f9fafb;
   --color-gray-100: #f3f4f6;
   --color-gray-200: #e5e7eb;
@@ -60,19 +71,14 @@
   --color-gray-900: #111827;
   --color-gray-950: #030712;
 
-  /* Animation configuration */
-  --animate-flicker: flicker 3s linear infinite;
-  --animate-shimmer: shimmer 1.3s linear infinite;
-
-  /* Custom CSS Variables for components */
+  /* Shadcn semantic tokens — required for TW utilities (bg-background, border-border, etc.)
+     --color-primary removed: use the oklch primary scale above instead */
   --color-background: 0 0% 100%;
   --color-foreground: 222.2 84% 4.9%;
   --color-card: 0 0% 100%;
   --color-card-foreground: 222.2 84% 4.9%;
   --color-popover: 0 0% 100%;
   --color-popover-foreground: 222.2 84% 4.9%;
-  --color-primary: 160 84% 39%;
-  --color-primary-foreground: 210 40% 98%;
   --color-secondary: 210 40% 96.1%;
   --color-secondary-foreground: 222.2 47.4% 11.2%;
   --color-muted: 210 40% 96.1%;
@@ -89,8 +95,22 @@
   --radius-lg: 0.5rem;
   --radius-md: calc(0.5rem - 2px);
   --radius-sm: calc(0.5rem - 4px);
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+  --radius-control: 0.5rem;
 
-  /* Keyframes for animations */
+  /* Elevation shadows — ink-hued rgba, not pure black */
+  --shadow-elevated-1:
+    0 1px 3px rgba(30, 25, 48, 0.08), 0 1px 2px rgba(30, 25, 48, 0.05);
+  --shadow-elevated-2:
+    0 4px 12px rgba(30, 25, 48, 0.12), 0 2px 6px rgba(30, 25, 48, 0.07);
+  --shadow-elevated-3:
+    0 16px 48px rgba(30, 25, 48, 0.18), 0 8px 24px rgba(30, 25, 48, 0.1);
+
+  /* Animation */
+  --animate-flicker: flicker 3s linear infinite;
+  --animate-shimmer: shimmer 1.3s linear infinite;
+
   @keyframes accordion-down {
     from {
       height: 0;
@@ -108,12 +128,10 @@
     }
   }
 
-  /* Animation utilities */
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
-/* Animation keyframes */
 @keyframes flicker {
   0%,
   19.999%,
@@ -149,35 +167,25 @@
 }
 
 @layer base {
-  /* inter var - latin */
-  @font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url('/fonts/inter-var-latin.woff2') format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-      U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
-      U+2215, U+FEFF, U+FFFD;
-  }
-
   .cursor-newtab {
-    cursor: url('/images/new-tab.png') 10 10, pointer;
+    cursor:
+      url('/images/new-tab.png') 10 10,
+      pointer;
   }
 
   /* #region  /**=========== Typography =========== */
   .h0 {
-    @apply font-primary text-3xl font-bold md:text-5xl;
+    @apply font-display tracking-display leading-display text-3xl font-bold md:text-5xl;
   }
 
   h1,
   .h1 {
-    @apply font-primary text-2xl font-bold md:text-4xl;
+    @apply font-display tracking-display leading-display text-2xl font-bold md:text-4xl;
   }
 
   h2,
   .h2 {
-    @apply font-primary text-xl font-bold md:text-3xl;
+    @apply font-display tracking-display leading-display text-xl font-bold md:text-3xl;
   }
 
   h3,
@@ -197,16 +205,15 @@
   /* #endregion  /**======== Typography =========== */
 
   .layout {
-    /* 1100px */
-    max-width: 68.75rem;
-    @apply mx-auto w-11/12;
+    /* 1280px */
+    max-width: 80rem;
+    @apply mx-auto w-full px-6 md:px-8;
   }
 
   .bg-dark a.custom-link {
     @apply border-gray-200 hover:border-gray-200/0;
   }
 
-  /* Class to adjust with sticky footer */
   .min-h-main {
     @apply min-h-[calc(100vh-56px)];
   }
@@ -214,26 +221,33 @@
 
 @layer utilities {
   .animated-underline {
-    background-image: linear-gradient(#33333300, #33333300),
+    background-image:
+      linear-gradient(#33333300, #33333300),
       linear-gradient(
         to right,
         var(--color-primary-400),
         var(--color-primary-500)
       );
-    background-size: 100% 2px, 0 2px;
-    background-position: 100% 100%, 0 100%;
+    background-size:
+      100% 2px,
+      0 2px;
+    background-position:
+      100% 100%,
+      0 100%;
     background-repeat: no-repeat;
   }
   @media (prefers-reduced-motion: no-preference) {
     .animated-underline {
       transition: 0.3s ease;
-      transition-property: background-size, color, background-color,
-        border-color;
+      transition-property:
+        background-size, color, background-color, border-color;
     }
   }
   .animated-underline:hover,
   .animated-underline:focus-visible {
-    background-size: 0 2px, 100% 2px;
+    background-size:
+      0 2px,
+      100% 2px;
   }
 }
 
@@ -251,8 +265,8 @@
     --card-foreground: var(--color-card-foreground);
     --popover: var(--color-popover);
     --popover-foreground: var(--color-popover-foreground);
-    --primary: var(--color-primary);
-    --primary-foreground: var(--color-primary-foreground);
+    --primary: 160 84% 39%;
+    --primary-foreground: 210 40% 98%;
     --secondary: var(--color-secondary);
     --secondary-foreground: var(--color-secondary-foreground);
     --muted: var(--color-muted);
@@ -267,27 +281,7 @@
     --radius: var(--radius-lg);
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
+  /* TODO: dark mode tokens — implement when dark mode design is finalised */
 
   * {
     @apply border-border;
