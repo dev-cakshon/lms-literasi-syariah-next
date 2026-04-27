@@ -1,14 +1,14 @@
 'use client';
 
+import { LucideIcon } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import qs from 'query-string';
-import { IconType } from 'react-icons';
 
 import { cn } from '@/lib/utils';
 
 interface CategoryItemProps {
   label: string;
-  icon?: IconType;
+  icon?: LucideIcon;
   value?: string;
 }
 
@@ -35,7 +35,7 @@ export const CategoryItem = ({
           categoryId: isSelected ? null : value,
         },
       },
-      { skipNull: true, skipEmptyString: true }
+      { skipNull: true, skipEmptyString: true },
     );
     router.push(url);
   };
@@ -45,11 +45,11 @@ export const CategoryItem = ({
       onClick={onClick}
       type='button'
       className={cn(
-        'py-2 px-3 text-sm border border-slate-200 rounded-full flex items-center gap-x-1 hover:border-sky-700 transition',
-        isSelected && 'border-sky-700 bg-sky-200/20 text-sky-800'
+        'py-2 px-3 text-sm border border-slate-200 rounded-full flex items-center gap-x-1 hover:border-primary-700 transition',
+        isSelected && 'border-primary-700 bg-primary-200/20 text-primary-800',
       )}
     >
-      {Icon && <Icon size={20} />}
+      {Icon && <Icon className='h-5 w-5' />}
       <div className='truncate'>{label}</div>
     </button>
   );

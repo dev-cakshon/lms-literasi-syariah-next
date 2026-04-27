@@ -1,14 +1,14 @@
 'use client';
 
-import { IconType } from 'react-icons';
 import {
-  FcBullish,
-  FcBusinessman,
-  FcCalculator,
-  FcCurrencyExchange,
-  FcMoneyTransfer,
-  FcSalesPerformance,
-} from 'react-icons/fc';
+  type LucideIcon,
+  BriefcaseBusiness,
+  Calculator,
+  Landmark,
+  Shield,
+  TrendingUp,
+  Wallet,
+} from 'lucide-react';
 
 import { CategoryItem } from './CategoryItem';
 
@@ -16,13 +16,13 @@ interface CategoriesProps {
   items: { _id: string; name: string }[];
 }
 
-const iconMap: Record<{ name: string }['name'], IconType> = {
-  'Fiqih Muamalah': FcBusinessman,
-  'Investasi Syariah': FcBullish,
-  'Keuangan Syariah': FcMoneyTransfer,
-  'Akuntansi Syariah': FcCalculator,
-  'Perbankan Syariah': FcCurrencyExchange,
-  'Asuransi Syariah': FcSalesPerformance,
+const iconMap: Record<{ name: string }['name'], LucideIcon> = {
+  'Fiqih Muamalah': BriefcaseBusiness,
+  'Investasi Syariah': TrendingUp,
+  'Keuangan Syariah': Wallet,
+  'Akuntansi Syariah': Calculator,
+  'Perbankan Syariah': Landmark,
+  'Asuransi Syariah': Shield,
 };
 
 export const Categories = ({ items }: CategoriesProps) => {

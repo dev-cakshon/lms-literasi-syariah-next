@@ -8,7 +8,7 @@ const backgroundVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-sky-100',
+        default: 'bg-primary-100',
         success: 'bg-primary-100',
       },
 
@@ -21,13 +21,13 @@ const backgroundVariants = cva(
       variant: 'default',
       size: 'default',
     },
-  }
+  },
 );
 
 const iconVariant = cva('', {
   variants: {
     variant: {
-      default: 'text-sky-700',
+      default: 'text-primary-700',
       success: 'text-primary-700',
     },
     size: {

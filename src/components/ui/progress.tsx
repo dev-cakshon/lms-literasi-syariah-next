@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 const progressVariants = cva('h-full w-full flex-1 bg-primary transition-all', {
   variants: {
     variant: {
-      default: 'bg-sky-600',
+      default: 'bg-primary-600',
       success: 'bg-primary-700',
     },
   },
@@ -19,7 +19,8 @@ const progressVariants = cva('h-full w-full flex-1 bg-primary transition-all', {
 });
 
 export interface ProgressProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof progressVariants> {}
 
 type CombinedProgressProps = ProgressProps &
@@ -33,7 +34,7 @@ const Progress = React.forwardRef<
     ref={ref}
     className={cn(
       'relative h-4 w-full overflow-hidden rounded-full bg-secondary',
-      className
+      className,
     )}
     {...props}
   >

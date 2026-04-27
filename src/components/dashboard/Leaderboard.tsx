@@ -12,6 +12,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { getFirestoreInstance } from '@/lib/firebase';
 import { useLeaderboard } from '@/hooks/use-realtime';
 
+import Skeleton from '@/components/Skeleton';
+
 import { useAuth } from '@/contexts/AuthContext';
 
 import type { Badge, LeaderboardUser } from '@/types';
@@ -176,12 +178,12 @@ export const Leaderboard = (_props: LeaderboardProps) => {
     return (
       <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
         <h2 className='text-xl font-bold text-ink mb-6'>Leaderboard</h2>
-        <div className='space-y-3 animate-pulse'>
-          <div className='h-12 rounded-lg bg-gray-200' />
-          <div className='h-12 rounded-lg bg-gray-200' />
-          <div className='h-12 rounded-lg bg-gray-200' />
-          <div className='h-12 rounded-lg bg-gray-200' />
-          <div className='h-12 rounded-lg bg-gray-200' />
+        <div className='space-y-3'>
+          <Skeleton className='h-12 rounded-lg' />
+          <Skeleton className='h-12 rounded-lg' />
+          <Skeleton className='h-12 rounded-lg' />
+          <Skeleton className='h-12 rounded-lg' />
+          <Skeleton className='h-12 rounded-lg' />
         </div>
       </div>
     );
