@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { GeometricDivider } from '@/components/ornaments/GeometricDivider';
+
 import ButtonLink from '../links/ButtonLink';
 
 export const HeroSection = () => {
@@ -11,7 +13,7 @@ export const HeroSection = () => {
       <div className='layout relative grid min-h-screen items-center gap-8 py-20 pt-32 lg:grid-cols-2'>
         {/* Left Side - Text Content */}
         <div className='z-10 space-y-6'>
-          <h1 className='text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl'>
+          <h1 className='font-display text-4xl leading-tight text-white md:text-5xl lg:text-6xl'>
             Kuasai Ilmu Ekonomi Syariah:
             <br />
             Dari Dasar hingga Ahli
@@ -49,6 +51,12 @@ export const HeroSection = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Right Side - Decorative Divider */}
+        <div className='relative hidden h-full min-h-[360px] items-center justify-center lg:flex'>
+          <div className='absolute inset-0 rounded-card bg-linear-to-br from-primary-700/40 via-primary-300/15 to-ivory/85 shadow-elevated-1' />
+          <GeometricDivider className='relative z-10 h-64 w-64 text-ivory' />
         </div>
       </div>
     </section>

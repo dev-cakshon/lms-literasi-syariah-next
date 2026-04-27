@@ -83,8 +83,8 @@ export default function AdminCoursePage() {
                 ...item,
                 ...updated,
               }
-            : item
-        )
+            : item,
+        ),
       );
     } catch (err) {
       if (err instanceof ApiError) {
@@ -97,7 +97,7 @@ export default function AdminCoursePage() {
 
   const handleDeleteCourse = async (course: Course) => {
     const confirmed = window.confirm(
-      `Apakah Anda yakin ingin menghapus kursus "${course.title}"?`
+      `Apakah Anda yakin ingin menghapus kursus "${course.title}"?`,
     );
     if (!confirmed) return;
 
@@ -115,13 +115,13 @@ export default function AdminCoursePage() {
   };
 
   const filteredCourses = courses.filter((course) =>
-    course.title.toLowerCase().includes(searchQuery.toLowerCase())
+    course.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
-    <div className='min-h-full bg-linear-to-br from-slate-50 to-gray-100'>
+    <div className='min-h-full bg-linear-to-b from-primary-50/40 via-ivory to-ivory'>
       {/* Header + Search Bar */}
-      <div className='bg-primary-600 px-6 py-6'>
+      <div className='bg-linear-to-b from-primary-700 via-primary-600 to-primary-600/85 px-6 py-6'>
         <div className='max-w-4xl mx-auto space-y-3'>
           <div className='flex items-center justify-between'>
             <div>
@@ -135,7 +135,7 @@ export default function AdminCoursePage() {
             <button
               onClick={handleCreateCourse}
               disabled={creating}
-              className='bg-white hover:bg-gray-50 text-primary-700 font-semibold px-5 py-2.5 rounded-lg transition flex items-center gap-2 cursor-pointer disabled:opacity-50'
+              className='bg-ivory hover:bg-white text-primary-700 font-semibold px-5 py-2.5 rounded-pill transition flex items-center gap-2 cursor-pointer disabled:opacity-50 shadow-elevated-1'
             >
               <Plus className='w-4 h-4' />
               {creating ? 'Membuat...' : 'Buat Kursus Baru'}
@@ -161,7 +161,11 @@ export default function AdminCoursePage() {
 
       {/* Content */}
       <div className='max-w-7xl mx-auto p-6 lg:p-8 space-y-6'>
-        {error && <p className='text-sm text-red-600'>{error}</p>}
+        {error && (
+          <p className='rounded-card bg-red-50 px-4 py-3 text-sm text-red-600'>
+            {error}
+          </p>
+        )}
         {loading ? (
           <p className='text-sm text-muted-foreground'>Memuat kursus...</p>
         ) : (

@@ -73,9 +73,9 @@ export default function MyCoursesPage() {
   );
 
   return (
-    <div className='min-h-full bg-linear-to-br from-slate-50 to-gray-100'>
+    <div className='min-h-full bg-linear-to-b from-primary-50/40 via-ivory to-ivory'>
       {/* Search Bar */}
-      <div className='bg-primary-600 px-6 py-6'>
+      <div className='bg-linear-to-b from-primary-700 via-primary-600 to-primary-600/85 px-6 py-6'>
         <div className='max-w-4xl mx-auto flex items-center gap-3'>
           <div className='flex-1 relative'>
             <input

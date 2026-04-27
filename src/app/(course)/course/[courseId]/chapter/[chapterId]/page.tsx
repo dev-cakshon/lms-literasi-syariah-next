@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 
-import { getChapter } from '@/lib/api';
+import { getChapter, getCourseContent } from '@/lib/api';
 
 import { ChapterContent } from '@/components/course/ChapterContent';
+import { ProgressRing } from '@/components/dashboard/ProgressRing';
 
-import type { Chapter } from '@/types';
+import type { Chapter, CourseContentItem } from '@/types';
 
 export default function ChapterIdPage({
   params,
@@ -16,6 +17,7 @@ export default function ChapterIdPage({
   const [courseId, setCourseId] = useState<string | null>(null);
   const [chapterId, setChapterId] = useState<string | null>(null);
   const [chapterDetail, setChapterDetail] = useState<Chapter | null>(null);
+  const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,11 +34,16 @@ export default function ChapterIdPage({
 
     async function fetchChapter() {
       try {
-        const data = await getChapter(resolvedCourseId, resolvedChapterId);
-        setChapterDetail(data);
+        const [chapterData, courseContentData] = await Promise.all([
+          getChapter(resolvedCourseId, resolvedChapterId),
+          getCourseContent(resolvedCourseId),
+        ]);
+        setChapterDetail(chapterData);
+        setContentItems(courseContentData);
       } catch (err) {
         console.error('Failed to load chapter:', err);
         setChapterDetail(null);
+        setContentItems([]);
       } finally {
         setLoading(false);
       }
@@ -61,8 +68,26 @@ export default function ChapterIdPage({
     );
   }
 
+  const completedCount = contentItems.filter((item) => item.completed).length;
+  const completionPercent =
+    contentItems.length === 0
+      ? 0
+      : (completedCount / contentItems.length) * 100;
+
   return (
     <div>
+      <div className='mx-auto flex max-w-6xl justify-end px-4 pt-4'>
+        <ProgressRing progress={completionPercent} size={84} strokeWidth={7}>
+          <div className='text-center'>
+            <p className='text-sm font-semibold text-primary-700'>
+              {completedCount}/{contentItems.length}
+            </p>
+            <p className='text-[10px] uppercase tracking-wide text-slate-500'>
+              Progress
+            </p>
+          </div>
+        </ProgressRing>
+      </div>
       <ChapterContent
         courseId={courseId}
         chapterId={chapterId}

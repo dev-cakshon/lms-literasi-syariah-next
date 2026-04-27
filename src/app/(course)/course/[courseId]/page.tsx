@@ -9,6 +9,7 @@ import { getCourse, getCourseContent } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 import { CourseSidebarItem } from '@/components/course/CourseSidebarItem';
+import { ProgressRing } from '@/components/dashboard/ProgressRing';
 
 import type { Course, CourseContentItem } from '@/types';
 
@@ -53,12 +54,16 @@ export default function CourseIdPage({
 
   const sortedContentItems = useMemo(
     () => [...contentItems].sort((a, b) => a.position - b.position),
-    [contentItems]
+    [contentItems],
   );
 
   const completedCount = sortedContentItems.filter(
-    (item) => item.completed
+    (item) => item.completed,
   ).length;
+  const completionPercent =
+    sortedContentItems.length === 0
+      ? 0
+      : (completedCount / sortedContentItems.length) * 100;
 
   if (error) {
     return (
@@ -87,15 +92,26 @@ export default function CourseIdPage({
   return (
     <div className='mx-auto w-full max-w-5xl space-y-6 p-4 md:p-8'>
       <section className='rounded-lg border bg-white p-6 shadow-sm'>
-        <h1 className='text-2xl font-bold text-slate-900 md:text-3xl'>
-          {course.title}
-        </h1>
-        <p className='mt-3 text-sm text-slate-600 md:text-base'>
-          {course.description || 'Deskripsi kursus belum tersedia.'}
-        </p>
-        <p className='mt-4 text-sm font-medium text-slate-700'>
-          Progress: {completedCount}/{sortedContentItems.length} konten selesai
-        </p>
+        <div className='flex flex-col gap-5 md:flex-row md:items-center md:justify-between'>
+          <div>
+            <h1 className='text-2xl font-bold text-slate-900 md:text-3xl'>
+              {course.title}
+            </h1>
+            <p className='mt-3 text-sm text-slate-600 md:text-base'>
+              {course.description || 'Deskripsi kursus belum tersedia.'}
+            </p>
+          </div>
+          <ProgressRing progress={completionPercent} size={96} strokeWidth={8}>
+            <div className='text-center'>
+              <p className='text-lg font-semibold text-primary-700'>
+                {completedCount}/{sortedContentItems.length}
+              </p>
+              <p className='text-[11px] uppercase tracking-wide text-slate-500'>
+                Selesai
+              </p>
+            </div>
+          </ProgressRing>
+        </div>
       </section>
 
       <section className='rounded-lg border bg-white p-6 shadow-sm'>
@@ -134,15 +150,15 @@ export default function CourseIdPage({
                 item.type === 'drag_drop'
                   ? Grid2X2
                   : item.type === 'word_search'
-                  ? Search
-                  : CheckSquare;
+                    ? Search
+                    : CheckSquare;
               const bestScorePercent = item.bestScorePercent ?? 0;
               const activityHref =
                 item.type === 'drag_drop'
                   ? `/course/${courseId}/drag-drop/${item.id}`
                   : item.type === 'word_search'
-                  ? `/course/${courseId}/activity/${item.id}/word-search`
-                  : `/course/${courseId}/activity/${item.id}/true-or-false`;
+                    ? `/course/${courseId}/activity/${item.id}/word-search`
+                    : `/course/${courseId}/activity/${item.id}/true-or-false`;
 
               const activityContent = (
                 <>
@@ -150,7 +166,7 @@ export default function CourseIdPage({
                     size={22}
                     className={cn(
                       'text-slate-500',
-                      item.completed && 'text-primary-700'
+                      item.completed && 'text-primary-700',
                     )}
                   />
                   <span>{`${activityLabelPrefix} ${item.title}`}</span>
@@ -179,7 +195,7 @@ export default function CourseIdPage({
                   href={activityHref}
                   className={cn(
                     'flex items-center gap-x-2 text-slate-500 text-sm font-medium pl-6 py-4 transition-all hover:text-slate-600 hover:bg-slate-300/20',
-                    item.completed && 'text-primary-700 hover:text-primary-700'
+                    item.completed && 'text-primary-700 hover:text-primary-700',
                   )}
                 >
                   {activityContent}

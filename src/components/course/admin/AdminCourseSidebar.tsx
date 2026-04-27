@@ -159,7 +159,7 @@ export const AdminCourseSidebar = ({
   };
 
   return (
-    <div className='h-full border-r flex flex-col overflow-y-auto shadow-sm'>
+    <div className='flex h-full flex-col overflow-y-auto border-r border-slate-200 bg-ivory shadow-elevated-1'>
       {/* Course header */}
       <div className='p-6 border-b space-y-2'>
         <div className='flex items-center gap-2'>

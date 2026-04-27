@@ -67,10 +67,12 @@ function EditPageContent({ courseId }: { courseId: string }) {
       setChapters(
         chaptersData
           .map((ch) => ({ ...ch, courseId }))
-          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
       );
       setContentItems(
-        [...courseContent].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+        [...courseContent].sort(
+          (a, b) => (a.position ?? 0) - (b.position ?? 0),
+        ),
       );
     } catch (err) {
       void err;
@@ -139,8 +141,8 @@ function EditPageContent({ courseId }: { courseId: string }) {
       prev.map((item) =>
         item.itemType === 'activity' && item.id === updated.id
           ? { ...item, title: updated.title }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -159,7 +161,7 @@ function EditPageContent({ courseId }: { courseId: string }) {
   return (
     <div className='h-full'>
       {/* Top navbar */}
-      <div className='h-15 md:pl-80 fixed inset-x-0 top-0 z-40 bg-white border-b flex items-center px-4 shadow-sm'>
+      <div className='h-15 md:pl-80 fixed inset-x-0 top-0 z-40 flex items-center border-b bg-ivory px-4 shadow-elevated-1'>
         <Link
           href='/admin/course'
           className='flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition'
@@ -170,7 +172,7 @@ function EditPageContent({ courseId }: { courseId: string }) {
       </div>
 
       {/* Sidebar */}
-      <div className='hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50 bg-white'>
+      <div className='hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50 bg-ivory shadow-elevated-1'>
         <AdminCourseSidebar
           course={course}
           contentItems={contentItems}
@@ -181,40 +183,44 @@ function EditPageContent({ courseId }: { courseId: string }) {
       </div>
 
       {/* Main content */}
-      <main className='md:pl-80 h-full pt-16'>
+      <main className='h-full bg-linear-to-b from-primary-50/35 via-ivory to-ivory md:pl-80 pt-16'>
         <div className='max-w-3xl mx-auto p-6'>
-          {activeTab === 'info' ? (
-            <CourseInfoForm
-              course={course}
-              onCourseUpdated={handleCourseUpdated}
-            />
-          ) : activeActivityId ? (
-            activityLoading ? (
-              <p className='text-muted-foreground'>Memuat aktivitas...</p>
-            ) : activityError ? (
-              <p className='text-red-600'>{activityError}</p>
-            ) : selectedActivity ? (
-              <ActivityEditForm
-                key={selectedActivity.id}
+          <div className='rounded-card border bg-white p-6 shadow-elevated-1'>
+            {activeTab === 'info' ? (
+              <CourseInfoForm
+                course={course}
+                onCourseUpdated={handleCourseUpdated}
+              />
+            ) : activeActivityId ? (
+              activityLoading ? (
+                <p className='text-muted-foreground'>Memuat aktivitas...</p>
+              ) : activityError ? (
+                <p className='text-red-600'>{activityError}</p>
+              ) : selectedActivity ? (
+                <ActivityEditForm
+                  key={selectedActivity.id}
+                  courseId={courseId}
+                  activity={selectedActivity}
+                  onActivitySaved={handleActivitySaved}
+                />
+              ) : (
+                <p className='text-muted-foreground'>
+                  Aktivitas tidak ditemukan.
+                </p>
+              )
+            ) : activeChapter ? (
+              <ChapterEditForm
+                key={activeChapter.id}
                 courseId={courseId}
-                activity={selectedActivity}
-                onActivitySaved={handleActivitySaved}
+                chapter={activeChapter}
+                onChapterUpdated={handleChaptersChanged}
               />
             ) : (
               <p className='text-muted-foreground'>
-                Aktivitas tidak ditemukan.
+                Pilih konten untuk diedit.
               </p>
-            )
-          ) : activeChapter ? (
-            <ChapterEditForm
-              key={activeChapter.id}
-              courseId={courseId}
-              chapter={activeChapter}
-              onChapterUpdated={handleChaptersChanged}
-            />
-          ) : (
-            <p className='text-muted-foreground'>Pilih konten untuk diedit.</p>
-          )}
+            )}
+          </div>
         </div>
       </main>
     </div>

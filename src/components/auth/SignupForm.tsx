@@ -43,10 +43,13 @@ export const SignupForm = () => {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-linear-to-br from-primary-50 to-teal-50 px-4'>
-      <div className='max-w-md w-full bg-white rounded-lg shadow-lg p-8'>
+    <div className='min-h-screen flex items-center justify-center bg-linear-to-br from-primary-50 to-ivory px-4'>
+      <div className='max-w-md w-full rounded-card bg-ivory p-8 shadow-elevated-2'>
         <div className='text-center mb-8'>
-          <h1 className='text-3xl font-bold text-slate-800'>Daftar</h1>
+          <p className='mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary-700'>
+            LMS Literasi Syariah
+          </p>
+          <h1 className='font-display text-3xl text-slate-800'>Daftar</h1>
           <p className='text-slate-600 mt-2'>
             Mulai perjalanan belajar ekonomi syariah Anda
           </p>
