@@ -25,6 +25,7 @@ export const ActivityResultScreen = ({
   const router = useRouter();
   const { refreshProfile } = useAuth();
   const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [badgeAwardEventToken, setBadgeAwardEventToken] = useState<string>('');
 
   const awardedBadges = useMemo<Badge[]>(() => {
     const validBadges = new Set<string>(BADGE_IDS);
@@ -43,8 +44,12 @@ export const ActivityResultScreen = ({
   }, []);
 
   useEffect(() => {
-    setShowBadgeModal(awardedBadges.length > 0);
-  }, [awardedBadges]);
+    const hasAward = awardedBadges.length > 0;
+    setShowBadgeModal(hasAward);
+    if (hasAward) {
+      setBadgeAwardEventToken(`activity:${courseId}:${Date.now()}`);
+    }
+  }, [awardedBadges, courseId]);
 
   const isPerfectScore = result.score === result.maxPoints;
 
@@ -53,6 +58,7 @@ export const ActivityResultScreen = ({
       <BadgeAwardModal
         isOpen={showBadgeModal}
         badges={awardedBadges}
+        triggerToken={badgeAwardEventToken}
         onClose={() => setShowBadgeModal(false)}
       />
 

@@ -6,12 +6,12 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import { Medal, Trophy } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { getFirestoreInstance } from '@/lib/firebase';
 import { useLeaderboard } from '@/hooks/use-realtime';
 
+import { LeaderboardRow } from '@/components/dashboard/LeaderboardRow';
 import Skeleton from '@/components/Skeleton';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -148,42 +148,25 @@ export const Leaderboard = (_props: LeaderboardProps) => {
     };
   }, [currentUserUid, loading, currentUserTopTenEntry]);
 
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Trophy className='w-5 h-5 text-yellow-500' />;
-      case 2:
-        return <Medal className='w-5 h-5 text-gray-400' />;
-      case 3:
-        return <Medal className='w-5 h-5 text-amber-600' />;
-      default:
-        return null;
-    }
-  };
-
-  const getRankStyle = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'bg-yellow-400 text-white';
-      case 2:
-        return 'bg-gray-300 text-white';
-      case 3:
-        return 'bg-amber-500 text-white';
-      default:
-        return 'bg-primary-100 text-primary-700';
-    }
-  };
+  const topThree = leaderboardData.filter((entry) => entry.rank <= 3);
+  const otherRanks = leaderboardData.filter((entry) => entry.rank > 3);
+  const pinnedCurrentUser = currentUserTopTenEntry ?? currentUserRankState;
+  const pinnedRank = pinnedCurrentUser?.rank ?? null;
+  const pinnedUser = pinnedCurrentUser
+    ? 'user' in pinnedCurrentUser
+      ? pinnedCurrentUser.user
+      : pinnedCurrentUser
+    : null;
 
   if (loading) {
     return (
-      <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
-        <h2 className='text-xl font-bold text-ink mb-6'>Leaderboard</h2>
+      <div className='rounded-3xl border border-primary-200/70 bg-white/80 p-6 lg:p-8'>
+        <h2 className='mb-6 text-xl font-bold text-ink'>Leaderboard</h2>
         <div className='space-y-3'>
-          <Skeleton className='h-12 rounded-lg' />
-          <Skeleton className='h-12 rounded-lg' />
-          <Skeleton className='h-12 rounded-lg' />
-          <Skeleton className='h-12 rounded-lg' />
-          <Skeleton className='h-12 rounded-lg' />
+          <Skeleton className='h-20 rounded-2xl' />
+          <Skeleton className='h-20 rounded-2xl' />
+          <Skeleton className='h-14 rounded-xl' />
+          <Skeleton className='h-14 rounded-xl' />
         </div>
       </div>
     );
@@ -191,9 +174,9 @@ export const Leaderboard = (_props: LeaderboardProps) => {
 
   if (leaderboardData.length === 0) {
     return (
-      <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
-        <h2 className='text-xl font-bold text-ink mb-6'>Leaderboard</h2>
-        <div className='text-center py-8 text-gray-500'>
+      <div className='rounded-3xl border border-primary-200/70 bg-white/80 p-6 lg:p-8'>
+        <h2 className='mb-6 text-xl font-bold text-ink'>Leaderboard</h2>
+        <div className='py-8 text-center text-gray-500'>
           <p>Belum ada data leaderboard.</p>
         </div>
       </div>
@@ -201,114 +184,56 @@ export const Leaderboard = (_props: LeaderboardProps) => {
   }
 
   return (
-    <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
-      <h2 className='text-xl font-bold text-ink mb-6'>Leaderboard</h2>
-
-      <div className='overflow-hidden rounded-xl'>
-        <table className='w-full'>
-          <thead>
-            <tr className='bg-primary-600 text-white text-sm'>
-              <th className='py-3 px-4 text-left font-semibold'>Rank</th>
-              <th className='py-3 px-4 text-left font-semibold'>Nama</th>
-              <th className='py-3 px-4 text-right font-semibold'>Poin</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaderboardData.map((leaderboardUser, index) => {
-              const isCurrentUser =
-                currentUserUid !== null &&
-                leaderboardUser.uid === currentUserUid;
-
-              return (
-                <tr
-                  key={leaderboardUser.uid}
-                  className={`border-b border-gray-100 transition-colors hover:bg-gray-50 ${
-                    isCurrentUser
-                      ? 'bg-primary-100'
-                      : index % 2 === 0
-                        ? 'bg-white'
-                        : 'bg-gray-100/80'
-                  }`}
-                >
-                  <td className='py-3 px-4'>
-                    <div className='flex items-center gap-2'>
-                      <span
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
-                          leaderboardUser.rank,
-                        )}`}
-                      >
-                        {leaderboardUser.rank <= 3
-                          ? getRankIcon(leaderboardUser.rank)
-                          : leaderboardUser.rank}
-                      </span>
-                    </div>
-                  </td>
-                  <td className='py-3 px-4'>
-                    <div className='flex items-center gap-3'>
-                      <div className='w-9 h-9 rounded-full bg-linear-to-br from-primary-400 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm'>
-                        {leaderboardUser.name.charAt(0).toUpperCase()}
-                      </div>
-                      <span className='font-medium text-ink'>
-                        {leaderboardUser.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td className='py-3 px-4 text-right'>
-                    <span className='font-bold text-primary-600'>
-                      {leaderboardUser.totalPoints.toLocaleString()}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-
-            {currentUserUid &&
-            !currentUserTopTenEntry &&
-            currentUserRankState ? (
-              <>
-                <tr>
-                  <td colSpan={3} className='py-2 px-4'>
-                    <div className='border-t border-dashed border-primary-300' />
-                    <p className='text-xs text-primary-700 font-semibold mt-2'>
-                      Your rank
-                    </p>
-                  </td>
-                </tr>
-                <tr className='bg-primary-100 border-b border-gray-100'>
-                  <td className='py-3 px-4'>
-                    <div className='flex items-center gap-2'>
-                      <span
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
-                          currentUserRankState.rank,
-                        )}`}
-                      >
-                        {currentUserRankState.rank <= 3
-                          ? getRankIcon(currentUserRankState.rank)
-                          : currentUserRankState.rank}
-                      </span>
-                    </div>
-                  </td>
-                  <td className='py-3 px-4'>
-                    <div className='flex items-center gap-3'>
-                      <div className='w-9 h-9 rounded-full bg-linear-to-br from-primary-400 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm'>
-                        {currentUserRankState.user.name.charAt(0).toUpperCase()}
-                      </div>
-                      <span className='font-medium text-ink'>
-                        {currentUserRankState.user.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td className='py-3 px-4 text-right'>
-                    <span className='font-bold text-primary-600'>
-                      {currentUserRankState.user.totalPoints.toLocaleString()}
-                    </span>
-                  </td>
-                </tr>
-              </>
-            ) : null}
-          </tbody>
-        </table>
+    <section className='rounded-3xl border border-primary-200/70 bg-white/80 p-6 lg:p-8'>
+      <div className='mb-6 flex items-end justify-between'>
+        <h2 className='text-xl font-bold text-ink'>Leaderboard</h2>
+        <p className='text-xs font-medium uppercase tracking-[0.12em] text-gray-500'>
+          Weekly Pulse
+        </p>
       </div>
-    </div>
+
+      <ul className='space-y-3'>
+        {topThree.map((entry, index) => (
+          <LeaderboardRow
+            key={entry.uid}
+            user={entry}
+            rank={entry.rank}
+            isCurrentUser={currentUserUid === entry.uid}
+            delay={index * 0.05}
+          />
+        ))}
+      </ul>
+
+      {otherRanks.length > 0 && (
+        <ul className='mt-4 rounded-2xl border border-gray-200 bg-white px-4'>
+          {otherRanks.map((entry, index) => (
+            <LeaderboardRow
+              key={entry.uid}
+              user={entry}
+              rank={entry.rank}
+              compact
+              isCurrentUser={currentUserUid === entry.uid}
+              delay={(topThree.length + index) * 0.05}
+            />
+          ))}
+        </ul>
+      )}
+
+      {pinnedUser !== null && pinnedRank !== null && (
+        <div className='mt-6 rounded-2xl border-2 border-emerald-500/60 bg-emerald-50/70 p-4'>
+          <p className='mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700'>
+            Your rank
+          </p>
+          <ul>
+            <LeaderboardRow
+              user={pinnedUser}
+              rank={pinnedRank}
+              compact
+              isCurrentUser
+            />
+          </ul>
+        </div>
+      )}
+    </section>
   );
 };

@@ -31,6 +31,7 @@ export const MarkCompleteButton = ({
   const [toastPoints, setToastPoints] = useState(0);
   const [awardedBadges, setAwardedBadges] = useState<Badge[]>([]);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [badgeAwardEventToken, setBadgeAwardEventToken] = useState<string>('');
 
   const { contentItems, refreshContentItems } = useContext(CourseLayoutContext);
   const { completedChapters } = useCourseProgress(courseId);
@@ -61,6 +62,7 @@ export const MarkCompleteButton = ({
 
       if (badges.length > 0) {
         setAwardedBadges(badges);
+        setBadgeAwardEventToken(`${courseId}:${chapterId}:${Date.now()}`);
         setShowBadgeModal(true);
       }
 
@@ -110,6 +112,7 @@ export const MarkCompleteButton = ({
       <BadgeAwardModal
         isOpen={showBadgeModal}
         badges={awardedBadges}
+        triggerToken={badgeAwardEventToken}
         onClose={() => setShowBadgeModal(false)}
       />
       <Button onClick={handleMarkComplete} disabled={isLoading}>
