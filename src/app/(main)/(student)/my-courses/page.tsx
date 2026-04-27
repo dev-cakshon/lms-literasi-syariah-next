@@ -73,9 +73,9 @@ export default function MyCoursesPage() {
   );
 
   return (
-    <div className='min-h-full bg-linear-to-br from-slate-50 to-gray-100'>
+    <div className='min-h-full bg-linear-to-b from-primary-600 via-primary-50 to-ivory'>
       {/* Search Bar */}
-      <div className='bg-primary-600 px-6 py-6'>
+      <div className='px-6 py-6'>
         <div className='max-w-4xl mx-auto flex items-center gap-3'>
           <div className='flex-1 relative'>
             <input
@@ -100,7 +100,7 @@ export default function MyCoursesPage() {
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
-                className='h-64 rounded-xl border bg-white animate-pulse'
+                className='h-64 rounded-[var(--radius-card)] border bg-white shadow-[var(--shadow-elevated-1)] animate-pulse'
               />
             ))}
           </div>
