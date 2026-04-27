@@ -7,6 +7,7 @@ import { useLeaderboard } from '@/hooks/use-realtime';
 
 import { useAuth } from '@/contexts/AuthContext';
 
+import { BADGE_DEFINITIONS } from './badgeDefinitions';
 import { ProgressRing } from './ProgressRing';
 
 import type { UserProfile } from '@/types';
@@ -17,6 +18,42 @@ const isProfileLoading = (
 ): profile is null => {
   return loading || profile === null;
 };
+
+/**
+ * Returns 0–100 representing progress toward the next badge tier.
+ *
+ * Thresholds come from BADGE_DEFINITIONS sorted by pointsToUnlock.
+ * The ring shows how far the user has travelled between the last
+ * unlocked threshold and the next one — not raw points capped at 100.
+ *
+ * Example: points=60, thresholds=[0,10,50,100,200,500]
+ *   → bracket is [50, 100], progress = (60-50)/(100-50) = 20%
+ *
+ * Once all badges are unlocked (points ≥ max threshold), returns 100.
+ */
+function getBadgeProgressPct(totalPoints: number): number {
+  const thresholds = BADGE_DEFINITIONS.map((b) => b.pointsToUnlock).sort(
+    (a, b) => a - b,
+  );
+
+  const maxThreshold = thresholds[thresholds.length - 1] ?? 0;
+  if (totalPoints >= maxThreshold) return 100;
+
+  // Find the bracket: last threshold ≤ points, first threshold > points
+  let lower = 0;
+  let upper = maxThreshold;
+  for (let i = 0; i < thresholds.length; i++) {
+    if ((thresholds[i] ?? 0) <= totalPoints) {
+      lower = thresholds[i] ?? 0;
+    } else {
+      upper = thresholds[i] ?? maxThreshold;
+      break;
+    }
+  }
+
+  if (upper === lower) return 100;
+  return Math.round(((totalPoints - lower) / (upper - lower)) * 100);
+}
 
 export const ProfilePicture = () => {
   const { userProfile, loading } = useAuth();
@@ -29,7 +66,7 @@ export const ProfilePicture = () => {
     );
   }
 
-  const ringPct = Math.min(userProfile.totalPoints ?? 0, 100);
+  const ringPct = getBadgeProgressPct(userProfile.totalPoints ?? 0);
 
   return (
     <div className='flex items-center justify-center h-full'>
@@ -64,7 +101,7 @@ export const ProfileInfo = () => {
 
   if (isProfileLoading(loading, userProfile)) {
     return (
-      <div className='flex flex-col justify-center h-full space-y-4 animate-pulse bg-[#FAFAF7] border-l-4 border-emerald-500 rounded-xl p-5'>
+      <div className='flex flex-col justify-center h-full space-y-4 animate-pulse bg-ivory border-l-4 border-emerald-500 rounded-xl p-5'>
         <div className='space-y-2'>
           <div className='h-7 w-44 rounded bg-gray-300' />
           <div className='h-4 w-56 rounded bg-gray-200' />
@@ -85,7 +122,7 @@ export const ProfileInfo = () => {
       : '>10';
 
   return (
-    <div className='flex flex-col justify-center h-full space-y-4 bg-[#FAFAF7] border-l-4 border-emerald-500 rounded-xl p-5'>
+    <div className='flex flex-col justify-center h-full space-y-4 bg-ivory border-l-4 border-emerald-500 rounded-xl p-5'>
       <div>
         <h3 className='font-display text-2xl font-semibold text-gray-900'>
           {userProfile.name}
