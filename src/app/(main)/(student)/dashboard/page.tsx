@@ -7,6 +7,7 @@ import { useLeaderboard } from '@/hooks/use-realtime';
 import { AchievementBadges } from '@/components/dashboard/AchievementBadges';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
+import { GeometricDivider } from '@/components/ornaments/GeometricDivider';
 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -46,7 +47,7 @@ export default function DashboardPage() {
               <p className='text-xs font-semibold uppercase tracking-[0.12em] text-gray-500'>
                 Student Dashboard
               </p>
-              <h1 className='mt-2 font-display text-3xl font-semibold tracking-[-0.02em] text-ink md:text-4xl'>
+              <h1 className='mt-2 font-display text-4xl font-semibold tracking-tight text-ink md:text-6xl'>
                 {userProfile?.name ?? 'Learner'}
               </h1>
               <p className='mt-1 text-sm text-gray-500'>
@@ -84,9 +85,17 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        <div className='flex justify-center'>
+          <GeometricDivider className='h-12 w-12 text-primary-700' />
+        </div>
+
         <section className='rounded-3xl border border-primary-200/70 bg-white/75 p-6 lg:p-8'>
           <AchievementBadges />
         </section>
+
+        <div className='flex justify-center'>
+          <GeometricDivider className='h-12 w-12 text-primary-700' />
+        </div>
 
         <section>
           <Leaderboard />

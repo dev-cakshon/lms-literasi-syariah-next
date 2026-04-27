@@ -20,7 +20,9 @@ export const ChapterContent = ({
   return (
     <div className='flex flex-col max-w-6xl mx-auto pb-20'>
       <div className='p-4 flex flex-col md:flex-row items-center justify-between'>
-        <h2 className='text-2xl font-semibold'>{title}</h2>
+        <h1 className='font-display text-4xl tracking-tight text-ink md:text-6xl'>
+          {title}
+        </h1>
       </div>
 
       <div className='px-4'>

@@ -94,7 +94,7 @@ export default function CourseIdPage({
       <section className='rounded-lg border bg-white p-6 shadow-sm'>
         <div className='flex flex-col gap-5 md:flex-row md:items-center md:justify-between'>
           <div>
-            <h1 className='text-2xl font-bold text-slate-900 md:text-3xl'>
+            <h1 className='font-display text-4xl tracking-tight text-ink md:text-6xl'>
               {course.title}
             </h1>
             <p className='mt-3 text-sm text-slate-600 md:text-base'>

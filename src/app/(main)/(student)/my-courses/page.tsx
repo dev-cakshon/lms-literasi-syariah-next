@@ -76,20 +76,25 @@ export default function MyCoursesPage() {
     <div className='min-h-full bg-linear-to-b from-primary-50/40 via-ivory to-ivory'>
       {/* Search Bar */}
       <div className='bg-linear-to-b from-primary-700 via-primary-600 to-primary-600/85 px-6 py-6'>
-        <div className='max-w-4xl mx-auto flex items-center gap-3'>
-          <div className='flex-1 relative'>
-            <input
-              type='text'
-              placeholder='Cari kursus'
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className='w-full rounded-full px-5 py-3 text-sm text-gray-700 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-primary-300'
-            />
+        <div className='max-w-4xl mx-auto space-y-4'>
+          <h1 className='font-display text-4xl tracking-tight text-ink md:text-6xl'>
+            Kursus Saya
+          </h1>
+          <div className='flex items-center gap-3'>
+            <div className='flex-1 relative'>
+              <input
+                type='text'
+                placeholder='Cari kursus'
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className='w-full rounded-full px-5 py-3 text-sm text-gray-700 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-primary-300'
+              />
+            </div>
+            <button className='bg-primary-800 hover:bg-primary-900 text-white font-semibold px-6 py-3 rounded-full transition flex items-center gap-2 cursor-pointer'>
+              <Search className='w-4 h-4' />
+              Cari
+            </button>
           </div>
-          <button className='bg-primary-800 hover:bg-primary-900 text-white font-semibold px-6 py-3 rounded-full transition flex items-center gap-2 cursor-pointer'>
-            <Search className='w-4 h-4' />
-            Cari
-          </button>
         </div>
       </div>
 

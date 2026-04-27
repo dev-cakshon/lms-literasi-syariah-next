@@ -8,18 +8,18 @@ import ButtonLink from '../links/ButtonLink';
 
 export const HeroSection = () => {
   return (
-    <section className='relative min-h-screen overflow-hidden bg-linear-to-br from-primary-700 via-primary-600 to-primary-500'>
+    <section className='relative min-h-screen overflow-hidden bg-linear-to-br from-ivory via-primary-50 to-primary-100'>
       {/* Main Content Container */}
       <div className='layout relative grid min-h-screen items-center gap-8 py-20 pt-32 lg:grid-cols-2'>
         {/* Left Side - Text Content */}
         <div className='z-10 space-y-6'>
-          <h1 className='font-display text-4xl leading-tight text-white md:text-5xl lg:text-6xl'>
+          <h1 className='font-display text-4xl tracking-tight leading-tight text-ink md:text-6xl'>
             Kuasai Ilmu Ekonomi Syariah:
             <br />
             Dari Dasar hingga Ahli
           </h1>
 
-          <p className='text-lg text-primary-50 md:text-xl'>
+          <p className='text-lg text-slate-600 md:text-xl'>
             Platform Pembelajaran Terkemuka untuk Keuangan Syariah dan Investasi
             Halal.
           </p>
@@ -45,7 +45,7 @@ export const HeroSection = () => {
                   <path d='M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z' />
                 </svg>
               </div>
-              <div className='text-white'>
+              <div className='text-ink'>
                 <div className='text-sm font-semibold'>10,000+</div>
                 <div className='text-xs opacity-90'>Pelajar Aktif</div>
               </div>
@@ -55,8 +55,8 @@ export const HeroSection = () => {
 
         {/* Right Side - Decorative Divider */}
         <div className='relative hidden h-full min-h-[360px] items-center justify-center lg:flex'>
-          <div className='absolute inset-0 rounded-card bg-linear-to-br from-primary-700/40 via-primary-300/15 to-ivory/85 shadow-elevated-1' />
-          <GeometricDivider className='relative z-10 h-64 w-64 text-ivory' />
+          <div className='absolute inset-0 rounded-card bg-linear-to-br from-primary-200/40 via-primary-100/25 to-ivory shadow-elevated-1' />
+          <GeometricDivider className='relative z-10 h-64 w-64 text-primary-700' />
         </div>
       </div>
     </section>

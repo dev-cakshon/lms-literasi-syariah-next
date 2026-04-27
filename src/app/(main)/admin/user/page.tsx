@@ -84,10 +84,10 @@ export default function UserManagementPage() {
       <div className='bg-linear-to-b from-primary-700 via-primary-600 to-primary-600/85 px-6 py-6'>
         <div className='max-w-4xl mx-auto space-y-3'>
           <div>
-            <h1 className='text-3xl font-bold text-white mb-1'>
+            <h1 className='mb-1 font-display text-4xl tracking-tight text-ink md:text-6xl'>
               Manajemen Pengguna
             </h1>
-            <p className='text-primary-100'>
+            <p className='text-slate-700'>
               Kelola pengguna dan atur peran mereka.
             </p>
           </div>
