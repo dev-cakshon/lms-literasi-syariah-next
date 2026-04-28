@@ -1,13 +1,14 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 
 import { markChapterComplete } from '@/lib/api';
 import { useCourseProgress } from '@/hooks/use-realtime';
 
-import Button from '@/components/buttons/Button';
 import { BadgeAwardModal, PointsToast } from '@/components/gamification';
+import { Button } from '@/components/ui/button';
 
 import { CourseLayoutContext } from '@/app/(course)/course/[courseId]/CourseLayoutContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,7 +36,6 @@ export const MarkCompleteButton = ({
   const { completedChapters } = useCourseProgress(courseId);
   const isCompleted = completedChapters.includes(chapterId);
 
-  // Reset loading spinner when route changes (component persists in layout)
   useEffect(() => {
     setIsLoading(false);
     setToastPoints(0);
@@ -51,7 +51,8 @@ export const MarkCompleteButton = ({
     try {
       const result = await markChapterComplete(courseId, chapterId);
       const awarded = result.pointsAwarded ?? 0;
-      const badges = result.badges ?? [];
+      const badges =
+        result.badges ?? result.earnedBadges?.map((badge) => badge.id) ?? [];
 
       if (awarded > 0) {
         setToastPoints(awarded);
@@ -63,7 +64,7 @@ export const MarkCompleteButton = ({
       }
 
       const currentIndex = contentItems.findIndex(
-        (item) => item.id === chapterId
+        (item) => item.id === chapterId,
       );
       const nextItem =
         currentIndex !== -1 && currentIndex < contentItems.length - 1
@@ -76,8 +77,8 @@ export const MarkCompleteButton = ({
               nextItem.type === 'drag_drop'
                 ? 'drag-drop'
                 : nextItem.type === 'word_search'
-                ? 'word-search'
-                : 'true-or-false'
+                  ? 'word-search'
+                  : 'true-or-false'
             }`
         : `/course/${courseId}`;
 
@@ -99,7 +100,6 @@ export const MarkCompleteButton = ({
     }
   };
 
-  // Hide button if already completed
   if (isCompleted) return null;
 
   return (
@@ -110,8 +110,15 @@ export const MarkCompleteButton = ({
         badges={awardedBadges}
         onClose={() => setShowBadgeModal(false)}
       />
-      <Button onClick={handleMarkComplete} isLoading={isLoading}>
-        Mark as Complete
+      <Button onClick={handleMarkComplete} disabled={isLoading}>
+        {isLoading ? (
+          <>
+            <Loader2 className='animate-spin h-4 w-4 mr-2' />
+            Loading...
+          </>
+        ) : (
+          'Mark as Complete'
+        )}
       </Button>
     </>
   );

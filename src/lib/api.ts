@@ -17,6 +17,7 @@ import { API_URL } from '@/constant/env';
 
 import type {
   AdminActivity,
+  Badge,
   Chapter,
   ChatbotMessageResponse,
   Course,
@@ -32,6 +33,30 @@ import type {
   UploadUrlResponse,
   UserProfile,
 } from '@/types';
+import { BADGE_IDS } from '@/types';
+
+const VALID_BADGES = new Set<string>(BADGE_IDS);
+
+function isBadge(value: unknown): value is Badge {
+  return typeof value === 'string' && VALID_BADGES.has(value);
+}
+
+function extractBadgeIdsFromEarnedBadges(payload: unknown): Badge[] {
+  if (!Array.isArray(payload)) {
+    return [];
+  }
+
+  return payload
+    .map((item) => {
+      if (typeof item !== 'object' || item === null) {
+        return null;
+      }
+
+      const badgeId = (item as { id?: unknown }).id;
+      return isBadge(badgeId) ? badgeId : null;
+    })
+    .filter((badge): badge is Badge => badge !== null);
+}
 
 // ─── Error class ─────────────────────────────────────────────────────────────
 
@@ -112,10 +137,31 @@ export async function authRegister(data: {
   name: string;
   email: string;
   password: string;
-}): Promise<{ uid: string; email: string; name: string; role: string }> {
+}): Promise<{
+  uid: string;
+  email: string;
+  name: string;
+  role: string;
+  earnedBadges?: { id: string; name: string; icon: string; color: string }[];
+}> {
   return apiFetch('/auth/register', {
     method: 'POST',
     body: JSON.stringify(data),
+  });
+}
+
+export async function authSync(data?: {
+  email?: string;
+  displayName?: string;
+}): Promise<{
+  message: string;
+  uid: string;
+  role: string;
+  earnedBadges: { id: string; name: string; icon: string; color: string }[];
+}> {
+  return apiFetch('/auth/sync', {
+    method: 'POST',
+    body: JSON.stringify(data ?? {}),
   });
 }
 
@@ -296,10 +342,22 @@ export async function submitQuiz(
   quizId: string,
   answers: number[],
 ): Promise<QuizSubmitResult> {
-  return apiFetch(`/courses/${courseId}/quizzes/${quizId}/submit`, {
-    method: 'POST',
-    body: JSON.stringify({ answers }),
-  });
+  const response = await apiFetch<QuizSubmitResult>(
+    `/courses/${courseId}/quizzes/${quizId}/submit`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ answers }),
+    },
+  );
+
+  if (!response.badges?.length && response.earnedBadges?.length) {
+    return {
+      ...response,
+      badges: extractBadgeIdsFromEarnedBadges(response.earnedBadges),
+    };
+  }
+
+  return response;
 }
 
 // ─── Progress endpoints ──────────────────────────────────────────────────────
@@ -308,10 +366,22 @@ export async function markChapterComplete(
   courseId: string,
   chapterId: string,
 ): Promise<CourseProgress> {
-  return apiFetch(`/courses/${courseId}/progress`, {
-    method: 'POST',
-    body: JSON.stringify({ chapterId }),
-  });
+  const response = await apiFetch<CourseProgress>(
+    `/courses/${courseId}/progress`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ chapterId }),
+    },
+  );
+
+  if (!response.badges?.length && response.earnedBadges?.length) {
+    return {
+      ...response,
+      badges: extractBadgeIdsFromEarnedBadges(response.earnedBadges),
+    };
+  }
+
+  return response;
 }
 
 export async function getCourseProgressApi(

@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import '@/styles/globals.css';
 
+import { fontDisplay, fontPrimary } from '@/app/fonts';
 import { siteConfig } from '@/constant/config';
 import { AuthProvider } from '@/contexts/AuthContext';
 
@@ -44,7 +45,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='id'>
+    <html
+      lang='id'
+      className={`${fontDisplay.variable} ${fontPrimary.variable}`}
+    >
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

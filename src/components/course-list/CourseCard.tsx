@@ -3,7 +3,9 @@
 import { BookOpen, Gamepad2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 
+import { buildMediaViewUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 
 interface CourseCardProps {
@@ -37,29 +39,24 @@ export const CourseCard = ({
   editUrl,
   actions,
 }: CourseCardProps) => {
-  const normalizedImageUrl = imageUrl
-    ? imageUrl.startsWith('http') || imageUrl.startsWith('/')
-      ? imageUrl
-      : `/${imageUrl}`
-    : null;
+  const normalizedImageUrl = imageUrl ? buildMediaViewUrl(imageUrl) : null;
+  const [imgError, setImgError] = useState(false);
 
   const href = editUrl || `/course/${id}`;
+  const showImage = normalizedImageUrl && !imgError;
 
   return (
-    <div className='bg-white group hover:shadow-md transition-shadow overflow-hidden border rounded-xl h-full flex flex-col'>
+    <div className='bg-white group shadow-[var(--shadow-elevated-1)] hover:shadow-[var(--shadow-elevated-2)] transition-shadow overflow-hidden border rounded-[var(--radius-card)] h-full flex flex-col'>
       <Link href={href} className='flex flex-col flex-1'>
         {/* Thumbnail */}
-        {normalizedImageUrl ? (
+        {showImage ? (
           <div className='relative w-full aspect-video overflow-hidden bg-slate-200'>
             <Image
               fill
               className='object-cover'
               alt={title}
               src={normalizedImageUrl}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
+              onError={() => setImgError(true)}
             />
           </div>
         ) : (

@@ -16,7 +16,7 @@ import {
   useState,
 } from 'react';
 
-import { authMe, authRegister } from '@/lib/api';
+import { authMe, authRegister, authSync } from '@/lib/api';
 import { getAuthInstance } from '@/lib/firebase';
 
 import type { UserProfile } from '@/types';
@@ -128,6 +128,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     const auth = getAuthInstance();
     const cred = await signInWithEmailAndPassword(auth, email, password);
+
+    // Sync Firestore role into custom claims before redirect logic reads them.
+    await authSync({ email });
     await fetchProfile(cred.user);
   };
 
@@ -142,7 +145,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Step 2: establish client session.
       const cred = await signInWithEmailAndPassword(auth, email, password);
 
-      // Step 3: force-refresh token to ensure custom role claims are available.
+      // Step 3: sync profile + role claims with backend source of truth.
+      await authSync({ email, displayName: name });
+
+      // Step 4: force-refresh token to ensure custom role claims are available.
       await cred.user.getIdToken(true);
 
       // Final step: fetch profile explicitly.

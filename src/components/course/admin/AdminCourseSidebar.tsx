@@ -18,6 +18,7 @@ import { useState } from 'react';
 import {
   ApiError,
   createChapter,
+  deleteActivity,
   deleteChapter,
   updateActivity,
   updateChapter,
@@ -95,6 +96,24 @@ export const AdminCourseSidebar = ({
     }
   };
 
+  const handleDeleteActivity = async (activityId: string) => {
+    if (!confirm('Yakin ingin menghapus aktivitas ini?')) return;
+    try {
+      setError(null);
+      await deleteActivity(course.id, activityId);
+      if (activeTab === `activity:${activityId}`) {
+        onTabChange('info');
+      }
+      onContentChanged();
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError('Gagal menghapus aktivitas.');
+      }
+    }
+  };
+
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
     const srcIdx = result.source.index;
@@ -113,7 +132,7 @@ export const AdminCourseSidebar = ({
           nextPosition: idx + 1,
         }))
         .filter(
-          ({ item, nextPosition }) => (item.position || 0) !== nextPosition
+          ({ item, nextPosition }) => (item.position || 0) !== nextPosition,
         );
 
       if (changedPositions.length === 0) {
@@ -126,7 +145,7 @@ export const AdminCourseSidebar = ({
             return updateChapter(course.id, item.id, { order: nextPosition });
           }
           return updateActivity(course.id, item.id, { position: nextPosition });
-        })
+        }),
       );
       onContentChanged();
     } catch (err) {
@@ -160,7 +179,7 @@ export const AdminCourseSidebar = ({
         className={cn(
           'flex items-center gap-x-2 text-sm font-medium pl-6 pr-4 py-4 transition-all hover:bg-slate-100 text-slate-600',
           activeTab === 'info' &&
-            'bg-primary-50 text-primary-700 border-r-2 border-primary-700'
+            'bg-primary-50 text-primary-700 border-r-2 border-primary-700',
         )}
       >
         <FileText size={18} />
@@ -190,7 +209,7 @@ export const AdminCourseSidebar = ({
                         'flex items-center text-sm text-slate-600 transition-all hover:bg-slate-100 group',
                         activeTab === `${item.itemType}:${item.id}` &&
                           'bg-primary-50 text-primary-700 border-r-2 border-primary-700',
-                        snapshot.isDragging && 'bg-slate-200 shadow-md'
+                        snapshot.isDragging && 'bg-slate-200 shadow-md',
                       )}
                     >
                       {/* Drag handle */}
@@ -224,6 +243,18 @@ export const AdminCourseSidebar = ({
                           <Trash2 size={14} />
                         </button>
                       )}
+                      {item.itemType === 'activity' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handleDeleteActivity(item.id);
+                          }}
+                          className='p-2 mr-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition'
+                          title='Hapus aktivitas'
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   )}
                 </Draggable>
@@ -248,7 +279,7 @@ export const AdminCourseSidebar = ({
             size={16}
             className={cn(
               'transition-transform',
-              isDropdownOpen && 'rotate-180'
+              isDropdownOpen && 'rotate-180',
             )}
           />
         </button>

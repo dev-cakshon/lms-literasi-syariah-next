@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { GeometricDivider } from '@/components/ornaments/GeometricDivider';
+
 import ButtonLink from '../links/ButtonLink';
 
 export const HeroSection = () => {
@@ -11,7 +13,7 @@ export const HeroSection = () => {
       <div className='layout relative grid min-h-screen items-center gap-8 py-20 pt-32 lg:grid-cols-2'>
         {/* Left Side - Text Content */}
         <div className='z-10 space-y-6'>
-          <h1 className='text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl'>
+          <h1 className='font-display text-4xl font-bold leading-tight tracking-tight text-white md:text-6xl'>
             Kuasai Ilmu Ekonomi Syariah:
             <br />
             Dari Dasar hingga Ahli
@@ -48,6 +50,13 @@ export const HeroSection = () => {
                 <div className='text-xs opacity-90'>Pelajar Aktif</div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Right Side - Geometric ornament on emerald-to-ivory gradient */}
+        <div className='hidden lg:flex items-center justify-center'>
+          <div className='relative flex h-96 w-96 items-center justify-center rounded-3xl bg-linear-to-br from-emerald-500/30 to-ivory/10 backdrop-blur-sm border border-white/20'>
+            <GeometricDivider size={280} className='text-white opacity-80' />
           </div>
         </div>
       </div>

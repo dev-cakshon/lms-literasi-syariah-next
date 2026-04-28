@@ -1,14 +1,14 @@
 'use client';
 
-import { IconType } from 'react-icons';
 import {
-  FcBullish,
-  FcBusinessman,
-  FcCalculator,
-  FcCurrencyExchange,
-  FcMoneyTransfer,
-  FcSalesPerformance,
-} from 'react-icons/fc';
+  BarChart2,
+  Calculator,
+  Landmark,
+  LucideIcon,
+  Scale,
+  ShieldCheck,
+  TrendingUp,
+} from 'lucide-react';
 
 import { CategoryItem } from './CategoryItem';
 
@@ -16,13 +16,13 @@ interface CategoriesProps {
   items: { _id: string; name: string }[];
 }
 
-const iconMap: Record<{ name: string }['name'], IconType> = {
-  'Fiqih Muamalah': FcBusinessman,
-  'Investasi Syariah': FcBullish,
-  'Keuangan Syariah': FcMoneyTransfer,
-  'Akuntansi Syariah': FcCalculator,
-  'Perbankan Syariah': FcCurrencyExchange,
-  'Asuransi Syariah': FcSalesPerformance,
+const iconMap: Record<string, LucideIcon> = {
+  'Fiqih Muamalah': Scale,
+  'Investasi Syariah': TrendingUp,
+  'Keuangan Syariah': Landmark,
+  'Akuntansi Syariah': Calculator,
+  'Perbankan Syariah': Landmark,
+  'Asuransi Syariah': ShieldCheck,
 };
 
 export const Categories = ({ items }: CategoriesProps) => {
@@ -33,7 +33,7 @@ export const Categories = ({ items }: CategoriesProps) => {
           <CategoryItem
             key={idx}
             label={item.name}
-            icon={iconMap[item.name]}
+            icon={iconMap[item.name] ?? BarChart2}
             value={item._id}
           />
         );

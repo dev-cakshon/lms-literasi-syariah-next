@@ -16,7 +16,23 @@ export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 // ─── User types ───
 export type UserRole = 'student' | 'admin' | 'instructor';
-export type Badge = 'perfect_score' | 'top_3';
+export const BADGE_IDS = [
+  'newcomer',
+  'first_step',
+  'active_learner',
+  'perfect_score',
+  'top_3',
+  'number_1',
+] as const;
+
+export type Badge = (typeof BADGE_IDS)[number];
+
+export interface EarnedBadge {
+  id: Badge;
+  name: string;
+  icon: string;
+  color: string;
+}
 
 export interface UserProfile {
   uid: string;
@@ -89,6 +105,7 @@ export interface QuizSubmitResult {
   passed: boolean;
   pointsAwarded: number;
   badges: Badge[];
+  earnedBadges?: EarnedBadge[];
   answers: {
     questionId: string;
     correct: boolean;
@@ -104,6 +121,7 @@ export interface CourseProgress {
   percentage: number;
   pointsAwarded?: number;
   badges?: Badge[];
+  earnedBadges?: EarnedBadge[];
   updatedAt?: string;
 }
 
@@ -230,8 +248,10 @@ export interface SubmitActivityRequest {
 
 export interface SubmitActivityResponse {
   score: number;
+  totalItems: number;
   maxPoints: number;
   scorePercent: number;
   pointsEarned: number;
+  earnedBadges?: EarnedBadge[];
   feedback?: Record<string, unknown>;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import Button from '@/components/buttons/Button';
+import { Button } from '@/components/ui/button';
 
 import { QuizOption } from './QuizOption';
 
@@ -94,12 +94,12 @@ export const MultipleAnswer = ({
             <Button
               onClick={onSubmit}
               disabled={isSubmitting}
-              variant='primary'
+              variant='default'
             >
               {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
             </Button>
           ) : (
-            <Button onClick={onNext} variant='primary'>
+            <Button onClick={onNext} variant='default'>
               Next Question
             </Button>
           )}
