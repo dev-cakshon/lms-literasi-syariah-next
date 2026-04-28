@@ -43,7 +43,7 @@ export const CourseCard = ({
   const href = editUrl || `/course/${id}`;
 
   return (
-    <div className='bg-white group hover:shadow-md transition-shadow overflow-hidden border rounded-xl h-full flex flex-col'>
+    <div className='bg-white group shadow-[var(--shadow-elevated-1)] hover:shadow-[var(--shadow-elevated-2)] transition-shadow overflow-hidden border rounded-[var(--radius-card)] h-full flex flex-col'>
       <Link href={href} className='flex flex-col flex-1'>
         {/* Thumbnail */}
         {normalizedImageUrl ? (

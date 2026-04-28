@@ -79,7 +79,7 @@ export default function UserManagementPage() {
   };
 
   return (
-    <div className='min-h-full bg-linear-to-br from-slate-50 to-gray-100'>
+    <div className='min-h-full bg-linear-to-b from-primary-600 via-primary-50 to-ivory'>
       {/* Header + Search Bar */}
       <div className='bg-primary-600 px-6 py-6'>
         <div className='max-w-4xl mx-auto space-y-3'>
@@ -123,7 +123,7 @@ export default function UserManagementPage() {
             Tidak ada pengguna ditemukan.
           </p>
         ) : (
-          <div className='bg-white rounded-lg border shadow-sm overflow-hidden'>
+          <div className='bg-white rounded-[var(--radius-card)] border shadow-[var(--shadow-elevated-1)] overflow-hidden'>
             <table className='w-full text-sm'>
               <thead>
                 <tr className='border-b bg-slate-50'>
