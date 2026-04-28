@@ -1,0 +1,204 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+
+import type { Certificate } from '@/types';
+
+interface Props {
+  certificate: Certificate;
+  onClose: () => void;
+}
+
+export default function CourseCertificateModal({
+  certificate,
+  onClose,
+}: Props) {
+  const [phase, setPhase] = useState<1 | 2>(1);
+  const [downloadError, setDownloadError] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setPhase(2), 1500);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleDownload = async () => {
+    setDownloadError(false);
+    try {
+      const { default: html2canvas } = await import('html2canvas');
+      const { jsPDF } = await import('jspdf');
+      if (!cardRef.current) return;
+
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = (canvas.height * pageWidth) / canvas.width;
+      pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+      pdf.save(`sertifikat-${certificate.courseName}.pdf`);
+    } catch {
+      setDownloadError(true);
+    }
+  };
+
+  return (
+    <>
+      <style>{`
+        @keyframes certFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes certGlow {
+          0%   { box-shadow: 0 0 0 0   rgba(74, 168, 94, 0.8); }
+          60%  { box-shadow: 0 0 0 72px rgba(74, 168, 94, 0);   }
+          100% { box-shadow: 0 0 0 0   rgba(74, 168, 94, 0);   }
+        }
+        @keyframes certBurst {
+          0%   { transform: scale(0.65); opacity: 0; }
+          55%  { transform: scale(1.06); opacity: 1; }
+          100% { transform: scale(1);   opacity: 1; }
+        }
+        @keyframes certSlideUp {
+          from { opacity: 0; transform: translateY(36px); }
+          to   { opacity: 1; transform: translateY(0);    }
+        }
+      `}</style>
+
+      <div
+        className='fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4'
+        style={{ animation: 'certFadeIn 0.4s ease both' }}
+      >
+        {phase === 1 && (
+          <div
+            className='flex flex-col items-center gap-8 text-center'
+            style={{ animation: 'certBurst 0.55s ease both' }}
+          >
+            <div
+              className='w-28 h-28 rounded-full bg-green-400'
+              style={{ animation: 'certGlow 1.1s ease-out infinite' }}
+            />
+            <h1 className='text-3xl md:text-4xl font-bold text-white max-w-xl leading-snug px-4'>
+              Selamat, kamu telah menyelesaikan kursus ini!
+            </h1>
+          </div>
+        )}
+
+        {phase === 2 && (
+          <div
+            className='flex flex-col items-center gap-4 w-full max-w-5xl'
+            style={{ animation: 'certSlideUp 0.5s ease both' }}
+          >
+            {/* Certificate card — containerType enables cqw font units */}
+            <div
+              ref={cardRef}
+              className='relative w-full overflow-hidden rounded-sm shadow-2xl'
+              style={
+                {
+                  aspectRatio: '3508 / 2480',
+                  containerType: 'inline-size',
+                } as React.CSSProperties
+              }
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src='/assets/certificate-template.jpg'
+                alt='Template sertifikat'
+                className='w-full h-full object-cover'
+                crossOrigin='anonymous'
+              />
+
+              {/* ── Dynamic text overlays ── */}
+              {/* All positioned in the blank area below the green divider: x≈38–94%, y≈55–91% */}
+
+              {/* Brand */}
+              <div
+                className='absolute font-semibold tracking-widest uppercase text-green-800'
+                style={{ top: '57%', left: '38%', fontSize: '1.05cqw' }}
+              >
+                LMS Literasi Syariah
+              </div>
+
+              {/* Recipient label */}
+              <div
+                className='absolute text-gray-500'
+                style={{ top: '63%', left: '38%', fontSize: '0.9cqw' }}
+              >
+                Diberikan kepada:
+              </div>
+
+              {/* Recipient name */}
+              <div
+                className='absolute font-bold text-gray-900'
+                style={{ top: '67.5%', left: '38%', fontSize: '2.1cqw' }}
+              >
+                {certificate.userName}
+              </div>
+
+              {/* Course label */}
+              <div
+                className='absolute text-gray-500'
+                style={{ top: '76%', left: '38%', fontSize: '0.9cqw' }}
+              >
+                Telah berhasil menyelesaikan kursus:
+              </div>
+
+              {/* Course name */}
+              <div
+                className='absolute font-semibold text-gray-800'
+                style={{ top: '80.5%', left: '38%', fontSize: '1.35cqw' }}
+              >
+                {certificate.courseName}
+              </div>
+
+              {/* Completion date (left) */}
+              <div
+                className='absolute text-gray-600'
+                style={{ top: '88.5%', left: '38%', fontSize: '0.88cqw' }}
+              >
+                {certificate.completionDate}
+              </div>
+
+              {/* Serial number (right) */}
+              <div
+                className='absolute text-gray-500'
+                style={{ top: '88.5%', left: '63%', fontSize: '0.88cqw' }}
+              >
+                No. Sertifikat: {certificate.serialNumber}
+              </div>
+            </div>
+
+            {downloadError && (
+              <p className='text-red-400 text-sm'>
+                Gagal mengunduh sertifikat, coba lagi.
+              </p>
+            )}
+
+            <div className='flex gap-3'>
+              <button
+                onClick={handleDownload}
+                className='px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors'
+              >
+                Unduh PDF
+              </button>
+              <button
+                onClick={onClose}
+                className='px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition-colors'
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
