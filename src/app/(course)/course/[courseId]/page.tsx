@@ -88,7 +88,7 @@ export default function CourseIdPage({
   return (
     <div className='mx-auto w-full max-w-5xl space-y-6 p-4 md:p-8'>
       <section className='rounded-[var(--radius-card)] border bg-white p-6 shadow-[var(--shadow-elevated-1)]'>
-        <h1 className='text-2xl font-bold text-slate-900 md:text-3xl'>
+        <h1 className='font-display text-3xl font-bold text-slate-900 tracking-tight md:text-4xl'>
           {course.title}
         </h1>
         <p className='mt-3 text-sm text-slate-600 md:text-base'>

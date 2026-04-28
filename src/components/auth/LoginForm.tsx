@@ -4,6 +4,8 @@ import { FirebaseError } from 'firebase/app';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { GeometricDivider } from '@/components/ornaments/GeometricDivider';
+
 import { useAuth } from '@/contexts/AuthContext';
 
 function mapFirebaseLoginErrorToIndonesian(code: string): string {
@@ -57,14 +59,18 @@ export const LoginForm = () => {
     <div className='min-h-screen flex items-center justify-center bg-linear-to-br from-primary-50 to-teal-50 px-4'>
       <div className='max-w-md w-full bg-ivory rounded-[var(--radius-card)] shadow-[var(--shadow-elevated-2)] p-8'>
         {/* Wordmark */}
-        <div className='text-center mb-6'>
+        <div className='text-center mb-4'>
           <span className='font-display text-2xl font-bold text-primary-700 tracking-tight'>
             LMS Literasi Syariah
           </span>
         </div>
 
+        <div className='flex justify-center mb-4'>
+          <GeometricDivider size={32} className='text-primary-300' />
+        </div>
+
         <div className='text-center mb-8'>
-          <h1 className='font-display text-3xl font-bold text-slate-800 tracking-tight'>
+          <h1 className='font-display text-4xl font-bold text-slate-800 tracking-tight'>
             Masuk
           </h1>
           <p className='text-slate-600 mt-2'>

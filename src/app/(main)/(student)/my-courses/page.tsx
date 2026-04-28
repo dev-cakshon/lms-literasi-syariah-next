@@ -74,8 +74,17 @@ export default function MyCoursesPage() {
 
   return (
     <div className='min-h-full bg-linear-to-b from-primary-600 via-primary-50 to-ivory'>
+      {/* Page Title */}
+      <div className='px-6 pt-8 pb-2'>
+        <div className='max-w-4xl mx-auto'>
+          <h1 className='font-display text-4xl font-bold tracking-tight text-white'>
+            Kursus Saya
+          </h1>
+        </div>
+      </div>
+
       {/* Search Bar */}
-      <div className='px-6 py-6'>
+      <div className='px-6 py-4'>
         <div className='max-w-4xl mx-auto flex items-center gap-3'>
           <div className='flex-1 relative'>
             <input

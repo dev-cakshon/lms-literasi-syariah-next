@@ -125,7 +125,7 @@ export default function AdminCoursePage() {
         <div className='max-w-4xl mx-auto space-y-3'>
           <div className='flex items-center justify-between'>
             <div>
-              <h1 className='text-3xl font-bold text-white mb-1'>
+              <h1 className='font-display text-3xl font-bold text-white tracking-tight mb-1'>
                 Kelola Kursus
               </h1>
               <p className='text-primary-100'>

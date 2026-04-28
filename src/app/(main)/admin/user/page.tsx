@@ -84,7 +84,7 @@ export default function UserManagementPage() {
       <div className='bg-primary-600 px-6 py-6'>
         <div className='max-w-4xl mx-auto space-y-3'>
           <div>
-            <h1 className='text-3xl font-bold text-white mb-1'>
+            <h1 className='font-display text-3xl font-bold text-white tracking-tight mb-1'>
               Manajemen Pengguna
             </h1>
             <p className='text-primary-100'>
