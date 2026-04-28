@@ -1,5 +1,6 @@
 'use client';
 
+import confetti from 'canvas-confetti';
 import {
   Award,
   BookOpenCheck,
@@ -8,9 +9,10 @@ import {
   ShieldCheck,
   Trophy,
 } from 'lucide-react';
+import { useEffect } from 'react';
 
-import Button from '@/components/buttons/Button';
 import { Badge as UIBadge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -75,6 +77,16 @@ export const BadgeAwardModal = ({
   badges,
   onClose,
 }: BadgeAwardModalProps) => {
+  useEffect(() => {
+    if (!isOpen || badges.length === 0) return;
+    void confetti({
+      particleCount: 120,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444'],
+    });
+  }, [isOpen, badges.length]);
+
   if (!isOpen || badges.length === 0) {
     return null;
   }
@@ -93,7 +105,7 @@ export const BadgeAwardModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className='space-y-3'>
+        <div className='space-y-3 my-4'>
           {badges.map((badge) => {
             const copy = BADGE_COPY[badge];
 

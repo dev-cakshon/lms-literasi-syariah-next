@@ -6,13 +6,17 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import { Medal, Trophy } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 
 import { getFirestoreInstance } from '@/lib/firebase';
 import { useLeaderboard } from '@/hooks/use-realtime';
 
+import { Skeleton } from '@/components/ui/skeleton';
+
 import { useAuth } from '@/contexts/AuthContext';
+
+import { LeaderboardRow } from './LeaderboardRow';
 
 import type { Badge, LeaderboardUser } from '@/types';
 import { BADGE_IDS } from '@/types';
@@ -146,42 +150,16 @@ export const Leaderboard = (_props: LeaderboardProps) => {
     };
   }, [currentUserUid, loading, currentUserTopTenEntry]);
 
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Trophy className='w-5 h-5 text-yellow-500' />;
-      case 2:
-        return <Medal className='w-5 h-5 text-gray-400' />;
-      case 3:
-        return <Medal className='w-5 h-5 text-amber-600' />;
-      default:
-        return null;
-    }
-  };
-
-  const getRankStyle = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'bg-yellow-400 text-white';
-      case 2:
-        return 'bg-gray-300 text-white';
-      case 3:
-        return 'bg-amber-500 text-white';
-      default:
-        return 'bg-primary-100 text-primary-700';
-    }
-  };
-
   if (loading) {
     return (
       <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
         <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
-        <div className='space-y-3 animate-pulse'>
-          <div className='h-12 rounded-lg bg-gray-200' />
-          <div className='h-12 rounded-lg bg-gray-200' />
-          <div className='h-12 rounded-lg bg-gray-200' />
-          <div className='h-12 rounded-lg bg-gray-200' />
-          <div className='h-12 rounded-lg bg-gray-200' />
+        <div className='space-y-3'>
+          <Skeleton className='h-12 rounded-lg' />
+          <Skeleton className='h-12 rounded-lg' />
+          <Skeleton className='h-12 rounded-lg' />
+          <Skeleton className='h-12 rounded-lg' />
+          <Skeleton className='h-12 rounded-lg' />
         </div>
       </div>
     );
@@ -202,111 +180,39 @@ export const Leaderboard = (_props: LeaderboardProps) => {
     <div className='bg-primary-200/40 rounded-2xl p-6 lg:p-8'>
       <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
 
-      <div className='overflow-hidden rounded-xl'>
-        <table className='w-full'>
-          <thead>
-            <tr className='bg-primary-600 text-white text-sm'>
-              <th className='py-3 px-4 text-left font-semibold'>Rank</th>
-              <th className='py-3 px-4 text-left font-semibold'>Nama</th>
-              <th className='py-3 px-4 text-right font-semibold'>Poin</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaderboardData.map((leaderboardUser, index) => {
-              const isCurrentUser =
+      <div className='space-y-2'>
+        {leaderboardData.map((leaderboardUser, index) => (
+          <motion.div
+            key={leaderboardUser.uid}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05, duration: 0.25 }}
+          >
+            <LeaderboardRow
+              user={leaderboardUser}
+              rank={leaderboardUser.rank}
+              isCurrentUser={
                 currentUserUid !== null &&
-                leaderboardUser.uid === currentUserUid;
-
-              return (
-                <tr
-                  key={leaderboardUser.uid}
-                  className={`border-b border-gray-100 transition-colors hover:bg-gray-50 ${
-                    isCurrentUser
-                      ? 'bg-primary-100'
-                      : index % 2 === 0
-                        ? 'bg-white'
-                        : 'bg-gray-100/80'
-                  }`}
-                >
-                  <td className='py-3 px-4'>
-                    <div className='flex items-center gap-2'>
-                      <span
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
-                          leaderboardUser.rank,
-                        )}`}
-                      >
-                        {leaderboardUser.rank <= 3
-                          ? getRankIcon(leaderboardUser.rank)
-                          : leaderboardUser.rank}
-                      </span>
-                    </div>
-                  </td>
-                  <td className='py-3 px-4'>
-                    <div className='flex items-center gap-3'>
-                      <div className='w-9 h-9 rounded-full bg-linear-to-br from-primary-400 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm'>
-                        {leaderboardUser.name.charAt(0).toUpperCase()}
-                      </div>
-                      <span className='font-medium text-gray-800'>
-                        {leaderboardUser.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td className='py-3 px-4 text-right'>
-                    <span className='font-bold text-primary-600'>
-                      {leaderboardUser.totalPoints.toLocaleString()}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-
-            {currentUserUid &&
-            !currentUserTopTenEntry &&
-            currentUserRankState ? (
-              <>
-                <tr>
-                  <td colSpan={3} className='py-2 px-4'>
-                    <div className='border-t border-dashed border-primary-300' />
-                    <p className='text-xs text-primary-700 font-semibold mt-2'>
-                      Your rank
-                    </p>
-                  </td>
-                </tr>
-                <tr className='bg-primary-100 border-b border-gray-100'>
-                  <td className='py-3 px-4'>
-                    <div className='flex items-center gap-2'>
-                      <span
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankStyle(
-                          currentUserRankState.rank,
-                        )}`}
-                      >
-                        {currentUserRankState.rank <= 3
-                          ? getRankIcon(currentUserRankState.rank)
-                          : currentUserRankState.rank}
-                      </span>
-                    </div>
-                  </td>
-                  <td className='py-3 px-4'>
-                    <div className='flex items-center gap-3'>
-                      <div className='w-9 h-9 rounded-full bg-linear-to-br from-primary-400 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm'>
-                        {currentUserRankState.user.name.charAt(0).toUpperCase()}
-                      </div>
-                      <span className='font-medium text-gray-800'>
-                        {currentUserRankState.user.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td className='py-3 px-4 text-right'>
-                    <span className='font-bold text-primary-600'>
-                      {currentUserRankState.user.totalPoints.toLocaleString()}
-                    </span>
-                  </td>
-                </tr>
-              </>
-            ) : null}
-          </tbody>
-        </table>
+                leaderboardUser.uid === currentUserUid
+              }
+            />
+          </motion.div>
+        ))}
       </div>
+
+      {currentUserUid && !currentUserTopTenEntry && currentUserRankState ? (
+        <div className='mt-4'>
+          <div className='border-t border-dashed border-primary-300 mb-3' />
+          <p className='text-xs text-primary-700 font-semibold mb-2'>
+            Peringkatmu
+          </p>
+          <LeaderboardRow
+            user={currentUserRankState.user}
+            rank={currentUserRankState.rank}
+            isCurrentUser={true}
+          />
+        </div>
+      ) : null}
     </div>
   );
 };

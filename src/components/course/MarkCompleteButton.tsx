@@ -1,13 +1,14 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 
 import { markChapterComplete } from '@/lib/api';
 import { useCourseProgress } from '@/hooks/use-realtime';
 
-import Button from '@/components/buttons/Button';
 import { BadgeAwardModal, PointsToast } from '@/components/gamification';
+import { Button } from '@/components/ui/button';
 
 import { CourseLayoutContext } from '@/app/(course)/course/[courseId]/CourseLayoutContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,7 +36,6 @@ export const MarkCompleteButton = ({
   const { completedChapters } = useCourseProgress(courseId);
   const isCompleted = completedChapters.includes(chapterId);
 
-  // Reset loading spinner when route changes (component persists in layout)
   useEffect(() => {
     setIsLoading(false);
     setToastPoints(0);
@@ -100,7 +100,6 @@ export const MarkCompleteButton = ({
     }
   };
 
-  // Hide button if already completed
   if (isCompleted) return null;
 
   return (
@@ -111,8 +110,15 @@ export const MarkCompleteButton = ({
         badges={awardedBadges}
         onClose={() => setShowBadgeModal(false)}
       />
-      <Button onClick={handleMarkComplete} isLoading={isLoading}>
-        Mark as Complete
+      <Button onClick={handleMarkComplete} disabled={isLoading}>
+        {isLoading ? (
+          <>
+            <Loader2 className='animate-spin h-4 w-4 mr-2' />
+            Loading...
+          </>
+        ) : (
+          'Mark as Complete'
+        )}
       </Button>
     </>
   );

@@ -16,25 +16,29 @@ export const FeatureSection = () => {
   // Feature data array - easy to manage and update
   const features: Feature[] = [
     {
-      icon: <GraduationCap className='h-8 w-8 text-primary-600' />,
+      icon: (
+        <GraduationCap className='h-8 w-8 text-primary-600' strokeWidth={1.5} />
+      ),
       title: 'Pakar Ekonomi Syariah Berpengalaman',
       description:
         'Belajar langsung dari praktisi dan akademisi yang ahli di bidang ekonomi dan keuangan syariah dengan pengalaman puluhan tahun.',
     },
     {
-      icon: <BookOpen className='h-8 w-8 text-primary-600' />,
+      icon: <BookOpen className='h-8 w-8 text-primary-600' strokeWidth={1.5} />,
       title: 'Materi Komprehensif Berbasis Syariah',
       description:
         'Kurikulum lengkap dari dasar fiqih muamalah hingga aplikasi praktis dalam perbankan, investasi, dan manajemen keuangan syariah modern.',
     },
     {
-      icon: <Award className='h-8 w-8 text-primary-600' />,
+      icon: <Award className='h-8 w-8 text-primary-600' strokeWidth={1.5} />,
       title: 'Sertifikat Profesional Terakreditasi',
       description:
         'Dapatkan sertifikat yang diakui industri untuk meningkatkan kredibilitas profesional Anda di bidang keuangan dan ekonomi syariah.',
     },
     {
-      icon: <MonitorPlay className='h-8 w-8 text-primary-600' />,
+      icon: (
+        <MonitorPlay className='h-8 w-8 text-primary-600' strokeWidth={1.5} />
+      ),
       title: 'Pembelajaran Fleksibel & Interaktif',
       description:
         'Akses materi kapan saja, di mana saja dengan video berkualitas HD, studi kasus nyata, dan forum diskusi dengan sesama praktisi syariah.',

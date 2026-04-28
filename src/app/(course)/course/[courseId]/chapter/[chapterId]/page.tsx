@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
-import { getChapter } from '@/lib/api';
+import { getChapter, getCourseContent } from '@/lib/api';
 
 import { ChapterContent } from '@/components/course/ChapterContent';
 
-import type { Chapter } from '@/types';
+import type { Chapter, CourseContentItem } from '@/types';
 
 export default function ChapterIdPage({
   params,
@@ -16,6 +16,7 @@ export default function ChapterIdPage({
   const [courseId, setCourseId] = useState<string | null>(null);
   const [chapterId, setChapterId] = useState<string | null>(null);
   const [chapterDetail, setChapterDetail] = useState<Chapter | null>(null);
+  const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,8 +33,12 @@ export default function ChapterIdPage({
 
     async function fetchChapter() {
       try {
-        const data = await getChapter(resolvedCourseId, resolvedChapterId);
+        const [data, courseContent] = await Promise.all([
+          getChapter(resolvedCourseId, resolvedChapterId),
+          getCourseContent(resolvedCourseId),
+        ]);
         setChapterDetail(data);
+        setContentItems(courseContent);
       } catch (err) {
         console.error('Failed to load chapter:', err);
         setChapterDetail(null);
@@ -61,6 +66,11 @@ export default function ChapterIdPage({
     );
   }
 
+  const completedCount = contentItems.filter((item) => item.completed).length;
+  const totalCount = contentItems.length;
+  const progressPercent =
+    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
   return (
     <div>
       <ChapterContent
@@ -69,6 +79,9 @@ export default function ChapterIdPage({
         title={chapterDetail.title || 'Untitled'}
         videoUrl={chapterDetail.videoUrl || ''}
         content={chapterDetail.content || ''}
+        progressPercent={progressPercent}
+        completedCount={completedCount}
+        totalCount={totalCount}
       />
     </div>
   );

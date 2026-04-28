@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { getStudentActivity, submitActivity } from '@/lib/api';
@@ -13,7 +14,7 @@ import {
 } from '@/lib/wordSearch';
 
 import { ActivityResultScreen } from '@/components/activity/ActivityResultScreen';
-import Button from '@/components/buttons/Button';
+import { Button } from '@/components/ui/button';
 
 import { CourseLayoutContext } from '@/app/(course)/course/[courseId]/CourseLayoutContext';
 
@@ -64,7 +65,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   const [courseId, setCourseId] = useState<string | null>(null);
   const [activityId, setActivityId] = useState<string | null>(null);
   const [activity, setActivity] = useState<StudentWordSearchActivity | null>(
-    null
+    null,
   );
   const [puzzle, setPuzzle] = useState<WordSearchResult | null>(null);
   const [dragStart, setDragStart] = useState<GridCell | null>(null);
@@ -98,7 +99,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
       try {
         const data = (await getStudentActivity(
           resolvedCourseId,
-          resolvedActivityId
+          resolvedActivityId,
         )) as StudentActivity;
 
         if (data.type !== 'word_search') {
@@ -113,7 +114,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
         const generatedPuzzle = generateWordSearch(
           typedActivity.wordList,
           typedActivity.gridSize,
-          seed
+          seed,
         );
 
         setActivity(typedActivity);
@@ -149,7 +150,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
 
   const targetSet = useMemo(
     () => new Set(Array.from(normalizedToOriginal.keys())),
-    [normalizedToOriginal]
+    [normalizedToOriginal],
   );
 
   const selectedCells = useMemo(() => {
@@ -192,8 +193,8 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     const matched = targetSet.has(normalizedCandidate)
       ? normalizedCandidate
       : targetSet.has(normalizedReversed)
-      ? normalizedReversed
-      : null;
+        ? normalizedReversed
+        : null;
 
     if (matched && !foundWords.includes(matched)) {
       setFoundWords((prev) => [...prev, matched]);
@@ -227,7 +228,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     setError(null);
     try {
       const foundWordsPayload = foundWords.map(
-        (normalized) => normalizedToOriginal.get(normalized) ?? normalized
+        (normalized) => normalizedToOriginal.get(normalized) ?? normalized,
       );
 
       const submitResult = await submitActivity(courseId, activityId, {
@@ -284,7 +285,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
           const regenerated = generateWordSearch(
             activity.wordList,
             activity.gridSize,
-            seed
+            seed,
           );
           setPuzzle(regenerated);
         }}
@@ -317,7 +318,8 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
               const key = cellKey(cell);
               const inCurrentSelection = selectedCells.some(
                 (selectedCell) =>
-                  selectedCell.row === rowIndex && selectedCell.col === colIndex
+                  selectedCell.row === rowIndex &&
+                  selectedCell.col === colIndex,
               );
               const foundColor = foundColorByCell.get(key);
 
@@ -343,13 +345,13 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
                     'h-9 w-9 rounded-md border text-sm font-semibold transition-colors md:h-10 md:w-10',
                     foundColor ?? 'bg-slate-50 text-slate-900 border-slate-200',
                     inCurrentSelection &&
-                      'ring-2 ring-primary-400 bg-primary-100 border-primary-300'
+                      'ring-2 ring-primary-400 bg-primary-100 border-primary-300',
                   )}
                 >
                   {char}
                 </button>
               );
-            })
+            }),
           )}
         </div>
 
@@ -368,7 +370,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
                     'rounded-full px-2.5 py-1 text-xs font-medium border',
                     found
                       ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                      : 'bg-white text-slate-700 border-slate-200'
+                      : 'bg-white text-slate-700 border-slate-200',
                   )}
                 >
                   {word}
@@ -399,13 +401,19 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
               Reset Pilihan
             </Button>
             <Button
-              variant='light'
+              variant='secondary'
               onClick={onSubmit}
-              isLoading={submitting}
-              disabled={!submitReady}
+              disabled={!submitReady || submitting}
               className='font-semibold text-primary-700 hover:bg-primary-50 disabled:hover:bg-white'
             >
-              Kirim Jawaban
+              {submitting ? (
+                <>
+                  <Loader2 className='animate-spin h-4 w-4 mr-2' />
+                  Mengirim...
+                </>
+              ) : (
+                'Kirim Jawaban'
+              )}
             </Button>
           </div>
         </div>

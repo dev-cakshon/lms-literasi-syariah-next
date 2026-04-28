@@ -6,6 +6,7 @@ import {
   ProfileInfo,
   ProfilePicture,
 } from '@/components/dashboard/ProfileOverview';
+import { GeometricDivider } from '@/components/ornaments/GeometricDivider';
 
 export default function DashboardPage() {
   return (
@@ -29,6 +30,11 @@ export default function DashboardPage() {
               <AchievementBadges />
             </div>
           </div>
+        </div>
+
+        {/* Panel divider */}
+        <div className='flex justify-center py-1'>
+          <GeometricDivider size={48} className='text-primary-400' />
         </div>
 
         {/* Second Container - Leaderboard */}
