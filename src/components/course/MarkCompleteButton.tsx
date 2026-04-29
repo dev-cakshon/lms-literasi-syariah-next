@@ -125,6 +125,18 @@ export const MarkCompleteButton = ({
     }
   };
 
+  if (showCertModal && certificate) {
+    return (
+      <CourseCertificateModal
+        certificate={certificate}
+        onClose={() => {
+          setShowCertModal(false);
+          router.push(pendingNavRef.current);
+        }}
+      />
+    );
+  }
+
   if (isCompleted) return null;
 
   return (
@@ -135,15 +147,6 @@ export const MarkCompleteButton = ({
         badges={awardedBadges}
         onClose={() => setShowBadgeModal(false)}
       />
-      {showCertModal && certificate && (
-        <CourseCertificateModal
-          certificate={certificate}
-          onClose={() => {
-            setShowCertModal(false);
-            router.push(pendingNavRef.current);
-          }}
-        />
-      )}
       <Button onClick={handleMarkComplete} disabled={isLoading}>
         {isLoading ? (
           <>
