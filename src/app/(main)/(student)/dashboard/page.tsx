@@ -1,6 +1,7 @@
 'use client';
 
 import { AchievementBadges } from '@/components/dashboard/AchievementBadges';
+import { DashboardCertificates } from '@/components/dashboard/DashboardCertificates';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import {
   ProfileInfo,
@@ -31,6 +32,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        <DashboardCertificates />
 
         {/* Panel divider */}
         <div className='flex justify-center py-1'>

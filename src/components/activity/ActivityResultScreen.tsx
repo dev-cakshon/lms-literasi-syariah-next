@@ -3,12 +3,15 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
+import { ApiError, issueCertificate } from '@/lib/api';
+
+import CourseCertificateModal from '@/components/course/CourseCertificateModal';
 import { BadgeAwardModal } from '@/components/gamification';
 import { Button } from '@/components/ui/button';
 
 import { useAuth } from '@/contexts/AuthContext';
 
-import type { Badge, SubmitActivityResponse } from '@/types';
+import type { Badge, Certificate, SubmitActivityResponse } from '@/types';
 import { BADGE_IDS } from '@/types';
 
 interface ActivityResultScreenProps {
@@ -25,6 +28,8 @@ export const ActivityResultScreen = ({
   const router = useRouter();
   const { refreshProfile } = useAuth();
   const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [certificate, setCertificate] = useState<Certificate | null>(null);
+  const [showCertModal, setShowCertModal] = useState(false);
 
   const awardedBadges = useMemo<Badge[]>(() => {
     const validBadges = new Set<string>(BADGE_IDS);
@@ -48,6 +53,20 @@ export const ActivityResultScreen = ({
 
   const isPerfectScore = result.score === result.maxPoints;
 
+  useEffect(() => {
+    if (!isPerfectScore) return;
+    issueCertificate(courseId)
+      .then((cert) => {
+        setCertificate(cert);
+        setShowCertModal(true);
+      })
+      .catch((err: unknown) => {
+        if (err instanceof ApiError && err.code === 'CERTIFICATE_NOT_ELIGIBLE')
+          return;
+        console.error('Certificate issuance failed:', err);
+      });
+  }, [isPerfectScore, courseId]);
+
   return (
     <>
       <BadgeAwardModal
@@ -55,6 +74,12 @@ export const ActivityResultScreen = ({
         badges={awardedBadges}
         onClose={() => setShowBadgeModal(false)}
       />
+      {showCertModal && certificate && (
+        <CourseCertificateModal
+          certificate={certificate}
+          onClose={() => setShowCertModal(false)}
+        />
+      )}
 
       <div className='min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-8'>
         <div className='w-full max-w-xl rounded-2xl border bg-white p-8 shadow-sm'>
