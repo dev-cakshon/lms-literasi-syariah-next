@@ -506,3 +506,7 @@ export async function issueCertificate(courseId: string): Promise<Certificate> {
 export async function getCertificate(courseId: string): Promise<Certificate> {
   return apiFetch(`/courses/${courseId}/certificates/me`);
 }
+
+export async function getMyAllCertificates(): Promise<Certificate[]> {
+  return apiFetch('/certificates/me');
+}
