@@ -121,13 +121,14 @@ export default function CourseCertificateModal({
 
               {/* Serial number */}
               <div
-                className='absolute text-gray-500 text-center w-full'
+                className='absolute text-center w-full'
                 style={{
                   top: '30%',
                   left: '67.5%',
                   transform: 'translateX(-50%)',
                   maxWidth: '50%',
                   fontSize: '1.1cqw',
+                  color: '#6b7280',
                 }}
               >
                 ID: {certificate.serialNumber}
@@ -135,13 +136,14 @@ export default function CourseCertificateModal({
 
               {/* Recipient label */}
               <div
-                className='absolute text-gray-500 text-center w-full'
+                className='absolute text-center w-full'
                 style={{
                   top: '42%',
                   left: '67.5%',
                   transform: 'translateX(-50%)',
                   maxWidth: '50%',
                   fontSize: '1.4cqw',
+                  color: '#6b7280',
                 }}
               >
                 Diberikan kepada:
@@ -149,13 +151,14 @@ export default function CourseCertificateModal({
 
               {/* Recipient name */}
               <div
-                className='absolute font-bold text-gray-900 text-center w-full'
+                className='absolute font-bold text-center w-full'
                 style={{
-                  top: '48%',
+                  top: '46%',
                   left: '67.5%',
                   transform: 'translateX(-50%)',
                   maxWidth: '55%',
                   fontSize: '3.5cqw',
+                  color: '#111827',
                 }}
               >
                 {certificate.userName}
@@ -163,13 +166,14 @@ export default function CourseCertificateModal({
 
               {/* Course label */}
               <div
-                className='absolute text-gray-500 text-center w-full'
+                className='absolute text-center w-full'
                 style={{
                   top: '60%',
                   left: '67.5%',
                   transform: 'translateX(-50%)',
                   maxWidth: '50%',
                   fontSize: '1.2cqw',
+                  color: '#6b7280',
                 }}
               >
                 Telah berhasil menyelesaikan kursus:
@@ -177,7 +181,7 @@ export default function CourseCertificateModal({
 
               {/* Course name */}
               <div
-                className='absolute font-bold text-primary-700 text-center w-full'
+                className='absolute font-bold text-center w-full'
                 style={{
                   top: '65%',
                   left: '67.5%',
@@ -185,6 +189,7 @@ export default function CourseCertificateModal({
                   maxWidth: '55%',
                   fontSize: '2.2cqw',
                   lineHeight: '1.2',
+                  color: '#047857',
                 }}
               >
                 {certificate.courseName}
@@ -192,13 +197,14 @@ export default function CourseCertificateModal({
 
               {/* Brand */}
               <div
-                className='absolute font-semibold tracking-widest uppercase text-green-800 text-center w-full'
+                className='absolute font-semibold tracking-widest uppercase text-center w-full'
                 style={{
                   top: '87%',
                   left: '45%',
                   transform: 'translateX(-50%)',
                   maxWidth: '50%',
                   fontSize: '1.1cqw',
+                  color: '#166534',
                 }}
               >
                 LMS Literasi Syariah
@@ -206,8 +212,13 @@ export default function CourseCertificateModal({
 
               {/* Completion date (right-aligned relative to the right edge) */}
               <div
-                className='absolute text-gray-600 text-right'
-                style={{ top: '87%', right: '6%', fontSize: '1cqw' }}
+                className='absolute text-right'
+                style={{
+                  top: '87%',
+                  right: '6%',
+                  fontSize: '1cqw',
+                  color: '#4b5563',
+                }}
               >
                 Diterbitkan:{' '}
                 {new Intl.DateTimeFormat('id-ID', {
