@@ -117,62 +117,104 @@ export default function CourseCertificateModal({
               />
 
               {/* ── Dynamic text overlays ── */}
-              {/* All positioned in the blank area below the green divider: x≈38–94%, y≈55–91% */}
+              {/* All positioned in the blank area on the right: centered around x=67.5% */}
 
-              {/* Brand */}
+              {/* Serial number */}
               <div
-                className='absolute font-semibold tracking-widest uppercase text-green-800'
-                style={{ top: '57%', left: '38%', fontSize: '1.05cqw' }}
+                className='absolute text-gray-500 text-center w-full'
+                style={{
+                  top: '30%',
+                  left: '67.5%',
+                  transform: 'translateX(-50%)',
+                  maxWidth: '50%',
+                  fontSize: '1.1cqw',
+                }}
               >
-                LMS Literasi Syariah
+                ID: {certificate.serialNumber}
               </div>
 
               {/* Recipient label */}
               <div
-                className='absolute text-gray-500'
-                style={{ top: '63%', left: '38%', fontSize: '0.9cqw' }}
+                className='absolute text-gray-500 text-center w-full'
+                style={{
+                  top: '42%',
+                  left: '67.5%',
+                  transform: 'translateX(-50%)',
+                  maxWidth: '50%',
+                  fontSize: '1.4cqw',
+                }}
               >
                 Diberikan kepada:
               </div>
 
               {/* Recipient name */}
               <div
-                className='absolute font-bold text-gray-900'
-                style={{ top: '67.5%', left: '38%', fontSize: '2.1cqw' }}
+                className='absolute font-bold text-gray-900 text-center w-full'
+                style={{
+                  top: '48%',
+                  left: '67.5%',
+                  transform: 'translateX(-50%)',
+                  maxWidth: '55%',
+                  fontSize: '3.5cqw',
+                }}
               >
                 {certificate.userName}
               </div>
 
               {/* Course label */}
               <div
-                className='absolute text-gray-500'
-                style={{ top: '76%', left: '38%', fontSize: '0.9cqw' }}
+                className='absolute text-gray-500 text-center w-full'
+                style={{
+                  top: '60%',
+                  left: '67.5%',
+                  transform: 'translateX(-50%)',
+                  maxWidth: '50%',
+                  fontSize: '1.2cqw',
+                }}
               >
                 Telah berhasil menyelesaikan kursus:
               </div>
 
               {/* Course name */}
               <div
-                className='absolute font-semibold text-gray-800'
-                style={{ top: '80.5%', left: '38%', fontSize: '1.35cqw' }}
+                className='absolute font-bold text-primary-700 text-center w-full'
+                style={{
+                  top: '65%',
+                  left: '67.5%',
+                  transform: 'translateX(-50%)',
+                  maxWidth: '55%',
+                  fontSize: '2.2cqw',
+                  lineHeight: '1.2',
+                }}
               >
                 {certificate.courseName}
               </div>
 
-              {/* Completion date (left) */}
+              {/* Brand */}
               <div
-                className='absolute text-gray-600'
-                style={{ top: '88.5%', left: '38%', fontSize: '0.88cqw' }}
+                className='absolute font-semibold tracking-widest uppercase text-green-800 text-center w-full'
+                style={{
+                  top: '87%',
+                  left: '45%',
+                  transform: 'translateX(-50%)',
+                  maxWidth: '50%',
+                  fontSize: '1.1cqw',
+                }}
               >
-                {certificate.completionDate}
+                LMS Literasi Syariah
               </div>
 
-              {/* Serial number (right) */}
+              {/* Completion date (right-aligned relative to the right edge) */}
               <div
-                className='absolute text-gray-500'
-                style={{ top: '88.5%', left: '63%', fontSize: '0.88cqw' }}
+                className='absolute text-gray-600 text-right'
+                style={{ top: '87%', right: '6%', fontSize: '1cqw' }}
               >
-                No. Sertifikat: {certificate.serialNumber}
+                Diterbitkan:{' '}
+                {new Intl.DateTimeFormat('id-ID', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                }).format(new Date(certificate.completionDate))}
               </div>
             </div>
 
