@@ -153,7 +153,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
   if (loading) {
     return (
       <div className='bg-white rounded-2xl p-5 border border-primary-100 shadow-elevated-1'>
-        <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
+        <h2 className='text-xl font-bold text-gray-800 mb-6'>🏆 Leaderboard</h2>
         <div className='space-y-3'>
           <Skeleton className='h-12 rounded-lg' />
           <Skeleton className='h-12 rounded-lg' />
@@ -168,7 +168,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
   if (leaderboardData.length === 0) {
     return (
       <div className='bg-white rounded-2xl p-5 border border-primary-100 shadow-elevated-1'>
-        <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
+        <h2 className='text-xl font-bold text-gray-800 mb-6'>🏆 Leaderboard</h2>
         <div className='text-center py-8 text-gray-500'>
           <p>Belum ada data leaderboard.</p>
         </div>
@@ -178,7 +178,7 @@ export const Leaderboard = (_props: LeaderboardProps) => {
 
   return (
     <div className='bg-white rounded-2xl p-5 border border-primary-100 shadow-elevated-1'>
-      <h2 className='text-xl font-bold text-gray-800 mb-6'>Leaderboard</h2>
+      <h2 className='text-xl font-bold text-gray-800 mb-6'>🏆 Leaderboard</h2>
 
       <div className='space-y-2'>
         {leaderboardData.map((leaderboardUser, index) => (

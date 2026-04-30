@@ -130,7 +130,7 @@ export const ProfileInfo = () => {
 
       <div className='grid grid-cols-3 gap-3'>
         <div className='bg-white/12 border border-[#D9EDBF]/18 rounded-xl px-3 py-3 text-center'>
-          <p className='text-[#D9EDBF]/70 text-[10px] uppercase tracking-wide mb-1'>
+          <p className='text-white text-[10px] uppercase tracking-wide mb-1'>
             Total Poin
           </p>
           <p className='font-bold text-[#FF9800] text-lg leading-none'>
@@ -138,7 +138,7 @@ export const ProfileInfo = () => {
           </p>
         </div>
         <div className='bg-white/12 border border-[#D9EDBF]/18 rounded-xl px-3 py-3 text-center'>
-          <p className='text-[#D9EDBF]/70 text-[10px] uppercase tracking-wide mb-1'>
+          <p className='text-white text-[10px] uppercase tracking-wide mb-1'>
             Lencana
           </p>
           <p className='font-bold text-[#90D26D] text-lg leading-none'>
@@ -146,7 +146,7 @@ export const ProfileInfo = () => {
           </p>
         </div>
         <div className='bg-white/12 border border-[#D9EDBF]/18 rounded-xl px-3 py-3 text-center'>
-          <p className='text-[#D9EDBF]/70 text-[10px] uppercase tracking-wide mb-1'>
+          <p className='text-white text-[10px] uppercase tracking-wide mb-1'>
             Rank
           </p>
           <p className='font-bold text-white text-lg leading-none'>
