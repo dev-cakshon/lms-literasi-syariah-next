@@ -241,18 +241,6 @@ export type CourseContentItem =
   | CourseContentChapterItem
   | CourseContentActivityItem;
 
-// ─── Certificate ────────────────────────────────────────────────────────────
-export interface Certificate {
-  id: string;
-  userId: string;
-  courseId: string;
-  userName: string;
-  courseName: string;
-  serialNumber: string;
-  completionDate: string;
-  issuedAt: string;
-}
-
 // Submit activity
 export interface SubmitActivityRequest {
   answers: Record<string, unknown>;
