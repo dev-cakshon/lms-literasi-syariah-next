@@ -9,7 +9,6 @@ import type { BadgeDefinition, BadgeRarity } from './badgeDefinitions';
 const rarityConfig: Record<
   BadgeRarity,
   {
-    container: string;
     iconBg: string;
     iconColor: string;
     label: string;
@@ -17,27 +16,22 @@ const rarityConfig: Record<
   }
 > = {
   common: {
-    container: 'border-slate-200 bg-white',
-    iconBg: 'bg-slate-100',
-    iconColor: 'text-slate-600',
+    iconBg: 'bg-white/10',
+    iconColor: 'text-[#D9EDBF]',
     label: 'Common',
-    chip: 'text-slate-500 bg-slate-100 border-slate-200',
+    chip: 'bg-[#D9EDBF]/20 text-[#D9EDBF]',
   },
   rare: {
-    container:
-      'border-primary-400 bg-primary-50 shadow-sm shadow-primary-200/60',
-    iconBg: 'bg-primary-100',
-    iconColor: 'text-primary-700',
+    iconBg: 'bg-[#90D26D]/15',
+    iconColor: 'text-[#90D26D]',
     label: 'Rare',
-    chip: 'text-primary-700 bg-primary-100 border-primary-300',
+    chip: 'bg-[#90D26D]/25 text-[#90D26D]',
   },
   legendary: {
-    container:
-      'border-amber-400 bg-amber-50 shadow-md shadow-amber-300/50 ring-1 ring-amber-300/40',
-    iconBg: 'bg-amber-100',
-    iconColor: 'text-amber-700',
+    iconBg: 'bg-[#FF9800]/15',
+    iconColor: 'text-[#FF9800]',
     label: 'Legendary',
-    chip: 'text-amber-700 bg-amber-100 border-amber-300',
+    chip: 'bg-[#FF9800]/20 text-[#FF9800]',
   },
 };
 
@@ -54,7 +48,9 @@ export const BadgeTile = ({ definition, unlocked }: BadgeTileProps) => {
     <div
       className={cn(
         'rounded-xl border p-3 transition-all',
-        unlocked ? config.container : 'border-gray-200 bg-gray-50',
+        unlocked
+          ? 'bg-white/12 border-[#D9EDBF]/20'
+          : 'bg-black/15 border-white/5 opacity-50',
       )}
       title={description}
     >
@@ -62,41 +58,32 @@ export const BadgeTile = ({ definition, unlocked }: BadgeTileProps) => {
         <div
           className={cn(
             'w-10 h-10 rounded-lg flex items-center justify-center shrink-0',
-            unlocked ? config.iconBg : 'bg-gray-200 opacity-30',
+            unlocked ? config.iconBg : 'bg-white/5',
           )}
         >
           <Icon
             className={cn(
               'w-5 h-5',
-              unlocked ? config.iconColor : 'text-gray-500',
+              unlocked ? config.iconColor : 'text-white/30',
             )}
           />
         </div>
         <span
           className={cn(
-            'text-xs font-semibold px-2 py-0.5 rounded-full border',
-            unlocked
-              ? config.chip
-              : 'text-gray-400 bg-gray-100 border-gray-200',
+            'text-xs font-semibold px-2 py-0.5 rounded-full',
+            unlocked ? config.chip : 'text-white/30 bg-white/5',
           )}
         >
           {config.label}
         </span>
       </div>
 
-      <p
-        className={cn(
-          'mt-2 text-sm font-semibold',
-          unlocked ? 'text-gray-800' : 'text-gray-400',
-        )}
-      >
-        {label}
-      </p>
+      <p className='mt-2 text-white text-xs font-bold'>{label}</p>
 
       {unlocked ? (
-        <p className='text-xs text-gray-500 mt-0.5'>{description}</p>
+        <p className='text-[#D9EDBF]/65 text-[10px] mt-0.5'>{description}</p>
       ) : (
-        <p className='text-xs text-gray-400 mt-0.5 flex items-center gap-1'>
+        <p className='text-[#D9EDBF]/65 text-[10px] mt-0.5 flex items-center gap-1'>
           <Lock className='w-3 h-3 shrink-0' />
           {pointsToUnlock > 0
             ? `${pointsToUnlock} pts to unlock`

@@ -12,9 +12,11 @@ export const AchievementBadges = () => {
 
   if (loading || profile === null) {
     return (
-      <div className='flex flex-col justify-center h-full'>
-        <h3 className='text-lg font-bold text-gray-800 mb-4'>Badges</h3>
-        <div className='grid grid-cols-2 gap-3'>
+      <div className='bg-white/12 backdrop-blur-md border border-[#D9EDBF]/25 rounded-2xl p-4 flex flex-col min-w-0'>
+        <h2 className='text-white font-bold text-xl flex-shrink-0 mb-3'>
+          🏅 Badges
+        </h2>
+        <div className='grid grid-cols-2 gap-1.5'>
           <Skeleton className='h-20 rounded-xl' />
           <Skeleton className='h-20 rounded-xl' />
           <Skeleton className='h-20 rounded-xl' />
@@ -25,9 +27,11 @@ export const AchievementBadges = () => {
   }
 
   return (
-    <div className='flex flex-col justify-center h-full'>
-      <h3 className='text-lg font-bold text-gray-800 mb-4'>Badges</h3>
-      <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+    <div className='bg-white/12 backdrop-blur-md border border-[#D9EDBF]/25 rounded-2xl p-4 flex flex-col min-w-0'>
+      <h2 className='text-white font-bold text-xl flex-shrink-0 mb-3'>
+        🏅 Badges
+      </h2>
+      <div className='grid grid-cols-2 gap-1.5 overflow-y-auto max-h-[172px] badges-scroll'>
         {BADGE_DEFINITIONS.map((def) => (
           <BadgeTile
             key={def.id}
