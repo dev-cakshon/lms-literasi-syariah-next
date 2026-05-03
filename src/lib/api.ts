@@ -207,9 +207,7 @@ export async function updateUser(
   });
 }
 
-export async function deleteUser(
-  uid: string,
-): Promise<{ uid: string; isActive: boolean }> {
+export async function deleteUser(uid: string): Promise<{ uid: string }> {
   return apiFetch(`/users/${uid}`, { method: 'DELETE' });
 }
 
