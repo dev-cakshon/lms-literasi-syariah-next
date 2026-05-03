@@ -67,7 +67,8 @@ export const AdminCourseSidebar = ({
       const newChapter = await createChapter(course.id, {
         title: 'Bab Baru',
         content: '',
-        videoUrl: '',
+        mediaType: 'youtube',
+        mediaUrl: '',
         order: nextOrder,
       });
       onContentChanged();

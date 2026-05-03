@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { ApiError, deleteChapter, updateChapter } from '@/lib/api';
 
 import { RichTextEditor } from '@/components/course/admin/RichTextEditor';
+import { SlidesPlayer } from '@/components/course/SlidesPlayer';
 import { YoutubePlayer } from '@/components/course/YoutubePlayer';
 import {
   AlertDialog,
@@ -38,7 +39,8 @@ import type { Chapter } from '@/types';
 
 const chapterFormSchema = z.object({
   title: z.string().min(1, 'Judul bab wajib diisi'),
-  videoUrl: z.string().optional(),
+  mediaType: z.enum(['youtube', 'slides']),
+  mediaUrl: z.string().optional(),
   content: z.string().optional(),
   isPublished: z.boolean().optional(),
 });
@@ -65,7 +67,8 @@ export const ChapterEditForm = ({
     resolver: zodResolver(chapterFormSchema),
     defaultValues: {
       title: chapter.title || '',
-      videoUrl: chapter.videoUrl || '',
+      mediaType: chapter.mediaType || 'youtube',
+      mediaUrl: chapter.mediaUrl || '',
       content: chapter.content || '',
       isPublished: chapter.isPublished ?? false,
     },
@@ -74,13 +77,15 @@ export const ChapterEditForm = ({
   useEffect(() => {
     form.reset({
       title: chapter.title || '',
-      videoUrl: chapter.videoUrl || '',
+      mediaType: chapter.mediaType || 'youtube',
+      mediaUrl: chapter.mediaUrl || '',
       content: chapter.content || '',
       isPublished: chapter.isPublished ?? false,
     });
   }, [chapter, form]);
 
-  const videoUrl = form.watch('videoUrl');
+  const mediaUrl = form.watch('mediaUrl');
+  const mediaType = form.watch('mediaType');
 
   useEffect(() => {
     if (!saved) return;
@@ -93,15 +98,19 @@ export const ChapterEditForm = ({
       setSaving(true);
       setError(null);
       const patch: Partial<
-        Pick<Chapter, 'title' | 'videoUrl' | 'content' | 'isPublished'>
+        Pick<Chapter, 'title' | 'mediaType' | 'mediaUrl' | 'content' | 'isPublished'>
       > = {};
 
       if (values.title !== chapter.title) {
         patch.title = values.title;
       }
 
-      if ((values.videoUrl || '') !== (chapter.videoUrl || '')) {
-        patch.videoUrl = values.videoUrl || '';
+      if (values.mediaType !== chapter.mediaType) {
+        patch.mediaType = values.mediaType;
+      }
+
+      if ((values.mediaUrl || '') !== (chapter.mediaUrl || '')) {
+        patch.mediaUrl = values.mediaUrl || '';
       }
 
       if ((values.content || '') !== (chapter.content || '')) {
@@ -199,34 +208,86 @@ export const ChapterEditForm = ({
             )}
           />
 
-          {/* Video URL */}
+          {/* Media Type Radio Group */}
           <FormField
             control={form.control}
-            name='videoUrl'
+            name='mediaType'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>URL Video YouTube</FormLabel>
+                <FormLabel>Tipe Media</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder='https://youtube.com/watch?v=...'
-                    {...field}
-                  />
+                  <div className='flex gap-6'>
+                    <label className='flex items-center gap-2 cursor-pointer text-sm'>
+                      <input
+                        type='radio'
+                        value='youtube'
+                        checked={field.value === 'youtube'}
+                        onChange={() => {
+                          field.onChange('youtube');
+                          form.setValue('mediaUrl', '');
+                        }}
+                      />
+                      YouTube Video
+                    </label>
+                    <label className='flex items-center gap-2 cursor-pointer text-sm'>
+                      <input
+                        type='radio'
+                        value='slides'
+                        checked={field.value === 'slides'}
+                        onChange={() => {
+                          field.onChange('slides');
+                          form.setValue('mediaUrl', '');
+                        }}
+                      />
+                      Google Slides
+                    </label>
+                  </div>
                 </FormControl>
-                <FormDescription>
-                  Masukkan link video YouTube untuk bab ini.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* Video Preview */}
-          {videoUrl && (
+          {/* Media URL */}
+          <FormField
+            control={form.control}
+            name='mediaUrl'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {mediaType === 'slides' ? 'URL Google Slides' : 'URL Video YouTube'}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={
+                      mediaType === 'slides'
+                        ? 'https://docs.google.com/presentation/d/...'
+                        : 'https://youtube.com/watch?v=...'
+                    }
+                    {...field}
+                  />
+                </FormControl>
+                {mediaType === 'slides' && (
+                  <FormDescription>
+                    Pastikan presentasi diatur sebagai &apos;Siapa saja yang memiliki tautan&apos;.
+                  </FormDescription>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Media Preview */}
+          {mediaUrl && (
             <div className='rounded-md border p-4 bg-slate-50'>
               <p className='text-sm font-medium mb-2 text-slate-600'>
-                Preview Video
+                Preview Media
               </p>
-              <YoutubePlayer videoUrl={videoUrl} />
+              {mediaType === 'slides' ? (
+                <SlidesPlayer url={mediaUrl} />
+              ) : (
+                <YoutubePlayer videoUrl={mediaUrl} />
+              )}
             </div>
           )}
 
