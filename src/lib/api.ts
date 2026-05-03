@@ -266,7 +266,7 @@ export async function getChapter(
 
 export async function createChapter(
   courseId: string,
-  data: { title: string; content?: string; videoUrl?: string; order?: number },
+  data: { title: string; content?: string; mediaType?: 'youtube' | 'slides'; mediaUrl?: string; order?: number },
 ): Promise<Chapter> {
   return apiFetch(`/courses/${courseId}/chapters`, {
     method: 'POST',
@@ -278,7 +278,7 @@ export async function updateChapter(
   courseId: string,
   chapterId: string,
   data: Partial<
-    Pick<Chapter, 'title' | 'content' | 'videoUrl' | 'order' | 'isPublished'>
+    Pick<Chapter, 'title' | 'content' | 'mediaType' | 'mediaUrl' | 'order' | 'isPublished'>
   >,
 ): Promise<Chapter> {
   return apiFetch(`/courses/${courseId}/chapters/${chapterId}`, {
