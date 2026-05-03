@@ -67,7 +67,8 @@ export interface Chapter {
   title: string;
   content: string;
   order: number;
-  videoUrl: string;
+  mediaType: 'youtube' | 'slides';
+  mediaUrl: string;
   isFree?: boolean;
   isPublished?: boolean;
   createdAt?: string;

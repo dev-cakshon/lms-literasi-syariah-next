@@ -4,13 +4,15 @@ import ReactMarkdown from 'react-markdown';
 
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
 
+import { SlidesPlayer } from './SlidesPlayer';
 import { YoutubePlayer } from './YoutubePlayer';
 
 interface ChapterContentProps {
   courseId: string;
   chapterId: string;
   title: string;
-  videoUrl: string;
+  mediaUrl: string;
+  mediaType: 'youtube' | 'slides';
   content: string;
   progressPercent?: number;
   completedCount?: number;
@@ -19,7 +21,8 @@ interface ChapterContentProps {
 
 export const ChapterContent = ({
   title,
-  videoUrl,
+  mediaUrl,
+  mediaType,
   content,
   progressPercent,
   completedCount,
@@ -50,7 +53,11 @@ export const ChapterContent = ({
       </div>
 
       <div className='px-4'>
-        <YoutubePlayer videoUrl={videoUrl} title={title} />
+        {mediaType === 'slides' ? (
+          <SlidesPlayer url={mediaUrl} title={title} />
+        ) : (
+          <YoutubePlayer url={mediaUrl} title={title} />
+        )}
       </div>
 
       <div>
