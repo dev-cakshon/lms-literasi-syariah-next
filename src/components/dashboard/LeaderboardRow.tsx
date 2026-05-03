@@ -13,8 +13,8 @@ const MEDALLION: Record<
   { fill: string; stroke: string; textFill: string }
 > = {
   1: { fill: '#FF9800', stroke: '#D97706', textFill: '#78350F' },
-  2: { fill: '#D9EDBF', stroke: '#9CA3AF', textFill: '#2C7865' },
-  3: { fill: '#90D26D', stroke: '#B45309', textFill: '#FEF3C7' },
+  2: { fill: '#D9EDBF', stroke: '#90D26D', textFill: '#2C7865' },
+  3: { fill: '#90D26D', stroke: '#83BD63', textFill: '#FEF3C7' },
 };
 
 function RankMedallion({ rank }: { rank: 1 | 2 | 3 }) {
