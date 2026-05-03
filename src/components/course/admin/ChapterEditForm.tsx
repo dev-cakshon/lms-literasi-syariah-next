@@ -286,7 +286,7 @@ export const ChapterEditForm = ({
               {mediaType === 'slides' ? (
                 <SlidesPlayer url={mediaUrl} />
               ) : (
-                <YoutubePlayer videoUrl={mediaUrl} />
+                <YoutubePlayer url={mediaUrl} />
               )}
             </div>
           )}
