@@ -49,7 +49,7 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
         <div className='mt-10'>
           <CourseProgress variant='success' value={progressCount} />
         </div>
-        {process.env.NODE_ENV !== 'production' && (
+        {process.env.NEXT_PUBLIC_APP_ENV !== 'production' && (
           <button
             type='button'
             onClick={handleResetProgress}
