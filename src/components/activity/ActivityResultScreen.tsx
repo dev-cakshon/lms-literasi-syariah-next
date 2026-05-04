@@ -46,7 +46,7 @@ export const ActivityResultScreen = ({
     setShowBadgeModal(awardedBadges.length > 0);
   }, [awardedBadges]);
 
-  const isPerfectScore = result.score === result.maxPoints;
+  const isPerfectScore = result.score === result.totalItems;
 
   return (
     <>

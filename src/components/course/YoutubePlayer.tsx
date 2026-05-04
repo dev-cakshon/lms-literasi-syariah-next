@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface YoutubePlayerProps {
-  videoUrl: string;
+  url: string;
   title?: string;
   className?: string;
 }
@@ -19,11 +19,11 @@ function getYoutubeId(url: string): string | null {
 }
 
 export const YoutubePlayer: React.FC<YoutubePlayerProps> = ({
-  videoUrl,
+  url,
   title,
   className,
 }) => {
-  const videoId = getYoutubeId(videoUrl);
+  const videoId = getYoutubeId(url);
   if (!videoId) return <div className='text-red-500'>Invalid YouTube URL</div>;
   return (
     <div className={className}>

@@ -60,7 +60,12 @@ export default function UserManagementPage() {
   };
 
   const handleDelete = async (uid: string) => {
-    if (!confirm('Yakin ingin menonaktifkan pengguna ini?')) return;
+    if (
+      !confirm(
+        'Yakin ingin menghapus permanen pengguna ini? Tindakan ini tidak dapat dibatalkan.',
+      )
+    )
+      return;
     setActionLoading(uid);
     try {
       setError(null);

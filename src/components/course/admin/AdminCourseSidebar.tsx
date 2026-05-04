@@ -13,7 +13,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   ApiError,
@@ -45,24 +45,30 @@ export const AdminCourseSidebar = ({
   onTabChange,
   onContentChanged,
 }: AdminCourseSidebarProps) => {
+  const [localItems, setLocalItems] = useState<CourseContentItem[]>(contentItems);
   const [adding, setAdding] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLocalItems(contentItems);
+  }, [contentItems]);
 
   const handleAddChapter = async () => {
     try {
       setAdding(true);
       setError(null);
       const nextOrder =
-        contentItems.length > 0
-          ? Math.max(...contentItems.map((item) => item.position || 0)) + 1
+        localItems.length > 0
+          ? Math.max(...localItems.map((item) => item.position || 0)) + 1
           : 1;
 
       const newChapter = await createChapter(course.id, {
         title: 'Bab Baru',
         content: '',
-        videoUrl: '',
+        mediaType: 'youtube',
+        mediaUrl: '',
         order: nextOrder,
       });
       onContentChanged();
@@ -120,9 +126,12 @@ export const AdminCourseSidebar = ({
     const destIdx = result.destination.index;
     if (srcIdx === destIdx) return;
 
-    const reordered = Array.from(contentItems);
+    const reordered = Array.from(localItems);
     const [moved] = reordered.splice(srcIdx, 1);
     reordered.splice(destIdx, 0, moved);
+
+    const snapshot = localItems;
+    setLocalItems(reordered);
 
     try {
       setError(null);
@@ -149,12 +158,12 @@ export const AdminCourseSidebar = ({
       );
       onContentChanged();
     } catch (err) {
+      setLocalItems(snapshot);
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
         setError('Gagal mengurutkan ulang bab.');
       }
-      onContentChanged(); // refetch to restore
     }
   };
 
@@ -195,7 +204,7 @@ export const AdminCourseSidebar = ({
               {...provided.droppableProps}
               className='flex flex-col'
             >
-              {contentItems.map((item, index) => (
+              {localItems.map((item, index) => (
                 <Draggable
                   key={`${item.itemType}:${item.id}`}
                   draggableId={`${item.itemType}:${item.id}`}

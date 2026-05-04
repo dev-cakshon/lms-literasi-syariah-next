@@ -12,9 +12,9 @@ const MEDALLION: Record<
   1 | 2 | 3,
   { fill: string; stroke: string; textFill: string }
 > = {
-  1: { fill: '#FCD34D', stroke: '#D97706', textFill: '#78350F' },
-  2: { fill: '#D1D5DB', stroke: '#9CA3AF', textFill: '#1F2937' },
-  3: { fill: '#D97706', stroke: '#B45309', textFill: '#FEF3C7' },
+  1: { fill: '#FF9800', stroke: '#D97706', textFill: '#78350F' },
+  2: { fill: '#D9EDBF', stroke: '#90D26D', textFill: '#2C7865' },
+  3: { fill: '#90D26D', stroke: '#83BD63', textFill: '#FEF3C7' },
 };
 
 function RankMedallion({ rank }: { rank: 1 | 2 | 3 }) {
@@ -60,17 +60,17 @@ export const LeaderboardRow = ({
   if (isTopThree) {
     const cardBase =
       rank === 1
-        ? 'border-amber-300 bg-amber-50'
+        ? 'bg-gradient-to-r from-[#FF9800]/10 to-[#FF9800]/5 border border-[#FF9800]/25'
         : rank === 2
-          ? 'border-gray-300 bg-gray-50'
-          : 'border-orange-300 bg-orange-50';
+          ? 'bg-[#D9EDBF]/30 border border-[#90D26D]/20'
+          : 'bg-primary-500/7 border border-primary-500/15';
 
     return (
       <div
         className={cn(
           'flex items-center gap-4 rounded-xl border p-4 shadow-sm',
           isCurrentUser
-            ? 'border-emerald-400 bg-emerald-50 ring-1 ring-emerald-300'
+            ? 'border-[#90D26D] bg-[#90D26D]/8 ring-1 ring-[#90D26D]/30'
             : cardBase,
         )}
       >
@@ -89,14 +89,14 @@ export const LeaderboardRow = ({
           >
             {user.name}
             {isCurrentUser && (
-              <span className='ml-2 text-xs font-normal text-emerald-600'>
+              <span className='ml-2 text-xs font-normal bg-[#D9EDBF] text-primary-600'>
                 (Kamu)
               </span>
             )}
           </p>
         </div>
 
-        <span className='font-bold text-base text-primary-700 shrink-0'>
+        <span className='font-bold text-base text-primary-500 shrink-0'>
           {user.totalPoints.toLocaleString()} pts
         </span>
       </div>
@@ -108,7 +108,7 @@ export const LeaderboardRow = ({
       className={cn(
         'flex items-center gap-3 px-3 py-2.5 border-b border-gray-100 last:border-b-0',
         isCurrentUser &&
-          'rounded-lg border border-emerald-400 bg-emerald-50 ring-1 ring-emerald-300',
+          'rounded-lg border border-[#90D26D] bg-[#90D26D]/8 ring-1 ring-[#90D26D]/30',
       )}
     >
       <span className='w-8 text-center text-sm font-bold text-gray-400 shrink-0'>
@@ -127,13 +127,13 @@ export const LeaderboardRow = ({
       >
         {user.name}
         {isCurrentUser && (
-          <span className='ml-2 text-xs font-normal text-emerald-600'>
+          <span className='ml-2 text-xs font-normal bg-[#D9EDBF] text-primary-600'>
             (Kamu)
           </span>
         )}
       </span>
 
-      <span className='font-semibold text-sm text-primary-600 shrink-0'>
+      <span className='font-semibold text-sm text-primary-500 shrink-0'>
         {user.totalPoints.toLocaleString()} pts
       </span>
     </div>

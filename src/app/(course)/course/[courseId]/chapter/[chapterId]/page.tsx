@@ -77,7 +77,8 @@ export default function ChapterIdPage({
         courseId={courseId}
         chapterId={chapterId}
         title={chapterDetail.title || 'Untitled'}
-        videoUrl={chapterDetail.videoUrl || ''}
+        mediaUrl={chapterDetail.mediaUrl || ''}
+        mediaType={chapterDetail.mediaType || 'youtube'}
         content={chapterDetail.content || ''}
         progressPercent={progressPercent}
         completedCount={completedCount}

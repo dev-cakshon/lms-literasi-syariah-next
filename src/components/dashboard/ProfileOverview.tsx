@@ -101,7 +101,7 @@ export const ProfileInfo = () => {
 
   if (isProfileLoading(loading, userProfile)) {
     return (
-      <div className='flex flex-col justify-center h-full space-y-4 animate-pulse bg-ivory border-l-4 border-emerald-500 rounded-xl p-5'>
+      <div className='flex flex-col justify-center h-full space-y-4 animate-pulse bg-white/12 backdrop-blur-md border border-[#D9EDBF]/25 rounded-2xl p-4'>
         <div className='space-y-2'>
           <div className='h-7 w-44 rounded bg-gray-300' />
           <div className='h-4 w-56 rounded bg-gray-200' />
@@ -122,30 +122,34 @@ export const ProfileInfo = () => {
       : '>10';
 
   return (
-    <div className='flex flex-col justify-center h-full space-y-4 bg-ivory border-l-4 border-emerald-500 rounded-xl p-5'>
+    <div className='flex flex-col justify-center h-full space-y-4 bg-white/12 backdrop-blur-md border border-[#D9EDBF]/25 rounded-2xl p-4'>
       <div>
-        <h3 className='font-display text-2xl font-semibold text-gray-900'>
-          {userProfile.name}
-        </h3>
-        <p className='text-sm text-gray-500 mt-0.5'>{userProfile.email}</p>
+        <h3 className='font-display text-2xl text-white'>{userProfile.name}</h3>
+        <p className='text-[#D9EDBF]/75 text-sm mt-0.5'>{userProfile.email}</p>
       </div>
 
       <div className='grid grid-cols-3 gap-3'>
-        <div className='bg-primary-100 rounded-lg px-3 py-3 text-center'>
-          <p className='text-xs text-gray-500 mb-1'>Total Poin</p>
-          <p className='font-bold text-primary-700 text-lg leading-none'>
+        <div className='bg-white/12 border border-[#D9EDBF]/18 rounded-xl px-3 py-3 text-center'>
+          <p className='text-white text-[10px] uppercase tracking-wide mb-1'>
+            Total Poin
+          </p>
+          <p className='font-bold text-[#FF9800] text-lg leading-none'>
             {userProfile.totalPoints}
           </p>
         </div>
-        <div className='bg-blue-100 rounded-lg px-3 py-3 text-center'>
-          <p className='text-xs text-gray-500 mb-1'>Lencana</p>
-          <p className='font-bold text-blue-700 text-lg leading-none'>
+        <div className='bg-white/12 border border-[#D9EDBF]/18 rounded-xl px-3 py-3 text-center'>
+          <p className='text-white text-[10px] uppercase tracking-wide mb-1'>
+            Lencana
+          </p>
+          <p className='font-bold text-[#90D26D] text-lg leading-none'>
             {userProfile.badges?.length ?? 0}
           </p>
         </div>
-        <div className='bg-emerald-100 rounded-lg px-3 py-3 text-center'>
-          <p className='text-xs text-gray-500 mb-1'>Rank</p>
-          <p className='font-bold text-emerald-700 text-lg leading-none'>
+        <div className='bg-white/12 border border-[#D9EDBF]/18 rounded-xl px-3 py-3 text-center'>
+          <p className='text-white text-[10px] uppercase tracking-wide mb-1'>
+            Rank
+          </p>
+          <p className='font-bold text-white text-lg leading-none'>
             {rankDisplay}
           </p>
         </div>

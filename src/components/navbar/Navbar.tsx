@@ -49,7 +49,7 @@ export const Navbar = () => {
                     <User className='w-4 h-4 text-primary-600' />
                   </div>
                   <span className='text-sm font-medium text-slate-700 max-w-30 truncate'>
-                    {userProfile?.displayName || user?.email || 'Student'}
+                    {userProfile?.name || user?.email || 'Student'}
                   </span>
                 </button>
               </DropdownMenuTrigger>
