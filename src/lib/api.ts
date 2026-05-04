@@ -18,7 +18,6 @@ import { API_URL } from '@/constant/env';
 import type {
   AdminActivity,
   Badge,
-  Certificate,
   Chapter,
   ChatbotMessageResponse,
   Course,
@@ -494,17 +493,3 @@ export const submitActivity = (
     method: 'POST',
     body: JSON.stringify(body),
   });
-
-// ─── Certificate endpoints ───────────────────────────────────────────────────
-
-export async function issueCertificate(courseId: string): Promise<Certificate> {
-  return apiFetch(`/courses/${courseId}/certificates`, { method: 'POST' });
-}
-
-export async function getCertificate(courseId: string): Promise<Certificate> {
-  return apiFetch(`/courses/${courseId}/certificates/me`);
-}
-
-export async function getMyAllCertificates(): Promise<Certificate[]> {
-  return apiFetch('/certificates/me');
-}
