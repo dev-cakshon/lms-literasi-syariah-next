@@ -51,12 +51,14 @@ interface ChapterEditFormProps {
   courseId: string;
   chapter: Chapter;
   onChapterUpdated: () => void;
+  onCancel?: () => void;
 }
 
 export const ChapterEditForm = ({
   courseId,
   chapter,
   onChapterUpdated,
+  onCancel,
 }: ChapterEditFormProps) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -224,7 +226,6 @@ export const ChapterEditForm = ({
                         checked={field.value === 'youtube'}
                         onChange={() => {
                           field.onChange('youtube');
-                          form.setValue('mediaUrl', '');
                         }}
                       />
                       YouTube Video
@@ -236,7 +237,6 @@ export const ChapterEditForm = ({
                         checked={field.value === 'slides'}
                         onChange={() => {
                           field.onChange('slides');
-                          form.setValue('mediaUrl', '');
                         }}
                       />
                       Google Slides
@@ -340,6 +340,11 @@ export const ChapterEditForm = ({
               {saving && <Loader2 className='w-4 h-4 mr-2 animate-spin' />}
               Simpan Perubahan
             </Button>
+            {onCancel && (
+              <Button type='button' variant='outline' onClick={onCancel} disabled={saving}>
+                Batal
+              </Button>
+            )}
             {saved && (
               <span className='text-sm text-green-600 font-medium'>
                 Tersimpan!

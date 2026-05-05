@@ -12,7 +12,6 @@ export default function LandingPage() {
     <main>
       <Navbar />
       <HeroSection />
-      <h1>This should show when pushed to branch</h1>
       <FeatureSection />
       <CourseSection />
     </main>
