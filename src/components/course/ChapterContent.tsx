@@ -52,13 +52,15 @@ export const ChapterContent = ({
         )}
       </div>
 
-      <div className='px-4'>
-        {mediaType === 'slides' ? (
-          <SlidesPlayer url={mediaUrl} title={title} />
-        ) : (
-          <YoutubePlayer url={mediaUrl} title={title} />
-        )}
-      </div>
+      {mediaUrl && (
+        <div className='px-4'>
+          {mediaType === 'slides' ? (
+            <SlidesPlayer url={mediaUrl} title={title} />
+          ) : (
+            <YoutubePlayer url={mediaUrl} title={title} />
+          )}
+        </div>
+      )}
 
       <div>
         <div className='p-4 prose prose-slate max-w-none'>
