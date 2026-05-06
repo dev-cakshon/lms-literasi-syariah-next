@@ -2,14 +2,13 @@
 
 import { Pencil } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { Suspense, useContext, useEffect, useState } from 'react';
 
 import { getChapter } from '@/lib/api';
 
+import { AdminCourseLayoutContext } from '../../AdminCourseLayoutContext';
+import { ChapterContent } from '@/components/course/ChapterContent';
 import { ChapterEditForm } from '@/components/course/admin/ChapterEditForm';
-import { SlidesPlayer } from '@/components/course/SlidesPlayer';
-import { YoutubePlayer } from '@/components/course/YoutubePlayer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -19,6 +18,7 @@ function ChapterDetailContent() {
   const params = useParams<{ courseId: string; chapterId: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { refreshContentItems } = useContext(AdminCourseLayoutContext);
 
   const courseId = params.courseId;
   const chapterId = params.chapterId;
@@ -49,10 +49,11 @@ function ChapterDetailContent() {
     };
   }, [courseId, chapterId]);
 
-  const basePath = `/admin/course/${courseId}/chapters/${chapterId}`;
+  const basePath = `/admin/course/${courseId}/chapter/${chapterId}`;
 
   const handleChapterUpdated = () => {
     getChapter(courseId, chapterId).then(setChapter).catch(() => null);
+    refreshContentItems();
     router.push(basePath);
   };
 
@@ -93,28 +94,14 @@ function ChapterDetailContent() {
               Edit
             </Button>
           </div>
-
-          {chapter.mediaUrl && (
-            <div className='rounded-md border overflow-hidden'>
-              {chapter.mediaType === 'slides' ? (
-                <SlidesPlayer url={chapter.mediaUrl} title={chapter.title} />
-              ) : (
-                <YoutubePlayer url={chapter.mediaUrl} title={chapter.title} />
-              )}
-            </div>
-          )}
-
-          {chapter.content && (
-            <div className='prose prose-slate max-w-none'>
-              <ReactMarkdown>{chapter.content}</ReactMarkdown>
-            </div>
-          )}
-
-          {!chapter.mediaUrl && !chapter.content && (
-            <p className='text-sm text-muted-foreground italic'>
-              Bab ini belum memiliki konten.
-            </p>
-          )}
+          <ChapterContent
+            courseId={courseId}
+            chapterId={chapterId}
+            title={chapter.title}
+            mediaUrl={chapter.mediaUrl}
+            mediaType={chapter.mediaType}
+            content={chapter.content}
+          />
         </div>
       )}
     </div>
