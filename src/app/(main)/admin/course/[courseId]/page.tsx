@@ -6,19 +6,16 @@ import { useCallback, useEffect, useState } from 'react';
 
 import {
   getActivityAdmin,
-  getChapters,
   getCourse,
   getCourseContent,
 } from '@/lib/api';
 
 import { ActivityEditForm } from '@/components/course/admin/ActivityEditForm';
 import { AdminCourseSidebar } from '@/components/course/admin/AdminCourseSidebar';
-import { ChapterEditForm } from '@/components/course/admin/ChapterEditForm';
 import { CourseInfoForm } from '@/components/course/admin/CourseInfoForm';
 
 import type {
   AdminActivity,
-  Chapter,
   Course,
   CourseContentItem,
 } from '@/types';
@@ -47,7 +44,6 @@ export default function AdminCourseEditPage({ params }: EditPageProps) {
 
 function EditPageContent({ courseId }: { courseId: string }) {
   const [course, setCourse] = useState<Course | null>(null);
-  const [chapters, setChapters] = useState<Chapter[]>([]);
   const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
   const [selectedActivity, setSelectedActivity] =
     useState<AdminActivity | null>(null);
@@ -58,17 +54,11 @@ function EditPageContent({ courseId }: { courseId: string }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [courseData, chaptersData, courseContent] = await Promise.all([
+      const [courseData, courseContent] = await Promise.all([
         getCourse(courseId),
-        getChapters(courseId),
         getCourseContent(courseId),
       ]);
       setCourse(courseData);
-      setChapters(
-        chaptersData
-          .map((ch) => ({ ...ch, courseId }))
-          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      );
       setContentItems(
         [...courseContent].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
       );
@@ -90,10 +80,6 @@ function EditPageContent({ courseId }: { courseId: string }) {
   const handleChaptersChanged = () => {
     fetchData();
   };
-
-  const activeChapterId = activeTab.startsWith('chapter:')
-    ? activeTab.replace('chapter:', '')
-    : null;
 
   const activeActivityId = activeTab.startsWith('activity:')
     ? activeTab.replace('activity:', '')
@@ -152,10 +138,6 @@ function EditPageContent({ courseId }: { courseId: string }) {
     );
   }
 
-  const activeChapter = activeChapterId
-    ? chapters.find((ch) => ch.id === activeChapterId)
-    : null;
-
   return (
     <div className='h-full'>
       {/* Top navbar */}
@@ -205,13 +187,6 @@ function EditPageContent({ courseId }: { courseId: string }) {
                 Aktivitas tidak ditemukan.
               </p>
             )
-          ) : activeChapter ? (
-            <ChapterEditForm
-              key={activeChapter.id}
-              courseId={courseId}
-              chapter={activeChapter}
-              onChapterUpdated={handleChaptersChanged}
-            />
           ) : (
             <p className='text-muted-foreground'>Pilih konten untuk diedit.</p>
           )}

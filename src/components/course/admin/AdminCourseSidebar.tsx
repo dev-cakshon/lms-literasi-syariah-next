@@ -13,6 +13,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import {
@@ -45,6 +46,7 @@ export const AdminCourseSidebar = ({
   onTabChange,
   onContentChanged,
 }: AdminCourseSidebarProps) => {
+  const router = useRouter();
   const [localItems, setLocalItems] = useState<CourseContentItem[]>(contentItems);
   const [adding, setAdding] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -72,7 +74,7 @@ export const AdminCourseSidebar = ({
         order: nextOrder,
       });
       onContentChanged();
-      onTabChange(`chapter:${newChapter.id}`);
+      router.push(`/admin/course/${course.id}/chapters/${newChapter.id}?edit=true`);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -232,7 +234,9 @@ export const AdminCourseSidebar = ({
                       {/* Chapter label */}
                       <button
                         onClick={() =>
-                          onTabChange(`${item.itemType}:${item.id}`)
+                          item.itemType === 'chapter'
+                            ? router.push(`/admin/course/${course.id}/chapters/${item.id}`)
+                            : onTabChange(`${item.itemType}:${item.id}`)
                         }
                         className='flex-1 text-left py-4 pl-1 pr-2 font-medium truncate'
                       >
