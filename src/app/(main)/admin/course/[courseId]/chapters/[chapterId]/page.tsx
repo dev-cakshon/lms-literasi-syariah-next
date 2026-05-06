@@ -61,11 +61,11 @@ function ChapterDetailContent() {
   return (
     <div className='max-w-3xl mx-auto p-6 space-y-6'>
       <Link
-        href={`/admin/course/${courseId}/edit`}
+        href={`/admin/course/${courseId}`}
         className='flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition'
       >
         <ArrowLeft className='w-4 h-4' />
-        Kembali ke Edit Kursus
+        Kembali ke Kursus
       </Link>
 
       {isEditMode ? (

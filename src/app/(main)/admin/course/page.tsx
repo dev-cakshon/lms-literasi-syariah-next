@@ -58,7 +58,7 @@ export default function AdminCoursePage() {
         title: 'Kursus Baru',
         isPublished: false,
       });
-      router.push(`/admin/course/${newCourse.id}/edit`);
+      router.push(`/admin/course/${newCourse.id}`);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -183,11 +183,11 @@ export default function AdminCoursePage() {
                   imageUrl={course.thumbnailUrl || null}
                   chaptersLength={course.totalChapters || 0}
                   isPublished={course.isPublished}
-                  editUrl={`/admin/course/${course.id}/edit`}
+                  editUrl={`/admin/course/${course.id}`}
                   actions={
                     <div className='p-4 flex flex-wrap gap-2'>
                       <Link
-                        href={`/admin/course/${course.id}/edit`}
+                        href={`/admin/course/${course.id}`}
                         className='text-sm font-medium px-3 py-2 rounded-md border border-slate-300 hover:bg-slate-50'
                       >
                         Edit
