@@ -1,5 +1,14 @@
 'use client';
-import { AlertCircle, Bot, Loader2, MessageSquarePlus, RefreshCw, Trash2, PanelLeftOpen } from 'lucide-react';
+
+import {
+  AlertCircle,
+  Bot,
+  Loader2,
+  MessageSquarePlus,
+  PanelLeftOpen,
+  RefreshCw,
+  Trash2,
+} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
@@ -42,11 +51,14 @@ export default function ChatbotPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAutoScroll, setIsAutoScroll] = useState(true);
 
-  const scrollToBottom = useCallback((force = false) => {
-    if (force || isAutoScroll) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [isAutoScroll]);
+  const scrollToBottom = useCallback(
+    (force = false) => {
+      if (force || isAutoScroll) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    },
+    [isAutoScroll],
+  );
 
   useEffect(() => {
     scrollToBottom();
@@ -106,29 +118,35 @@ export default function ChatbotPage() {
         setIsLoading(false);
       }
     },
-    [idToken, isStreaming]
+    [idToken, isStreaming],
   );
 
-  const handleDeleteChat = useCallback(async (chatId: string) => {
-    if (!idToken || !confirm('Hapus chat ini permanen?')) return;
-    try {
-      await deleteSession(chatId, idToken);
-      if (activeChatId === chatId) handleNewChat();
-      void loadSessions();
-    } catch (err) {
-      alert('Gagal menghapus chat');
-    }
-  }, [idToken, activeChatId, loadSessions]);
+  const handleDeleteChat = useCallback(
+    async (chatId: string) => {
+      if (!idToken || !confirm('Hapus chat ini permanen?')) return;
+      try {
+        await deleteSession(chatId, idToken);
+        if (activeChatId === chatId) handleNewChat();
+        void loadSessions();
+      } catch (err) {
+        alert('Gagal menghapus chat');
+      }
+    },
+    [idToken, activeChatId, loadSessions],
+  );
 
-  const handleRenameChat = useCallback(async (chatId: string, newTitle: string) => {
-    if (!idToken) return;
-    try {
-      await renameSession(chatId, newTitle, idToken);
-      void loadSessions();
-    } catch (err) {
-      alert('Gagal mengubah nama chat');
-    }
-  }, [idToken, loadSessions]);
+  const handleRenameChat = useCallback(
+    async (chatId: string, newTitle: string) => {
+      if (!idToken) return;
+      try {
+        await renameSession(chatId, newTitle, idToken);
+        void loadSessions();
+      } catch (err) {
+        alert('Gagal mengubah nama chat');
+      }
+    },
+    [idToken, loadSessions],
+  );
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || !idToken || isStreaming) return;
@@ -195,8 +213,10 @@ export default function ChatbotPage() {
             // Update bubble yang sama
             setMessages((prev) =>
               prev.map((msg) =>
-                msg.id === botMessageId ? { ...msg, content: fullContent } : msg
-              )
+                msg.id === botMessageId
+                  ? { ...msg, content: fullContent }
+                  : msg,
+              ),
             );
           }
         },
@@ -211,7 +231,7 @@ export default function ChatbotPage() {
             const freshSessions = await loadSessions();
             attempts++;
             const stillDefault = freshSessions?.find(
-              (c) => c.id === sessionIdToCheck && c.title === 'Sesi Baru...'
+              (c) => c.id === sessionIdToCheck && c.title === 'Sesi Baru...',
             );
             if (stillDefault && attempts < 6) {
               setTimeout(pollTitle, 2000);
@@ -223,7 +243,7 @@ export default function ChatbotPage() {
         (err) => {
           setError(`Gagal memuat jawaban: ${err}`);
           setIsStreaming(false);
-        }
+        },
       );
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -236,55 +256,59 @@ export default function ChatbotPage() {
   return (
     <div className='flex h-[calc(100vh-4rem)] bg-white'>
       {/* Improved Chat Sidebar */}
-      <div className="hidden md:block">
-         <ChatSidebar
-            chats={chats}
-            activeChatId={activeChatId}
-            onSelectChat={handleSelectChat}
-            onNewChat={handleNewChat}
-            onDeleteChat={handleDeleteChat}
-            onRenameChat={handleRenameChat}
+      <div className='hidden md:block'>
+        <ChatSidebar
+          chats={chats}
+          activeChatId={activeChatId}
+          onSelectChat={handleSelectChat}
+          onNewChat={handleNewChat}
+          onDeleteChat={handleDeleteChat}
+          onRenameChat={handleRenameChat}
         />
       </div>
 
       {/* Main Chat Area */}
       <div className='flex flex-col flex-1 min-w-0 bg-gray-50'>
         {/* Header UI */}
-        <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-           <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white">
-                 <Bot className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="font-bold text-gray-800">Asisten AI Ekonomi Syariah</h1>
-                <p className="text-xs text-green-600 flex items-center gap-1">
-                   <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                   Sistem Aktif & Terlindungi
-                </p>
-              </div>
-           </div>
-           <div className="flex gap-2">
-              <button 
-                onClick={loadSessions}
-                className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors"
-                title="Refresh Riwayat"
+        <div className='bg-white border-b border-gray-200 p-4 flex items-center justify-between'>
+          <div className='flex items-center gap-3'>
+            <div className='w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white'>
+              <Bot className='w-6 h-6' />
+            </div>
+            <div>
+              <h1 className='font-bold text-gray-800'>
+                Asisten AI Ekonomi Syariah
+              </h1>
+              <p className='text-xs text-green-600 flex items-center gap-1'>
+                <span className='w-2 h-2 bg-green-500 rounded-full animate-pulse' />
+                Sistem Aktif & Terlindungi
+              </p>
+            </div>
+          </div>
+          <div className='flex gap-2'>
+            <button
+              onClick={loadSessions}
+              className='p-2 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors'
+              title='Refresh Riwayat'
+            >
+              <RefreshCw
+                className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`}
+              />
+            </button>
+            {activeChatId && (
+              <button
+                onClick={() => handleDeleteChat(activeChatId)}
+                className='p-2 hover:bg-red-50 rounded-lg text-red-500 transition-colors'
+                title='Hapus Sesi Ini'
               >
-                <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                <Trash2 className='w-5 h-5' />
               </button>
-              {activeChatId && (
-                <button 
-                   onClick={() => handleDeleteChat(activeChatId)}
-                   className="p-2 hover:bg-red-50 rounded-lg text-red-500 transition-colors"
-                   title="Hapus Sesi Ini"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              )}
-           </div>
+            )}
+          </div>
         </div>
 
         {/* Chat Messages */}
-        <div 
+        <div
           className='flex-1 overflow-y-auto p-6 scroll-smooth'
           onWheel={() => setIsAutoScroll(false)}
           onTouchMove={() => setIsAutoScroll(false)}
@@ -292,19 +316,19 @@ export default function ChatbotPage() {
           <div className='max-w-4xl mx-auto space-y-6'>
             {error && (
               <div className='flex items-center justify-between gap-2 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm shadow-sm'>
-                <div className="flex items-center gap-2">
-                   <AlertCircle className='w-5 h-5 shrink-0' />
-                   <span>{error}</span>
+                <div className='flex items-center gap-2'>
+                  <AlertCircle className='w-5 h-5 shrink-0' />
+                  <span>{error}</span>
                 </div>
-                <button 
+                <button
                   onClick={() => activeChatId && handleSelectChat(activeChatId)}
-                  className="px-3 py-1 bg-white border border-red-200 rounded-lg hover:bg-red-100 transition-colors font-medium"
+                  className='px-3 py-1 bg-white border border-red-200 rounded-lg hover:bg-red-100 transition-colors font-medium'
                 >
                   Coba Lagi
                 </button>
               </div>
             )}
-            
+
             {messages.length === 0 ? (
               // Enhanced Empty State
               <div className='flex flex-col items-center justify-center h-full text-center py-12'>
@@ -315,8 +339,8 @@ export default function ChatbotPage() {
                   Halo! Saya Asisten Syariah
                 </h2>
                 <p className='text-gray-500 max-w-md mb-10 leading-relaxed'>
-                  Mari berdiskusi tentang ekonomi Islam, perbankan syariah, 
-                  atau materi zakat dan wakaf. Pilih topik di bawah untuk memulai:
+                  Mari berdiskusi tentang ekonomi Islam, perbankan syariah, atau
+                  materi zakat dan wakaf. Pilih topik di bawah untuk memulai:
                 </p>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg'>
                   {[
@@ -341,7 +365,8 @@ export default function ChatbotPage() {
                 {messages.map((message) => {
                   const isLastBotMsg =
                     message.role === 'bot' &&
-                    message.id === [...messages].reverse().find((m) => m.role === 'bot')?.id;
+                    message.id ===
+                      [...messages].reverse().find((m) => m.role === 'bot')?.id;
                   return (
                     <ChatMessage
                       key={message.id}
@@ -351,55 +376,62 @@ export default function ChatbotPage() {
                     />
                   );
                 })}
-                
+
                 {/* Streaming/Loading Indicator */}
-                {(isStreaming || isLoading) && !messages.find(m => m.role === 'bot' && m.content) && (
-                  <div className='flex gap-4 animate-in fade-in slide-in-from-bottom-2'>
-                    <div className='shrink-0 w-10 h-10 rounded-xl bg-primary-100 text-primary-600 flex items-center justify-center shadow-sm'>
-                      <Bot className='w-6 h-6' />
-                    </div>
-                    <div className='flex-1 max-w-[85%] rounded-2xl p-5 bg-white border border-gray-100 shadow-sm'>
-                      <div className='flex items-center gap-2 text-primary-600 font-medium text-sm mb-1'>
-                         <Loader2 className="w-4 h-4 animate-spin" />
-                         Memproses jawaban...
+                {(isStreaming || isLoading) &&
+                  !messages.find((m) => m.role === 'bot' && m.content) && (
+                    <div className='flex gap-4 animate-in fade-in slide-in-from-bottom-2'>
+                      <div className='shrink-0 w-10 h-10 rounded-xl bg-primary-100 text-primary-600 flex items-center justify-center shadow-sm'>
+                        <Bot className='w-6 h-6' />
                       </div>
-                      <div className='flex gap-1.5 py-2'>
-                        <div className='w-2 h-2 bg-primary-400 rounded-full animate-bounce' />
-                        <div className='w-2 h-2 bg-primary-400 rounded-full animate-bounce [animation-delay:0.2s]' />
-                        <div className='w-2 h-2 bg-primary-400 rounded-full animate-bounce [animation-delay:0.4s]' />
+                      <div className='flex-1 max-w-[85%] rounded-2xl p-5 bg-white border border-gray-100 shadow-sm'>
+                        <div className='flex items-center gap-2 text-primary-600 font-medium text-sm mb-1'>
+                          <Loader2 className='w-4 h-4 animate-spin' />
+                          Memproses jawaban...
+                        </div>
+                        <div className='flex gap-1.5 py-2'>
+                          <div className='w-2 h-2 bg-primary-400 rounded-full animate-bounce' />
+                          <div className='w-2 h-2 bg-primary-400 rounded-full animate-bounce [animation-delay:0.2s]' />
+                          <div className='w-2 h-2 bg-primary-400 rounded-full animate-bounce [animation-delay:0.4s]' />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} className="h-4" />
+                  )}
+                <div ref={messagesEndRef} className='h-4' />
               </>
             )}
           </div>
-          
+
           {/* Scroll to Bottom Button if user scrolled up */}
           {!isAutoScroll && (isStreaming || messages.length > 5) && (
-             <button 
-               onClick={() => { setIsAutoScroll(true); scrollToBottom(true); }}
-               className="fixed bottom-24 right-10 bg-white shadow-xl border border-gray-200 rounded-full p-2 text-primary-600 hover:bg-gray-50 transition-all animate-bounce"
-             >
-                <PanelLeftOpen className="w-5 h-5 rotate-90" />
-             </button>
+            <button
+              onClick={() => {
+                setIsAutoScroll(true);
+                scrollToBottom(true);
+              }}
+              className='fixed bottom-24 right-10 bg-white shadow-xl border border-gray-200 rounded-full p-2 text-primary-600 hover:bg-gray-50 transition-all animate-bounce'
+            >
+              <PanelLeftOpen className='w-5 h-5 rotate-90' />
+            </button>
           )}
         </div>
 
         {/* Chat Input Container */}
         <div className='border-t border-gray-200 bg-white p-2'>
-          <div className="max-w-4xl mx-auto flex items-center justify-end px-4 py-1">
-             {activeChatId && !isStreaming && (
-               <button 
-                 onClick={handleNewChat}
-                 className="text-xs text-primary-600 hover:underline flex items-center gap-1"
-               >
-                 <MessageSquarePlus className="w-3 h-3" /> Chat Baru
-               </button>
-             )}
+          <div className='max-w-4xl mx-auto flex items-center justify-end px-4 py-1'>
+            {activeChatId && !isStreaming && (
+              <button
+                onClick={handleNewChat}
+                className='text-xs text-primary-600 hover:underline flex items-center gap-1'
+              >
+                <MessageSquarePlus className='w-3 h-3' /> Chat Baru
+              </button>
+            )}
           </div>
-          <ChatInput onSend={handleSendMessage} disabled={isStreaming || isLoading} />
+          <ChatInput
+            onSend={handleSendMessage}
+            disabled={isStreaming || isLoading}
+          />
         </div>
       </div>
     </div>

@@ -1,15 +1,15 @@
 'use client';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {
   Edit2,
-  MoreVertical,
   MessageSquare,
   MessageSquarePlus,
+  MoreVertical,
   PanelLeftClose,
   PanelLeftOpen,
   Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 interface Chat {
   id: string;
@@ -45,7 +45,10 @@ export const ChatSidebar = ({
   };
 
   const handleSaveEdit = (chatId: string) => {
-    if (editValue.trim() && editValue !== chats.find(c => c.id === chatId)?.title) {
+    if (
+      editValue.trim() &&
+      editValue !== chats.find((c) => c.id === chatId)?.title
+    ) {
       onRenameChat(chatId, editValue.trim());
     }
     setEditingId(null);
@@ -128,9 +131,11 @@ export const ChatSidebar = ({
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
                           onBlur={() => handleSaveEdit(chat.id)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(chat.id)}
+                          onKeyDown={(e) =>
+                            e.key === 'Enter' && handleSaveEdit(chat.id)
+                          }
                           onClick={(e) => e.stopPropagation()}
-                          className="w-full bg-white border border-primary-300 rounded px-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                          className='w-full bg-white border border-primary-300 rounded px-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500'
                         />
                       ) : chat.title === 'Sesi Baru...' ? (
                         /* Skeleton shimmer for title being generated */
@@ -167,35 +172,35 @@ export const ChatSidebar = ({
                     </div>
 
                     {/* Actions Menu (Three Dots) */}
-                    <div 
-                      className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    <div
+                      className='absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity'
                       onClick={(e) => e.stopPropagation()}
                     >
                       <DropdownMenu.Root>
                         <DropdownMenu.Trigger asChild>
-                          <button className="p-1 hover:bg-gray-200 rounded-md text-gray-500">
-                            <MoreVertical className="w-4 h-4" />
+                          <button className='p-1 hover:bg-gray-200 rounded-md text-gray-500'>
+                            <MoreVertical className='w-4 h-4' />
                           </button>
                         </DropdownMenu.Trigger>
 
                         <DropdownMenu.Portal>
                           <DropdownMenu.Content
-                            className="min-w-[140px] bg-white rounded-lg shadow-xl border border-gray-100 p-1 z-50 animate-in fade-in zoom-in-95"
+                            className='min-w-[140px] bg-white rounded-lg shadow-xl border border-gray-100 p-1 z-50 animate-in fade-in zoom-in-95'
                             sideOffset={5}
-                            align="end"
+                            align='end'
                           >
                             <DropdownMenu.Item
-                              className="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 rounded-md cursor-pointer outline-none"
+                              className='flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 rounded-md cursor-pointer outline-none'
                               onSelect={() => handleStartEdit(chat)}
                             >
-                              <Edit2 className="w-4 h-4" />
+                              <Edit2 className='w-4 h-4' />
                               Ubah Nama
                             </DropdownMenu.Item>
                             <DropdownMenu.Item
-                              className="flex items-center gap-2 px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer outline-none"
+                              className='flex items-center gap-2 px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer outline-none'
                               onSelect={() => onDeleteChat(chat.id)}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className='w-4 h-4' />
                               Hapus
                             </DropdownMenu.Item>
                           </DropdownMenu.Content>

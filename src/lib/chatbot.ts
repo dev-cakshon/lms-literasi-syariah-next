@@ -87,7 +87,7 @@ export async function createSession(idToken: string): Promise<ChatSession> {
  */
 export async function deleteSession(
   sessionId: string,
-  idToken: string
+  idToken: string,
 ): Promise<void> {
   ensureConfigured();
 
@@ -111,7 +111,7 @@ export async function getMessages(
   sessionId: string,
   idToken: string,
   limit = 50,
-  startAfterId?: string
+  startAfterId?: string,
 ): Promise<ChatMessage[]> {
   ensureConfigured();
 
@@ -142,19 +142,22 @@ export async function getMessages(
 export async function renameSession(
   sessionId: string,
   title: string,
-  idToken: string
+  idToken: string,
 ): Promise<void> {
   ensureConfigured();
 
-  const res = await fetch(`${CHATBOT_API_BASE}/api/v1/sessions/${sessionId}/title`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': CHATBOT_API_KEY,
-      Authorization: `Bearer ${idToken}`,
+  const res = await fetch(
+    `${CHATBOT_API_BASE}/api/v1/sessions/${sessionId}/title`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': CHATBOT_API_KEY,
+        Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ title }),
     },
-    body: JSON.stringify({ title }),
-  });
+  );
 
   if (!res.ok) {
     throw new Error(`Failed to rename session: ${res.status}`);
@@ -170,12 +173,12 @@ export async function streamChat(
   idToken: string,
   onToken: (token: string) => void,
   onDone: () => void,
-  onError: (error: string) => void
+  onError: (error: string) => void,
 ) {
   ensureConfigured();
 
   const url = `${CHATBOT_API_BASE}/api/v1/chat/${sessionId}/stream?prompt=${encodeURIComponent(
-    prompt
+    prompt,
   )}`;
 
   try {
@@ -189,7 +192,9 @@ export async function streamChat(
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      throw new Error(
+        errorData.detail || `HTTP error! status: ${response.status}`,
+      );
     }
 
     const reader = response.body?.getReader();
@@ -200,30 +205,57 @@ export async function streamChat(
     const decoder = new TextDecoder();
     let accumulatedBuffer = '';
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      accumulatedBuffer += decoder.decode(value, { stream: true });
-
-      // SSE lines are separated by double newlines
-      const parts = accumulatedBuffer.split('\n\n');
-      accumulatedBuffer = parts.pop() || ''; // Keep the incomplete last part
+    const processChunk = (chunk: string) => {
+      const parts = (accumulatedBuffer + chunk).split('\n\n');
+      accumulatedBuffer = parts.pop() || '';
 
       for (const part of parts) {
         if (part.startsWith('data: ')) {
           const content = part.substring(6);
-          if (content === '[DONE]') {
-            onDone();
-            return;
-          }
-          if (content.startsWith('Error: ')) {
-            onError(content.substring(7));
-            return;
-          }
-          // Preserve all characters including leading/trailing spaces
+          if (content === '[DONE]') return 'done';
+          if (content.startsWith('Error: ')) return content.substring(7);
           onToken(content);
         }
+      }
+      return null;
+    };
+
+    let reading = true;
+    while (reading) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        // Flush any bytes held inside the TextDecoder
+        const remaining = decoder.decode();
+        if (remaining) processChunk(remaining);
+
+        // Process any remaining SSE lines in the buffer
+        if (accumulatedBuffer.startsWith('data: ')) {
+          const content = accumulatedBuffer.substring(6);
+          if (content !== '[DONE]' && !content.startsWith('Error: ')) {
+            onToken(content);
+          }
+        }
+
+        onDone(); // ✅ Always call onDone when the stream closes
+        reading = false;
+        return;
+      }
+
+      const result = processChunk(decoder.decode(value, { stream: true }));
+
+      if (result === 'done') {
+        await reader.cancel(); // ✅ Release the connection
+        onDone();
+        reading = false;
+        return;
+      }
+
+      if (result !== null) {
+        await reader.cancel(); // ✅ Release the connection
+        onError(result);
+        reading = false;
+        return;
       }
     }
   } catch (err) {
