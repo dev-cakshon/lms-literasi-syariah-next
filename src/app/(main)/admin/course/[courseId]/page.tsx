@@ -4,13 +4,13 @@ import { BookOpen, CheckSquare, Grid2X2, Pencil, Search, X } from 'lucide-react'
 import Link from 'next/link';
 import { useCallback, useContext, useEffect, useState } from 'react';
 
-import { getCourse, getCourseContent } from '@/lib/api';
+import { getCourse } from '@/lib/api';
 
 import { CourseInfoForm } from '@/components/course/admin/CourseInfoForm';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-import type { Course, CourseContentItem } from '@/types';
+import type { Course } from '@/types';
 
 import { AdminCourseLayoutContext } from './AdminCourseLayoutContext';
 
@@ -37,39 +37,32 @@ export default function AdminCourseOverviewPage({ params }: EditPageProps) {
 }
 
 function OverviewPageContent({ courseId }: { courseId: string }) {
-  const { refreshContentItems } = useContext(AdminCourseLayoutContext);
+  const { refreshContentItems, contentItems } = useContext(AdminCourseLayoutContext);
   const [course, setCourse] = useState<Course | null>(null);
-  const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [courseLoading, setCourseLoading] = useState(true);
   const [editingInfo, setEditingInfo] = useState(false);
 
-  const fetchData = useCallback(async () => {
+  const fetchCourse = useCallback(async () => {
     try {
-      const [courseData, contentData] = await Promise.all([
-        getCourse(courseId),
-        getCourseContent(courseId),
-      ]);
+      const courseData = await getCourse(courseId);
       setCourse(courseData);
-      setContentItems(
-        [...contentData].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
-      );
     } catch (err) {
       void err;
     } finally {
-      setLoading(false);
+      setCourseLoading(false);
     }
   }, [courseId]);
 
   useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
+    void fetchCourse();
+  }, [fetchCourse]);
 
   const handleCourseUpdated = (updated: Course) => {
     setCourse(updated);
     refreshContentItems();
   };
 
-  if (loading || !course) {
+  if (courseLoading || !course) {
     return (
       <div className='h-full flex items-center justify-center'>
         <p className='text-muted-foreground'>Memuat kursus...</p>

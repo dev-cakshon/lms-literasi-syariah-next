@@ -62,7 +62,7 @@ function AdminCourseLayoutClient({
   }
 
   return (
-    <AdminCourseLayoutContext.Provider value={{ refreshContentItems }}>
+    <AdminCourseLayoutContext.Provider value={{ refreshContentItems, contentItems, loading }}>
       <div className='h-full'>
         <div className='h-15 md:pl-85 fixed inset-x-0 top-0 z-40 bg-white border-b flex items-center px-4 shadow-sm float-end'>
           <UnstyledLink
