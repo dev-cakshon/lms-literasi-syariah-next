@@ -24,7 +24,7 @@ export const CourseList = ({ items }: CourseListProps) => {
   return (
     <>
       <div className='grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4'>
-        {items.map((item) => (
+        {items.map((item, index) => (
           <CourseCard
             key={item.id}
             id={item.id}
@@ -40,12 +40,16 @@ export const CourseList = ({ items }: CourseListProps) => {
             originalPoints={item.originalPoints}
             progress={item.progress}
             editUrl={item.editUrl}
+            accent={index % 2 === 1 ? 'orange' : 'green'}
           />
         ))}
       </div>
       {items.length === 0 && (
-        <div className='text-center text-sm text-muted-foreground mt-10'>
-          No course found
+        <div className='text-center py-16 space-y-2'>
+          <div className='text-4xl'>🔍</div>
+          <p className='text-sm text-muted-foreground font-medium'>
+            Tidak ada kursus ditemukan
+          </p>
         </div>
       )}
     </>

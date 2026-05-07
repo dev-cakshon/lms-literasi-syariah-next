@@ -84,7 +84,6 @@ export default function MyCoursesPage() {
           description: course.description,
           imageUrl: course.thumbnailUrl ?? course.imageUrl ?? null,
           chaptersLength: course.totalChapters ?? 0,
-          isPublished: course.isPublished,
           progress: progressMap[course.id] ?? 0,
         })),
     [courses, searchQuery, progressMap],
