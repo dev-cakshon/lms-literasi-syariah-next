@@ -11,7 +11,7 @@ import CourseCertificateModal from '@/components/course/CourseCertificateModal';
 import { BadgeAwardModal, PointsToast } from '@/components/gamification';
 import { Button } from '@/components/ui/button';
 
-import { CourseLayoutContext } from '@/app/(course)/course/[courseId]/CourseLayoutContext';
+import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
 import { useAuth } from '@/contexts/AuthContext';
 
 import type { Badge, Certificate } from '@/types';

@@ -12,6 +12,7 @@ import { AdminCourseSidebar } from '@/components/course/admin/AdminCourseSidebar
 import type { Course, CourseContentItem } from '@/types';
 
 import { AdminCourseLayoutContext } from './AdminCourseLayoutContext';
+import UnstyledLink from '@/components/links/UnstyledLink';
 
 interface AdminCourseLayoutClientProps {
   children: React.ReactNode;
@@ -63,14 +64,13 @@ function AdminCourseLayoutClient({
   return (
     <AdminCourseLayoutContext.Provider value={{ refreshContentItems }}>
       <div className='h-full'>
-        <div className='h-15 md:pl-80 fixed inset-x-0 top-0 z-40 bg-white border-b flex items-center px-4 shadow-sm'>
-          <Link
+        <div className='h-15 md:pl-85 fixed inset-x-0 top-0 z-40 bg-white border-b flex items-center px-4 shadow-sm float-end'>
+          <UnstyledLink
             href='/admin/course'
-            className='flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition'
+            className='text-sm font-medium text-primary hover:underline'
           >
-            <ArrowLeft className='w-4 h-4' />
             Kembali ke Daftar Kursus
-          </Link>
+          </UnstyledLink>
         </div>
 
         <div className='hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50 bg-white'>
