@@ -7,7 +7,7 @@ import { getStudentActivity, submitActivity } from '@/lib/api';
 import { ActivityResultScreen } from '@/components/activity/ActivityResultScreen';
 import { Button } from '@/components/ui/button';
 
-import { CourseLayoutContext } from '@/app/(course)/course/[courseId]/CourseLayoutContext';
+import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
 
 import type {
   StudentActivity,

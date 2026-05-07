@@ -96,7 +96,7 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
           />
         </div>
 
-        <div className='hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50'>
+        <div className='hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50 bg-white'>
           <CourseSidebar course={course} contentItems={contentItems} />
         </div>
         <main className='md:pl-80 h-full pt-[80px]'>{children}</main>

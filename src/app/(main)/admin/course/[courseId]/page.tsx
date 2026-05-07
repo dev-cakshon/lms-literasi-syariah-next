@@ -1,30 +1,24 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
+import { BookOpen, CheckSquare, Grid2X2, Pencil, Search, X } from 'lucide-react';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
-import {
-  getActivityAdmin,
-  getCourse,
-  getCourseContent,
-} from '@/lib/api';
+import { getCourse } from '@/lib/api';
 
-import { ActivityEditForm } from '@/components/course/admin/ActivityEditForm';
-import { AdminCourseSidebar } from '@/components/course/admin/AdminCourseSidebar';
 import { CourseInfoForm } from '@/components/course/admin/CourseInfoForm';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
-import type {
-  AdminActivity,
-  Course,
-  CourseContentItem,
-} from '@/types';
+import type { Course } from '@/types';
+
+import { AdminCourseLayoutContext } from './AdminCourseLayoutContext';
 
 interface EditPageProps {
   params: Promise<{ courseId: string }>;
 }
 
-export default function AdminCourseEditPage({ params }: EditPageProps) {
+export default function AdminCourseOverviewPage({ params }: EditPageProps) {
   const [courseId, setCourseId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,165 +27,151 @@ export default function AdminCourseEditPage({ params }: EditPageProps) {
 
   if (!courseId) {
     return (
-      <div className='h-screen flex items-center justify-center'>
+      <div className='h-full flex items-center justify-center'>
         <p className='text-muted-foreground'>Memuat...</p>
       </div>
     );
   }
 
-  return <EditPageContent courseId={courseId} />;
+  return <OverviewPageContent courseId={courseId} />;
 }
 
-function EditPageContent({ courseId }: { courseId: string }) {
+function OverviewPageContent({ courseId }: { courseId: string }) {
+  const { refreshContentItems, contentItems } = useContext(AdminCourseLayoutContext);
   const [course, setCourse] = useState<Course | null>(null);
-  const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
-  const [selectedActivity, setSelectedActivity] =
-    useState<AdminActivity | null>(null);
-  const [activityLoading, setActivityLoading] = useState(false);
-  const [activityError, setActivityError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'info' | string>('info');
+  const [courseLoading, setCourseLoading] = useState(true);
+  const [editingInfo, setEditingInfo] = useState(false);
 
-  const fetchData = useCallback(async () => {
+  const fetchCourse = useCallback(async () => {
     try {
-      const [courseData, courseContent] = await Promise.all([
-        getCourse(courseId),
-        getCourseContent(courseId),
-      ]);
+      const courseData = await getCourse(courseId);
       setCourse(courseData);
-      setContentItems(
-        [...courseContent].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-      );
     } catch (err) {
       void err;
     } finally {
-      setLoading(false);
+      setCourseLoading(false);
     }
   }, [courseId]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    void fetchCourse();
+  }, [fetchCourse]);
 
   const handleCourseUpdated = (updated: Course) => {
     setCourse(updated);
+    refreshContentItems();
   };
 
-  const handleChaptersChanged = () => {
-    fetchData();
-  };
-
-  const activeActivityId = activeTab.startsWith('activity:')
-    ? activeTab.replace('activity:', '')
-    : null;
-
-  useEffect(() => {
-    if (!activeActivityId) {
-      setSelectedActivity(null);
-      setActivityError(null);
-      return;
-    }
-
-    let mounted = true;
-
-    const loadActivity = async () => {
-      try {
-        setActivityLoading(true);
-        setActivityError(null);
-        const data = await getActivityAdmin(courseId, activeActivityId);
-        if (!mounted) return;
-        setSelectedActivity(data);
-      } catch (err) {
-        if (!mounted) return;
-        setSelectedActivity(null);
-        setActivityError('Gagal memuat detail aktivitas.');
-      } finally {
-        if (mounted) {
-          setActivityLoading(false);
-        }
-      }
-    };
-
-    loadActivity();
-
-    return () => {
-      mounted = false;
-    };
-  }, [activeActivityId, courseId]);
-
-  const handleActivitySaved = (updated: AdminActivity) => {
-    setSelectedActivity(updated);
-    setContentItems((prev) =>
-      prev.map((item) =>
-        item.itemType === 'activity' && item.id === updated.id
-          ? { ...item, title: updated.title }
-          : item
-      )
-    );
-  };
-
-  if (loading || !course) {
+  if (courseLoading || !course) {
     return (
-      <div className='h-screen flex items-center justify-center'>
+      <div className='h-full flex items-center justify-center'>
         <p className='text-muted-foreground'>Memuat kursus...</p>
       </div>
     );
   }
 
   return (
-    <div className='h-full'>
-      {/* Top navbar */}
-      <div className='h-15 md:pl-80 fixed inset-x-0 top-0 z-40 bg-white border-b flex items-center px-4 shadow-sm'>
-        <Link
-          href='/admin/course'
-          className='flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition'
-        >
-          <ArrowLeft className='w-4 h-4' />
-          Kembali ke Daftar Kursus
-        </Link>
-      </div>
-
-      {/* Sidebar */}
-      <div className='hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50 bg-white'>
-        <AdminCourseSidebar
-          course={course}
-          contentItems={contentItems}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onContentChanged={handleChaptersChanged}
-        />
-      </div>
-
-      {/* Main content */}
-      <main className='md:pl-80 h-full pt-16'>
-        <div className='max-w-3xl mx-auto p-6'>
-          {activeTab === 'info' ? (
-            <CourseInfoForm
-              course={course}
-              onCourseUpdated={handleCourseUpdated}
-            />
-          ) : activeActivityId ? (
-            activityLoading ? (
-              <p className='text-muted-foreground'>Memuat aktivitas...</p>
-            ) : activityError ? (
-              <p className='text-red-600'>{activityError}</p>
-            ) : selectedActivity ? (
-              <ActivityEditForm
-                key={selectedActivity.id}
-                courseId={courseId}
-                activity={selectedActivity}
-                onActivitySaved={handleActivitySaved}
-              />
+    <div className='mx-auto w-full max-w-3xl space-y-6 p-6'>
+      <section className='rounded-lg border bg-white p-6 shadow-sm'>
+        <div className='flex items-start justify-between gap-4'>
+          <div className='flex-1'>
+            <div className='flex flex-wrap items-center gap-3'>
+              <h1 className='text-2xl font-bold text-slate-900'>{course.title}</h1>
+              <Badge variant={course.isPublished ? 'default' : 'secondary'}>
+                {course.isPublished ? 'Diterbitkan' : 'Draft'}
+              </Badge>
+            </div>
+            <p className='mt-2 text-sm text-slate-600'>
+              {course.description || 'Deskripsi kursus belum tersedia.'}
+            </p>
+          </div>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => setEditingInfo((prev) => !prev)}
+            className='shrink-0'
+          >
+            {editingInfo ? (
+              <>
+                <X className='w-4 h-4 mr-1' />
+                Tutup
+              </>
             ) : (
-              <p className='text-muted-foreground'>
-                Aktivitas tidak ditemukan.
-              </p>
-            )
-          ) : (
-            <p className='text-muted-foreground'>Pilih konten untuk diedit.</p>
-          )}
+              <>
+                <Pencil className='w-4 h-4 mr-1' />
+                Edit Info
+              </>
+            )}
+          </Button>
         </div>
-      </main>
+
+        {editingInfo && (
+          <div className='mt-6 pt-6 border-t'>
+            <CourseInfoForm course={course} onCourseUpdated={handleCourseUpdated} />
+          </div>
+        )}
+      </section>
+
+      <section className='rounded-lg border bg-white p-6 shadow-sm'>
+        <h2 className='mb-4 text-lg font-semibold text-slate-900'>Daftar Konten</h2>
+
+        {contentItems.length === 0 ? (
+          <p className='text-sm text-slate-500'>Belum ada konten yang ditambahkan.</p>
+        ) : (
+          <div className='overflow-hidden rounded-md border'>
+            {contentItems.map((item) => {
+              if (item.itemType === 'chapter') {
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/admin/course/${courseId}/chapter/${item.id}`}
+                    className='flex items-center gap-x-3 border-b px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-50 last:border-b-0'
+                  >
+                    <BookOpen size={16} className='shrink-0 text-slate-400' />
+                    <span className='flex-1 truncate font-medium'>{item.title}</span>
+                    <Badge variant={item.isPublished ? 'default' : 'secondary'} className='text-xs'>
+                      {item.isPublished ? 'Diterbitkan' : 'Draft'}
+                    </Badge>
+                  </Link>
+                );
+              }
+
+              const ActivityIcon =
+                item.type === 'drag_drop'
+                  ? Grid2X2
+                  : item.type === 'word_search'
+                    ? Search
+                    : CheckSquare;
+
+              const activityLabel =
+                item.type === 'drag_drop'
+                  ? 'Drag & Drop'
+                  : item.type === 'word_search'
+                    ? 'Word Search'
+                    : 'True/False';
+
+              const href =
+                item.type === 'drag_drop'
+                  ? `/admin/course/${courseId}/drag-drop/${item.id}`
+                  : item.type === 'word_search'
+                    ? `/admin/course/${courseId}/activity/${item.id}/word-search`
+                    : `/admin/course/${courseId}/activity/${item.id}/true-or-false`;
+
+              return (
+                <Link
+                  key={item.id}
+                  href={href}
+                  className='flex items-center gap-x-3 border-b px-4 py-3 text-sm text-slate-600 transition hover:bg-slate-50 last:border-b-0'
+                >
+                  <ActivityIcon size={16} className='shrink-0 text-slate-400' />
+                  <span className='flex-1 truncate font-medium'>{item.title}</span>
+                  <span className='shrink-0 text-xs text-slate-400'>{activityLabel}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

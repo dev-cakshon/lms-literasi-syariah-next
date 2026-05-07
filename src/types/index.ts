@@ -225,6 +225,7 @@ export interface CourseContentChapterItem {
   position: number;
   locked: boolean;
   completed: boolean;
+  isPublished?: boolean;
 }
 
 export interface CourseContentActivityItem {
