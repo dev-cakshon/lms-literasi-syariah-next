@@ -56,6 +56,7 @@ export interface Course {
   thumbnailUrl?: string;
   imageUrl?: string;
   totalChapters?: number;
+  totalActivities?: number;
   isPublished?: boolean;
   createdAt?: string;
   updatedAt?: string;
