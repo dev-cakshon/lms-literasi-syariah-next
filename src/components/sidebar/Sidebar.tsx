@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/contexts/AuthContext';
 
-import { Logo } from './Logo';
+import { Logo } from '@/components/Logo';
 import SidebarRoutes from './SidebarRoutes';
 
 export const Sidebar = () => {

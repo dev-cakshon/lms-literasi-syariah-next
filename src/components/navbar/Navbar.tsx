@@ -4,7 +4,7 @@ import { LogOut, Menu, User, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { Logo } from '@/components/sidebar/Logo';
+import { Logo } from '@/components/Logo';
 import {
   DropdownMenu,
   DropdownMenuContent,
