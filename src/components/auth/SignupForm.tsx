@@ -50,7 +50,7 @@ export const SignupForm = () => {
         {/* Wordmark */}
         <div className='text-center mb-4'>
           <span className='font-display text-2xl font-bold text-primary-700 tracking-tight'>
-            LMS Literasi Syariah
+            Eduloca
           </span>
         </div>
 

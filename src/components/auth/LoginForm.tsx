@@ -61,7 +61,7 @@ export const LoginForm = () => {
         {/* Wordmark */}
         <div className='text-center mb-4'>
           <span className='font-display text-2xl font-bold text-primary-700 tracking-tight'>
-            LMS Literasi Syariah
+            Eduloca
           </span>
         </div>
 
@@ -74,7 +74,7 @@ export const LoginForm = () => {
             Masuk
           </h1>
           <p className='text-slate-600 mt-2'>
-            Selamat datang kembali di LMS Literasi Syariah
+            Selamat datang kembali di Eduloca
           </p>
         </div>
 
