@@ -26,10 +26,10 @@ export const YoutubePlayer: React.FC<YoutubePlayerProps> = ({
   const videoId = getYoutubeId(url);
   if (!videoId) return <div className='text-red-500'>Invalid YouTube URL</div>;
   return (
-    <div className={className}>
+    <div className={`w-full ${className ?? ''}`}>
       <iframe
-        width='70%'
-        height='400'
+        width='100%'
+        className='aspect-video'
         src={`https://www.youtube.com/embed/${videoId}`}
         title={title || 'YouTube video player'}
         frameBorder='0'

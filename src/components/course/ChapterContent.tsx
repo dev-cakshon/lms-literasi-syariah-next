@@ -94,7 +94,7 @@ export const ChapterContent = ({
       {/* ② Video / Slides block */}
       {mediaUrl && (
         <div
-          className='relative rounded-xl overflow-hidden'
+          className='relative rounded-xl overflow-hidden w-full'
           style={{ background: '#1a1a2e' }}
         >
           <div

@@ -16,8 +16,8 @@ export const SlidesPlayer: React.FC<SlidesPlayerProps> = ({ url, title }) => {
   if (!id) return <div className='text-red-500'>Invalid Google Slides URL</div>;
   return (
     <iframe
-      width='70%'
-      height='400'
+      width='100%'
+      className='aspect-video'
       src={`https://docs.google.com/presentation/d/${id}/embed`}
       title={title || 'Google Slides presentation'}
       frameBorder='0'
