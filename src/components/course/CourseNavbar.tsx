@@ -1,22 +1,23 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useContext } from 'react';
+
+import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
 
 import { CourseNavbarRoutes } from './CourseNavbarRoutes';
-import { MarkCompleteButton } from './MarkCompleteButton';
 
 export const CourseNavbar = () => {
-  const params = useParams();
-  const courseId = params?.courseId as string | undefined;
-  const chapterId = params?.chapterId as string | undefined;
-
-  const showMarkComplete = courseId && chapterId;
+  const { contentItems } = useContext(CourseLayoutContext);
+  const completedCount = contentItems.filter((item) => item.completed).length;
+  const totalCount = contentItems.length;
 
   return (
     <div className='p-4 border-b h-full flex items-center justify-between bg-white shadow-sm'>
       <CourseNavbarRoutes />
-      {showMarkComplete && (
-        <MarkCompleteButton courseId={courseId} chapterId={chapterId} />
+      {totalCount > 0 && (
+        <span className='text-sm font-semibold text-slate-400'>
+          {completedCount} / {totalCount} selesai
+        </span>
       )}
     </div>
   );

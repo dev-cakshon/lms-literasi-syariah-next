@@ -185,6 +185,7 @@ export default function CourseIdPage({
                       isCompleted={item.completed}
                       isLocked={item.locked}
                       type='chapter'
+                      position={item.position}
                     />
                   );
                 }

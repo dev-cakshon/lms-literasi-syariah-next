@@ -4,8 +4,9 @@ import { useState } from 'react';
 
 import { resetCourseProgressApi } from '@/lib/api';
 
+import { useAuth } from '@/contexts/AuthContext';
+
 import { CourseSidebarItem } from './CourseSidebarItem';
-import { CourseProgress } from '../course-list/CourseProgress';
 
 import type { CourseContentItem } from '@/types';
 
@@ -20,17 +21,22 @@ interface CourseSidebarProps {
 
 export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
   const [isResetting, setIsResetting] = useState(false);
+  const { userProfile } = useAuth();
 
-  const completedItems = contentItems.filter((item) => item.completed).length;
-  const progressCount =
-    contentItems.length > 0 ? (completedItems / contentItems.length) * 100 : 0;
+  const completedCount = contentItems.filter((item) => item.completed).length;
+  const totalCount = contentItems.length;
+  const progressPct =
+    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const xp = userProfile?.totalPoints ?? 0;
+  const badgeCount = userProfile?.badges?.length ?? 0;
 
   const handleResetProgress = async () => {
-    const isConfirmed = window.confirm(
-      'Reset all progress for this course? This is for dev/testing only.'
-    );
-    if (!isConfirmed) return;
-
+    if (
+      !window.confirm(
+        'Reset all progress for this course? This is for dev/testing only.',
+      )
+    )
+      return;
     setIsResetting(true);
     try {
       await resetCourseProgressApi(course.id);
@@ -43,48 +49,114 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
   };
 
   return (
-    <div className='h-full border-r flex flex-col overflow-y-auto shadow-sm'>
-      <div className='p-8 flex flex-col border-b'>
-        <h1 className='font-semibold'>{course.title}</h1>
-        <div className='mt-10'>
-          <CourseProgress variant='success' value={progressCount} />
+    <div className='h-full flex flex-col overflow-hidden border-r'>
+
+      {/* ── Zone 1: Gamification block ── */}
+      <div
+        className='flex-shrink-0 px-[18px] py-5 relative overflow-hidden'
+        style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
+      >
+        {/* decorative circle */}
+        <div
+          aria-hidden
+          className='absolute -top-5 -right-5 w-[90px] h-[90px] rounded-full pointer-events-none'
+          style={{ background: 'rgba(144,210,109,0.08)' }}
+        />
+
+        <p className='text-[9px] font-bold tracking-[1.2px] uppercase text-white/40 mb-1'>
+          Kursus Aktif
+        </p>
+        <p className='text-[13px] font-bold text-white leading-snug mb-3.5'>
+          {course.title}
+        </p>
+
+        {/* Stats */}
+        <div className='flex gap-2 mb-3'>
+          <div
+            className='flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold'
+            style={{
+              background: 'rgba(144,210,109,0.2)',
+              border: '1px solid rgba(144,210,109,0.35)',
+              color: '#d9edbf',
+            }}
+          >
+            ⚡ {xp} XP
+          </div>
+          <div
+            className='flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold text-white'
+            style={{
+              background: 'rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.12)',
+            }}
+          >
+            🏅 {badgeCount} badge
+          </div>
         </div>
+
+        {/* Progress bar */}
+        <div className='flex justify-between items-center mb-1.5'>
+          <span className='text-[10px] font-semibold text-white/55'>
+            {completedCount} dari {totalCount} konten selesai
+          </span>
+          <span className='text-[10px] font-bold' style={{ color: '#90d26d' }}>
+            {progressPct}%
+          </span>
+        </div>
+        <div
+          className='h-1.5 rounded-full overflow-hidden'
+          style={{ background: 'rgba(255,255,255,0.1)' }}
+        >
+          <div
+            className='h-full rounded-full transition-all'
+            style={{
+              width: `${progressPct}%`,
+              background: 'linear-gradient(90deg, #3a9478, #90d26d)',
+            }}
+          />
+        </div>
+
         {process.env.NEXT_PUBLIC_APP_ENV !== 'production' && (
           <button
             type='button'
             onClick={handleResetProgress}
             disabled={isResetting}
-            className='mt-4 text-left text-xs text-red-600 hover:underline disabled:opacity-50'
+            className='mt-3 text-left text-[10px] text-red-400 hover:underline disabled:opacity-50'
           >
-            {isResetting ? 'Mereset progress...' : 'Reset Progress (Dev)'}
+            {isResetting ? 'Mereset...' : 'Reset Progress (Dev)'}
           </button>
         )}
       </div>
-      <div className='flex flex-col w-full'>
-        {contentItems.map((item) =>
-          item.itemType === 'chapter' ? (
-            <CourseSidebarItem
-              key={item.id}
-              id={item.id}
-              courseId={course.id}
-              label={item.title}
-              isCompleted={item.completed}
-              isLocked={item.locked}
-              type='chapter'
-            />
-          ) : (
-            <CourseSidebarItem
-              key={item.id}
-              id={item.id}
-              courseId={course.id}
-              label={item.title}
-              isCompleted={item.completed}
-              isLocked={item.locked}
-              type={item.type}
-            />
-          )
-        )}
+
+      {/* ── Zone 2: Flat content list ── */}
+      <div className='flex-1 overflow-y-auto'>
+        <p className='text-[9px] font-bold tracking-[1px] uppercase text-slate-400 px-4 pt-3 pb-1'>
+          Konten Kursus
+        </p>
+        {contentItems.map((item, index) => {
+          const isChapter = item.itemType === 'chapter';
+          const showDivider =
+            isChapter && index < contentItems.length - 1;
+
+          return (
+            <div key={item.id}>
+              <CourseSidebarItem
+                id={item.id}
+                courseId={course.id}
+                label={item.title}
+                isCompleted={item.completed}
+                isLocked={item.locked}
+                type={isChapter ? 'chapter' : (item.type ?? 'true_or_false')}
+                position={item.position}
+                bestScorePercent={item.itemType === 'activity' ? item.bestScorePercent : undefined}
+              />
+              {showDivider && (
+                <div className='mx-4 h-px bg-slate-100' />
+              )}
+            </div>
+          );
+        })}
       </div>
+
     </div>
   );
 };

@@ -19,11 +19,17 @@ import type { Badge, Certificate } from '@/types';
 interface MarkCompleteButtonProps {
   courseId: string;
   chapterId: string;
+  className?: string;
+  label?: string;
+  style?: React.CSSProperties;
 }
 
 export const MarkCompleteButton = ({
   courseId,
   chapterId,
+  className,
+  label,
+  style,
 }: MarkCompleteButtonProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -147,14 +153,14 @@ export const MarkCompleteButton = ({
         badges={awardedBadges}
         onClose={() => setShowBadgeModal(false)}
       />
-      <Button onClick={handleMarkComplete} disabled={isLoading}>
+      <Button onClick={handleMarkComplete} disabled={isLoading} className={className} style={style}>
         {isLoading ? (
           <>
             <Loader2 className='animate-spin h-4 w-4 mr-2' />
             Loading...
           </>
         ) : (
-          'Mark as Complete'
+          label ?? 'Mark as Complete'
         )}
       </Button>
     </>

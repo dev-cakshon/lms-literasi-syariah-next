@@ -101,6 +101,8 @@ function ChapterDetailContent() {
             mediaUrl={chapter.mediaUrl}
             mediaType={chapter.mediaType}
             content={chapter.content}
+            chapterOrdinal={1}
+            courseTitle=""
           />
         </div>
       )}

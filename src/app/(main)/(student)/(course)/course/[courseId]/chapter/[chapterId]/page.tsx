@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-import { getChapter, getCourseContent } from '@/lib/api';
+import { getChapter } from '@/lib/api';
+import { getChapterOrdinal } from '@/lib/courseUtils';
 
 import { ChapterContent } from '@/components/course/ChapterContent';
 
-import type { Chapter, CourseContentItem } from '@/types';
+import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
+
+import type { Chapter } from '@/types';
 
 export default function ChapterIdPage({
   params,
@@ -16,8 +19,9 @@ export default function ChapterIdPage({
   const [courseId, setCourseId] = useState<string | null>(null);
   const [chapterId, setChapterId] = useState<string | null>(null);
   const [chapterDetail, setChapterDetail] = useState<Chapter | null>(null);
-  const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { contentItems, courseTitle } = useContext(CourseLayoutContext);
 
   useEffect(() => {
     params.then((p) => {
@@ -33,12 +37,8 @@ export default function ChapterIdPage({
 
     async function fetchChapter() {
       try {
-        const [data, courseContent] = await Promise.all([
-          getChapter(resolvedCourseId, resolvedChapterId),
-          getCourseContent(resolvedCourseId),
-        ]);
+        const data = await getChapter(resolvedCourseId, resolvedChapterId);
         setChapterDetail(data);
-        setContentItems(courseContent);
       } catch (err) {
         console.error('Failed to load chapter:', err);
         setChapterDetail(null);
@@ -66,24 +66,18 @@ export default function ChapterIdPage({
     );
   }
 
-  const completedCount = contentItems.filter((item) => item.completed).length;
-  const totalCount = contentItems.length;
-  const progressPercent =
-    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const chapterOrdinal = getChapterOrdinal(contentItems, chapterId);
 
   return (
-    <div>
-      <ChapterContent
-        courseId={courseId}
-        chapterId={chapterId}
-        title={chapterDetail.title || 'Untitled'}
-        mediaUrl={chapterDetail.mediaUrl || ''}
-        mediaType={chapterDetail.mediaType || 'youtube'}
-        content={chapterDetail.content || ''}
-        progressPercent={progressPercent}
-        completedCount={completedCount}
-        totalCount={totalCount}
-      />
-    </div>
+    <ChapterContent
+      courseId={courseId}
+      chapterId={chapterId}
+      title={chapterDetail.title || 'Untitled'}
+      mediaUrl={chapterDetail.mediaUrl || ''}
+      mediaType={chapterDetail.mediaType || 'youtube'}
+      content={chapterDetail.content || ''}
+      chapterOrdinal={chapterOrdinal}
+      courseTitle={courseTitle}
+    />
   );
 }

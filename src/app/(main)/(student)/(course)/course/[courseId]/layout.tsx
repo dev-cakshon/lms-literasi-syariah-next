@@ -84,7 +84,7 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
   return (
     <div className='h-full'>
       <CourseLayoutContext.Provider
-        value={{ contentItems, refreshContentItems }}
+        value={{ contentItems, refreshContentItems, courseTitle: course.title }}
       >
         <div className='h-[80px] md:pl-80 fixed inset-y-0 w-full z-50'>
           <CourseNavbar
