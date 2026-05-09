@@ -1,10 +1,13 @@
 'use client';
 
+import { useState } from 'react';
+
 import ReactMarkdown from 'react-markdown';
 
 import { useCourseProgress } from '@/hooks/use-realtime';
 import { getChapterEmoji } from '@/lib/courseUtils';
 
+import { PointsToast } from '@/components/gamification';
 import { MarkCompleteButton } from './MarkCompleteButton';
 import { SlidesPlayer } from './SlidesPlayer';
 import { YoutubePlayer } from './YoutubePlayer';
@@ -33,6 +36,7 @@ export const ChapterContent = ({
   const emoji = getChapterEmoji(chapterOrdinal);
   const { completedChapters } = useCourseProgress(courseId);
   const isCompleted = completedChapters.includes(chapterId);
+  const [toastPoints, setToastPoints] = useState(0);
 
   return (
     <div className='max-w-3xl mx-auto pb-16 px-4 md:px-6 space-y-4 pt-4'>
@@ -127,7 +131,10 @@ export const ChapterContent = ({
         </div>
       )}
 
-      {/* ④ Completion block */}
+      {/* ④ XP toast — rendered outside the completion guard so it survives unmount */}
+      <PointsToast points={toastPoints} isOpen={toastPoints > 0} />
+
+      {/* ⑤ Completion block */}
       {!isCompleted && (
         <div className='rounded-[14px] border border-slate-200 bg-white px-6 py-5'>
           <div className='flex items-start gap-3 mb-4'>
@@ -146,6 +153,7 @@ export const ChapterContent = ({
           <MarkCompleteButton
             courseId={courseId}
             chapterId={chapterId}
+            onComplete={setToastPoints}
             label='✅ Tandai Bab Ini Selesai'
             className='w-full justify-center rounded-[10px] py-3 text-[14px] font-bold text-white border-0'
             style={{ background: 'linear-gradient(135deg, #174339, #2c7865)' } as React.CSSProperties}
