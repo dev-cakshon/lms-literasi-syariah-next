@@ -1,5 +1,6 @@
 export const CHAPTER_EMOJIS = [
-  '📜', '⚖️', '💰', '🕌', '📖', '🌙', '⭐', '🤲', '💎', '🏛️',
+  '📜'
+  // ,  '⚖️', '💰', '🕌', '📖', '🌙', '⭐', '🤲', '💎', '🏛️',
 ] as const;
 
 export function getChapterEmoji(ordinal: number): string {
