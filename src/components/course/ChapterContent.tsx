@@ -2,6 +2,7 @@
 
 import ReactMarkdown from 'react-markdown';
 
+import { useCourseProgress } from '@/hooks/use-realtime';
 import { getChapterEmoji } from '@/lib/courseUtils';
 
 import { MarkCompleteButton } from './MarkCompleteButton';
@@ -30,6 +31,8 @@ export const ChapterContent = ({
   courseTitle,
 }: ChapterContentProps) => {
   const emoji = getChapterEmoji(chapterOrdinal);
+  const { completedChapters } = useCourseProgress(courseId);
+  const isCompleted = completedChapters.includes(chapterId);
 
   return (
     <div className='max-w-3xl mx-auto pb-16 px-4 md:px-6 space-y-4 pt-4'>
@@ -125,28 +128,30 @@ export const ChapterContent = ({
       )}
 
       {/* ④ Completion block */}
-      <div className='rounded-[14px] border border-slate-200 bg-white px-6 py-5'>
-        <div className='flex items-start gap-3 mb-4'>
-          <div className='w-9 h-9 rounded-[10px] bg-primary-50 flex items-center justify-center text-[18px] flex-shrink-0'>
-            📚
+      {!isCompleted && (
+        <div className='rounded-[14px] border border-slate-200 bg-white px-6 py-5'>
+          <div className='flex items-start gap-3 mb-4'>
+            <div className='w-9 h-9 rounded-[10px] bg-primary-50 flex items-center justify-center text-[18px] flex-shrink-0'>
+              📚
+            </div>
+            <div>
+              <p className='text-[13px] font-bold text-slate-800 leading-snug'>
+                Sudah paham materinya?
+              </p>
+              <p className='text-[12px] text-slate-500 mt-0.5 leading-relaxed'>
+                Tandai bab ini selesai untuk membuka konten berikutnya dan mendapatkan poin.
+              </p>
+            </div>
           </div>
-          <div>
-            <p className='text-[13px] font-bold text-slate-800 leading-snug'>
-              Sudah paham materinya?
-            </p>
-            <p className='text-[12px] text-slate-500 mt-0.5 leading-relaxed'>
-              Tandai bab ini selesai untuk membuka konten berikutnya dan mendapatkan poin.
-            </p>
-          </div>
+          <MarkCompleteButton
+            courseId={courseId}
+            chapterId={chapterId}
+            label='✅ Tandai Bab Ini Selesai'
+            className='w-full justify-center rounded-[10px] py-3 text-[14px] font-bold text-white border-0'
+            style={{ background: 'linear-gradient(135deg, #174339, #2c7865)' } as React.CSSProperties}
+          />
         </div>
-        <MarkCompleteButton
-          courseId={courseId}
-          chapterId={chapterId}
-          label='✅ Tandai Bab Ini Selesai'
-          className='w-full justify-center rounded-[10px] py-3 text-[14px] font-bold text-white border-0'
-          style={{ background: 'linear-gradient(135deg, #174339, #2c7865)' } as React.CSSProperties}
-        />
-      </div>
+      )}
 
     </div>
   );
