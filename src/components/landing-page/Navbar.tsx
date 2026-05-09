@@ -15,7 +15,7 @@ export const Navbar = () => {
       <nav className='layout flex items-center justify-between py-4'>
         {/* Logo */}
         <div className='flex items-center'>
-          <Logo />
+          <Logo logotype='textless' theme='light' size='sm' />
         </div>
 
         {/* Desktop Navigation */}

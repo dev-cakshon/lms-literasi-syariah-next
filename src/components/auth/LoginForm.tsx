@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { GeometricDivider } from '@/components/ornaments/GeometricDivider';
+import { Logo } from '@/components/Logo';
 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -58,15 +59,9 @@ export const LoginForm = () => {
   return (
     <div className='min-h-screen flex items-center justify-center bg-linear-to-br from-primary-50 to-teal-50 px-4'>
       <div className='max-w-md w-full bg-ivory rounded-[var(--radius-card)] shadow-[var(--shadow-elevated-2)] p-8'>
-        {/* Wordmark */}
-        <div className='text-center mb-4'>
-          <span className='font-display text-2xl font-bold text-primary-700 tracking-tight'>
-            Eduloca
-          </span>
-        </div>
-
+        {/* Logotype */}
         <div className='flex justify-center mb-4'>
-          <GeometricDivider size={32} className='text-primary-300' />
+          <Logo logotype='text' theme='light' size='lg' />
         </div>
 
         <div className='text-center mb-8'>

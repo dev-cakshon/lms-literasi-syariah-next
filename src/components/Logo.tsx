@@ -1,15 +1,45 @@
 import Image from 'next/image';
 
-export const Logo = () => {
+type LogoProps = {
+  logotype?: 'text' | 'textless';
+  theme?: 'light' | 'dark';
+  size?: 'sm' | 'md' | 'lg';
+};
+
+const sizes = {
+  sm: { px: 40, textClass: 'text-xl' },
+  md: { px: 56, textClass: 'text-2xl' },
+  lg: { px: 80, textClass: 'text-4xl' },
+};
+
+export const Logo = ({ logotype = 'textless', theme = 'light', size = 'md' }: LogoProps) => {
+  const src = `/svg/logo${theme}${logotype}.svg`;
+  const { px, textClass } = sizes[size];
+
+  if (logotype === 'text') {
+    return (
+      <Image
+        src={src}
+        alt='Eduloca'
+        width={px}
+        height={px}
+      />
+    );
+  }
+
   return (
     <div className='flex items-center gap-2'>
       <Image
-        src='/svg/logolighttextless.svg'
+        src={src}
         alt='Eduloca logo'
-        width={28}
-        height={28}
+        width={px}
+        height={px}
       />
-      <span className='font-bold text-green-800'>Eduloca</span>
+      <span
+        className={`font-bold ${textClass} ${theme === 'dark' ? 'text-white' : 'text-green-800'}`}
+      >
+        Eduloca
+      </span>
     </div>
   );
 };

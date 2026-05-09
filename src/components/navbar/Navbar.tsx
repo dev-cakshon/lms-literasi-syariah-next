@@ -32,7 +32,7 @@ export const Navbar = () => {
         <div className='flex h-16 items-center justify-between'>
           {/* Logo */}
           <div className='shrink-0'>
-            <Logo />
+            <Logo logotype='textless' theme='light' size='sm' />
           </div>
 
           {/* Desktop Navigation */}

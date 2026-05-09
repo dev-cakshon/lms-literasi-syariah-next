@@ -16,8 +16,12 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   robots: { index: true, follow: true },
   icons: {
-    icon: '/favicon/favicon.ico',
-    shortcut: '/favicon/favicon-16x16.png',
+    icon: [
+      { url: 'favicon.ico', type: 'image/x-icon' },
+      { url: '/favicon/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+    ],
+    shortcut: '/favicon/favicon.ico',
     apple: '/favicon/apple-touch-icon.png',
   },
   manifest: `/favicon/site.webmanifest`,
