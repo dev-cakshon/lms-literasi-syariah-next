@@ -7,6 +7,7 @@ import { Navbar } from './Navbar';
 export default function ConditionalNavbar() {
   const pathname = usePathname();
   const isAdminCoursePage = /^\/admin\/course\/[^/]+/.test(pathname);
-  if (isAdminCoursePage) return null;
+  const isStudentCoursePage = /^\/course\//.test(pathname);
+  if (isAdminCoursePage || isStudentCoursePage) return null;
   return <Navbar />;
 }

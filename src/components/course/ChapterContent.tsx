@@ -39,7 +39,7 @@ export const ChapterContent = ({
   const [toastPoints, setToastPoints] = useState(0);
 
   return (
-    <div className='max-w-3xl mx-auto pb-16 px-4 md:px-6 space-y-4 pt-4'>
+    <div className='max-w-3/4 mx-auto pb-16 px-4 md:px-6 space-y-4 pt-4'>
 
       {/* ① Chapter header card */}
       <div
@@ -48,12 +48,12 @@ export const ChapterContent = ({
       >
         <div
           aria-hidden
-          className='absolute -top-5 -right-5 w-[100px] h-[100px] rounded-full pointer-events-none'
+          className='absolute -top-5 -right-5 w-25 h-25 rounded-full pointer-events-none'
           style={{ background: 'rgba(144,210,109,0.07)' }}
         />
         <div
           aria-hidden
-          className='absolute right-8 -bottom-8 w-[70px] h-[70px] rounded-full pointer-events-none'
+          className='absolute right-8 -bottom-8 w-17.5 h-17.5 rounded-full pointer-events-none'
           style={{ background: 'rgba(255,255,255,0.04)' }}
         />
 
@@ -63,7 +63,7 @@ export const ChapterContent = ({
 
         <div className='flex items-start gap-3.5'>
           <div
-            className='w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center text-[26px]'
+            className='w-12 h-12 rounded-xl shrink-0 flex items-center justify-center text-[26px]'
             style={{
               background: 'rgba(255,255,255,0.1)',
               border: '1px solid rgba(255,255,255,0.15)',
@@ -72,12 +72,12 @@ export const ChapterContent = ({
             {emoji}
           </div>
           <div>
-            <h1
-              className='text-[20px] font-bold text-white leading-snug mb-2'
+            <h2
+              className='font-bold text-white leading-snug mb-2'
               style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}
             >
               {title}
-            </h1>
+            </h2>
             <div className='flex items-center gap-2.5'>
               <div
                 className='w-7 h-0.5 rounded-full'

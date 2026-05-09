@@ -53,7 +53,7 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
 
       {/* ── Zone 1: Gamification block ── */}
       <div
-        className='flex-shrink-0 px-[18px] py-5 relative overflow-hidden'
+        className='shrink-0 px-4.5 py-5 relative overflow-hidden'
         style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
       >
         {/* decorative circle */}
@@ -63,12 +63,12 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
           style={{ background: 'rgba(144,210,109,0.08)' }}
         />
 
-        <p className='text-[9px] font-bold tracking-[1.2px] uppercase text-white/40 mb-1'>
+        <p className='text-xs font-bold tracking-[1.2px] uppercase text-white/40 mb-1'>
           Kursus Aktif
         </p>
-        <p className='text-[13px] font-bold text-white leading-snug mb-3.5'>
+        <h1 className='font-bold text-white leading-snug mb-3.5'>
           {course.title}
-        </p>
+        </h1>
 
         {/* Stats */}
         <div className='flex gap-2 mb-3'>
@@ -89,7 +89,7 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
               border: '1px solid rgba(255,255,255,0.12)',
             }}
           >
-            🏅 {badgeCount} badge
+            🏅 {badgeCount} Badge
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
             type='button'
             onClick={handleResetProgress}
             disabled={isResetting}
-            className='mt-3 text-left text-[10px] text-red-400 hover:underline disabled:opacity-50'
+            className='mt-3 text-left text-md text-red-400 hover:underline disabled:opacity-50'
           >
             {isResetting ? 'Mereset...' : 'Reset Progress (Dev)'}
           </button>
@@ -129,7 +129,7 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
 
       {/* ── Zone 2: Flat content list ── */}
       <div className='flex-1 overflow-y-auto'>
-        <p className='text-[9px] font-bold tracking-[1px] uppercase text-slate-400 px-4 pt-3 pb-1'>
+        <p className='text-xs font-bold tracking-[1px] uppercase text-slate-400 px-4 pt-3 pb-1'>
           Konten Kursus
         </p>
         {contentItems.map((item, index) => {

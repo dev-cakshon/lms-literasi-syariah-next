@@ -57,7 +57,7 @@ export const CourseSidebarItem = ({
       onClick={onClick}
       disabled={isLocked}
       className={cn(
-        'w-full flex items-center gap-2.5 px-4 py-2.5 border-l-[3px] transition-colors text-left',
+        'w-full flex items-center gap-2.5 px-4 py-3 border-l-[3px] transition-colors text-left',
         isLocked
           ? 'opacity-50 cursor-not-allowed border-l-transparent'
           : isActive
@@ -70,8 +70,8 @@ export const CourseSidebarItem = ({
       {/* Icon */}
       <div
         className={cn(
-          'w-[34px] h-[34px] flex items-center justify-center flex-shrink-0 text-[17px]',
-          isChapter ? 'rounded-lg' : 'rounded-[10px]',
+          'w-8.5 h-8.5 flex items-center justify-center shrink-0 text-lg',
+          isChapter ? 'rounded-lg' : 'rounded-xl',
           isLocked && 'grayscale opacity-60',
           !isLocked && isChapter && (isActive ? 'bg-mint' : isCompleted ? 'bg-primary-50' : 'bg-slate-100'),
           !isLocked && !isChapter && (isActive ? 'bg-sky-100' : isCompleted ? 'bg-emerald-50' : 'bg-slate-100'),
@@ -88,7 +88,7 @@ export const CourseSidebarItem = ({
       <div className='flex-1 min-w-0'>
         <p
           className={cn(
-            'text-xs font-semibold truncate leading-snug',
+            'text-sm font-semibold truncate leading-snug',
             isLocked
               ? 'text-slate-400'
               : isActive
@@ -100,11 +100,11 @@ export const CourseSidebarItem = ({
         >
           {label}
         </p>
-        <div className='mt-0.5'>
+        <div>
           {isChapter ? (
             <span
               className={cn(
-                'text-[10px]',
+                'text-xs',
                 isActive ? 'text-primary-500' : 'text-slate-400',
               )}
             >
@@ -113,7 +113,7 @@ export const CourseSidebarItem = ({
           ) : (
             <span
               className={cn(
-                'text-[9px] font-bold rounded px-1 py-0.5',
+                'text-xs font-bold rounded px-1 py-0.5',
                 actConfig?.tagClass ?? 'bg-slate-100 text-slate-600',
               )}
             >
@@ -124,7 +124,7 @@ export const CourseSidebarItem = ({
       </div>
 
       {/* Right badge */}
-      <div className='flex-shrink-0 text-sm'>
+      <div className='shrink-0 text-sm'>
         {isLocked ? null : !isChapter &&
           bestScorePercent !== undefined &&
           bestScorePercent > 0 ? (
