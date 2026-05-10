@@ -1,14 +1,13 @@
+import { ChevronLeft } from 'lucide-react';
+
 import UnstyledLink from '@/components/links/UnstyledLink';
-
-// interface courseNavberRoutesProps {
-
-// }
 
 export const CourseNavbarRoutes = () => {
   return (
-    <div className='float-end'>
+    <div className='flex items-center gap-1'>
+      <ChevronLeft className='text-white w-4 h-4' />
       <UnstyledLink
-        className='text-sm font-medium text-primary hover:underline'
+        className='text-sm font-medium text-white'
         href='/my-courses'
       >
         Kembali ke Kursus Saya

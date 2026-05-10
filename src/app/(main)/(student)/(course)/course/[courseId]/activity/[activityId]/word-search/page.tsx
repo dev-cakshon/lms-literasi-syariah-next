@@ -1,7 +1,9 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+
+import confetti from 'canvas-confetti';
+import { motion } from 'framer-motion';
 
 import { getStudentActivity, submitActivity } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -78,8 +80,10 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   const [result, setResult] = useState<SubmitActivityResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [autoSubmitting, setAutoSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { refreshContentItems } = useContext(CourseLayoutContext);
+  const autoSubmitFiredRef = useRef(false);
 
   useEffect(() => {
     params.then((p) => {
@@ -124,6 +128,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
         setDragStart(null);
         setDragCurrent(null);
         setIsDragging(false);
+        autoSubmitFiredRef.current = false;
       } catch (err) {
         console.error('Failed to load word-search activity:', err);
         setError('Gagal memuat aktivitas.');
@@ -172,7 +177,41 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     return colorMap;
   }, [foundWordCells]);
 
-  const submitReady = foundWords.length > 0;
+  const onSubmit = useCallback(async () => {
+    if (!courseId || !activityId) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const foundWordsPayload = foundWords.map(
+        (normalized) => normalizedToOriginal.get(normalized) ?? normalized,
+      );
+
+      const submitResult = await submitActivity(courseId, activityId, {
+        answers: { foundWords: foundWordsPayload },
+      });
+      setResult(submitResult);
+      refreshContentItems();
+    } catch (err) {
+      console.error('Failed to submit word-search activity:', err);
+      setError('Gagal mengirim jawaban.');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [courseId, activityId, foundWords, normalizedToOriginal, refreshContentItems]);
+
+  useEffect(() => {
+    if (
+      foundWords.length > 0 &&
+      foundWords.length === targetSet.size &&
+      !autoSubmitFiredRef.current
+    ) {
+      autoSubmitFiredRef.current = true;
+      void confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+      setAutoSubmitting(true);
+      const timeout = setTimeout(() => void onSubmit(), 1500);
+      return () => clearTimeout(timeout);
+    }
+  }, [foundWords.length, targetSet.size, onSubmit]);
 
   const finalizeDragSelection = useCallback(() => {
     if (!puzzle || !activity || selectedCells.length === 0) {
@@ -222,28 +261,6 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     };
   }, [isDragging, finalizeDragSelection]);
 
-  const onSubmit = async () => {
-    if (!courseId || !activityId) return;
-    setSubmitting(true);
-    setError(null);
-    try {
-      const foundWordsPayload = foundWords.map(
-        (normalized) => normalizedToOriginal.get(normalized) ?? normalized,
-      );
-
-      const submitResult = await submitActivity(courseId, activityId, {
-        answers: { foundWords: foundWordsPayload },
-      });
-      setResult(submitResult);
-      refreshContentItems();
-    } catch (err) {
-      console.error('Failed to submit word-search activity:', err);
-      setError('Gagal mengirim jawaban.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className='h-full flex items-center justify-center'>
@@ -280,6 +297,8 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
           setDragStart(null);
           setDragCurrent(null);
           setIsDragging(false);
+          setAutoSubmitting(false);
+          autoSubmitFiredRef.current = false;
 
           const seed = createSeedFromActivityId(activityId);
           const regenerated = generateWordSearch(
@@ -293,19 +312,70 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     );
   }
 
-  return (
-    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 space-y-6'>
-      <div>
-        <h1 className='text-2xl font-semibold text-slate-900'>
-          {activity.title}
-        </h1>
-        <p className='text-sm text-slate-600 mt-1'>
-          Seret huruf pada grid secara horizontal, vertikal, atau diagonal untuk
-          menemukan kata.
-        </p>
-      </div>
+  const progressPct =
+    targetSet.size > 0 ? (foundWords.length / targetSet.size) * 100 : 0;
 
-      <div className='rounded-lg border bg-white p-4 md:p-6 space-y-4'>
+  return (
+    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 pb-24 space-y-6'>
+      {/* Header card */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className='relative overflow-hidden rounded-2xl px-5 py-5'
+        style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
+      >
+        <div
+          aria-hidden
+          className='absolute -top-6 -right-6 w-28 h-28 rounded-full pointer-events-none'
+          style={{ background: 'rgba(144,210,109,0.08)' }}
+        />
+        <div
+          aria-hidden
+          className='absolute -bottom-8 -left-4 w-20 h-20 rounded-full pointer-events-none'
+          style={{ background: 'rgba(144,210,109,0.08)' }}
+        />
+
+        <div className='relative z-10 flex items-start gap-3'>
+          <span className='rounded-xl bg-white/10 p-2 text-2xl leading-none select-none'>
+            🔍
+          </span>
+          <div className='flex-1 min-w-0'>
+            <p className='text-xs font-bold uppercase tracking-wide text-white/60 mb-0.5'>
+              Word Search
+            </p>
+            <h1 className='font-bold text-white text-xl leading-snug mb-2'>
+              {activity.title}
+            </h1>
+            <div
+              className='inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold'
+              style={{
+                background: 'rgba(144,210,109,0.2)',
+                border: '1px solid rgba(144,210,109,0.35)',
+                color: '#d9edbf',
+              }}
+            >
+              ⚡ Hingga {activity.maxPoints} XP
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Grid + word list */}
+      <div className='relative rounded-lg border bg-white p-4 md:p-6 space-y-4'>
+        {/* Auto-submit overlay */}
+        {autoSubmitting && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className='absolute inset-0 z-20 flex items-center justify-center rounded-lg'
+            style={{ background: 'rgba(0,0,0,0.4)' }}
+          >
+            <p className='text-xl font-bold text-white drop-shadow'>
+              Semua kata ditemukan! 🎉
+            </p>
+          </motion.div>
+        )}
+
         <div
           className='inline-grid gap-1 select-none touch-none'
           style={{
@@ -324,9 +394,11 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
               const foundColor = foundColorByCell.get(key);
 
               return (
-                <button
+                <motion.button
                   key={key}
                   type='button'
+                  animate={foundColor ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.3 }}
                   onMouseDown={() => {
                     setDragStart(cell);
                     setDragCurrent(cell);
@@ -349,7 +421,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
                   )}
                 >
                   {char}
-                </button>
+                </motion.button>
               );
             }),
           )}
@@ -367,12 +439,21 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
                 <span
                   key={`${normalized || 'empty'}-${index}`}
                   className={cn(
-                    'rounded-full px-2.5 py-1 text-xs font-medium border',
+                    'rounded-full px-2.5 py-1 text-xs font-medium border inline-flex items-center gap-0.5',
                     found
-                      ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                      ? 'bg-emerald-100 text-emerald-700 border-emerald-200 line-through'
                       : 'bg-white text-slate-700 border-slate-200',
                   )}
                 >
+                  {found && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -4 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className='inline-block'
+                    >
+                      ✓{' '}
+                    </motion.span>
+                  )}
                   {word}
                 </span>
               );
@@ -381,42 +462,41 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
         </div>
       </div>
 
-      <div className='sticky bottom-3 z-10'>
-        <div className='rounded-xl border border-primary-300 bg-primary-600 p-3 shadow-md flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
-          <p className='text-xs text-primary-50'>
-            Ditemukan: {foundWords.length}/{targetSet.size}
-          </p>
-          <div className='flex gap-2'>
-            <Button
-              variant='outline'
-              onClick={() => {
-                setFoundWords([]);
-                setFoundWordCells([]);
-                setDragStart(null);
-                setDragCurrent(null);
-                setIsDragging(false);
-              }}
-              className='border-white/60 text-white hover:bg-white/10 hover:text-white'
-            >
-              Reset Pilihan
-            </Button>
-            <Button
-              variant='secondary'
-              onClick={onSubmit}
-              disabled={!submitReady || submitting}
-              className='font-semibold text-primary-700 hover:bg-primary-50 disabled:hover:bg-white'
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className='animate-spin h-4 w-4 mr-2' />
-                  Mengirim...
-                </>
-              ) : (
-                'Kirim Jawaban'
-              )}
-            </Button>
+      {/* Sticky bottom bar */}
+      <div
+        className='sticky bottom-3 z-10 flex items-center justify-between rounded-xl p-3'
+        style={{ background: 'linear-gradient(160deg, #174339, #1e5548)' }}
+      >
+        <div className='flex items-center gap-2'>
+          <div className='h-1.5 rounded-full bg-white/20 w-32 overflow-hidden'>
+            <motion.div
+              className='h-full rounded-full'
+              animate={{ width: `${progressPct}%` }}
+              transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+              style={{ background: 'linear-gradient(90deg, #3a9478, #90d26d)' }}
+            />
           </div>
+          <span className='text-xs text-white/80 font-medium'>
+            {foundWords.length}/{targetSet.size} kata
+          </span>
         </div>
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => {
+            setFoundWords([]);
+            setFoundWordCells([]);
+            setDragStart(null);
+            setDragCurrent(null);
+            setIsDragging(false);
+            setAutoSubmitting(false);
+            autoSubmitFiredRef.current = false;
+          }}
+          disabled={submitting}
+          className='border-white/60 text-white hover:bg-white/10 hover:text-white'
+        >
+          Reset Pilihan
+        </Button>
       </div>
     </div>
   );
