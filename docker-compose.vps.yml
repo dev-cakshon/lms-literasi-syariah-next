@@ -1,6 +1,6 @@
 services:
   lms-web-app:
-    image: farrelputras/lms-literasi-syariah:latest
+    image: farrelputras/lms-literasi-syariah-next:latest
     ports:
       - "3000:3000"
     restart: unless-stopped
