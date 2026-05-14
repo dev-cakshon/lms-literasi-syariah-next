@@ -17,6 +17,8 @@ if (apiUrl) {
 }
 
 const nextConfig = {
+  output: 'standalone',
+
   eslint: {
     dirs: ['src'],
   },
