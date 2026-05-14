@@ -63,7 +63,7 @@ export const CourseNavbar = ({ courseId }: CourseNavbarProps) => {
       </Link>
 
       {/* Breadcrumb */}
-      <nav className='flex items-center gap-1.5 text-[12px] flex-1 min-w-0'>
+      <nav className='flex items-center gap-1.5 text-xs flex-1 min-w-0'>
         <Link
           href='/my-courses'
           className='text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap'
@@ -95,7 +95,7 @@ export const CourseNavbar = ({ courseId }: CourseNavbarProps) => {
       <div className='flex items-center gap-2 shrink-0'>
         {totalCount > 0 && (
           <div
-            className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold border ${
+            className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-bold border ${
               allDone
                 ? 'bg-green-50 border-green-200 text-green-700'
                 : 'bg-amber-50 border-amber-200 text-amber-700'
