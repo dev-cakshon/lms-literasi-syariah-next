@@ -15,6 +15,8 @@ const config = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^~/(.*)$': '<rootDir>/public/$1',
   },
+  // Exclude Playwright E2E specs — they are not Jest tests
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/e2e/'],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

@@ -287,6 +287,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
+                  data-testid='pool-zone'
                   className={`min-h-16 rounded-lg border-2 border-dashed p-3 flex flex-wrap gap-2 transition-colors duration-150 ${
                     snapshot.isDraggingOver
                       ? 'border-primary-500 bg-primary-50'
@@ -300,6 +301,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
                           ref={dragProvided.innerRef}
                           {...dragProvided.draggableProps}
                           {...dragProvided.dragHandleProps}
+                          data-testid={`pool-item-${itemId}`}
                         >
                           <motion.div
                             initial={{ x: -8 }}
@@ -353,6 +355,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
+                        data-testid={`category-zone-${category}`}
                         className={`min-h-24 rounded-lg border-2 border-dashed p-3 space-y-2 transition-colors duration-150 ${
                           snapshot.isDraggingOver
                             ? 'border-primary-500 bg-primary-50'

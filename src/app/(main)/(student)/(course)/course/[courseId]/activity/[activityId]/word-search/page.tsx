@@ -396,6 +396,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
               return (
                 <motion.button
                   key={key}
+                  data-testid={`cell-${rowIndex}-${colIndex}`}
                   type='button'
                   animate={foundColor ? { scale: [1, 1.15, 1] } : { scale: 1 }}
                   transition={{ duration: 0.3 }}
@@ -438,6 +439,8 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
               return (
                 <span
                   key={`${normalized || 'empty'}-${index}`}
+                  data-testid={`word-item-${index}`}
+                  data-found={found ? 'true' : 'false'}
                   className={cn(
                     'rounded-full px-2.5 py-1 text-xs font-medium border inline-flex items-center gap-0.5',
                     found
