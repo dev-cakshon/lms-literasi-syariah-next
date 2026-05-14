@@ -66,99 +66,106 @@ export const WordSearchForm = ({ onBack, onNext }: WordSearchFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
-        <FormField
-          control={form.control}
-          name='title'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Judul Aktivitas</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='Contoh: Cari Istilah Ekonomi Syariah'
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4'>
+        {/* Info Dasar */}
+        <section className='rounded-lg border bg-white p-4 space-y-4'>
+          <h2 className='text-xs font-bold uppercase tracking-wide text-slate-500 border-l-4 border-primary-400 pl-2'>
+            Info Dasar
+          </h2>
 
-        <FormField
-          control={form.control}
-          name='maxPoints'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Maksimal Poin</FormLabel>
-              <FormControl>
-                <Input
-                  type='number'
-                  min={1}
-                  value={field.value}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
           <FormField
             control={form.control}
-            name='gridSize.rows'
+            name='title'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Grid Rows (8-15)</FormLabel>
+                <FormLabel>Judul Aktivitas</FormLabel>
                 <FormControl>
                   <Input
-                    type='number'
-                    min={8}
-                    max={15}
-                    value={field.value}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    placeholder='Contoh: Cari Istilah Ekonomi Syariah'
+                    {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className='text-red-500 text-xs' />
               </FormItem>
             )}
           />
 
           <FormField
             control={form.control}
-            name='gridSize.cols'
+            name='maxPoints'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Grid Cols (8-15)</FormLabel>
+                <FormLabel>Maksimal Poin</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
-                    min={8}
-                    max={15}
+                    min={1}
                     value={field.value}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className='text-red-500 text-xs' />
               </FormItem>
             )}
           />
-        </div>
 
-        <div className='space-y-3 rounded-md border p-4'>
-          <div className='flex items-center justify-between'>
-            <h4 className='text-sm font-semibold'>Daftar Kata</h4>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => append({ word: '' })}
-            >
-              Tambah Kata
-            </Button>
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+            <FormField
+              control={form.control}
+              name='gridSize.rows'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Grid Rows (8-15)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='number'
+                      min={8}
+                      max={15}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage className='text-red-500 text-xs' />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='gridSize.cols'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Grid Cols (8-15)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='number'
+                      min={8}
+                      max={15}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage className='text-red-500 text-xs' />
+                </FormItem>
+              )}
+            />
           </div>
+        </section>
+
+        {/* Konten */}
+        <section className='rounded-lg border bg-white p-4 space-y-4'>
+          <h2 className='text-xs font-bold uppercase tracking-wide text-slate-500 border-l-4 border-primary-400 pl-2'>
+            Konten
+          </h2>
 
           {fields.map((wordField, index) => (
-            <div key={wordField.id} className='flex items-start gap-2'>
+            <div
+              key={wordField.id}
+              className='bg-slate-50 rounded-md p-2.5 flex items-start gap-2'
+            >
+              <span className='text-xs text-slate-400 mt-2.5 w-4 shrink-0'>
+                {index + 1}
+              </span>
               <FormField
                 control={form.control}
                 name={`wordList.${index}.word`}
@@ -167,14 +174,14 @@ export const WordSearchForm = ({ onBack, onNext }: WordSearchFormProps) => {
                     <FormControl>
                       <Input placeholder={`Kata ${index + 1}`} {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className='text-red-500 text-xs' />
                   </FormItem>
                 )}
               />
-
               <Button
                 type='button'
                 variant='outline'
+                size='sm'
                 onClick={() => remove(index)}
                 disabled={fields.length <= 1}
               >
@@ -182,7 +189,16 @@ export const WordSearchForm = ({ onBack, onNext }: WordSearchFormProps) => {
               </Button>
             </div>
           ))}
-        </div>
+
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            onClick={() => append({ word: '' })}
+          >
+            + Tambah Kata
+          </Button>
+        </section>
 
         <div className='flex items-center justify-end gap-2 border-t pt-4'>
           <Button type='button' variant='outline' onClick={onBack}>

@@ -86,14 +86,8 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
       <CourseLayoutContext.Provider
         value={{ contentItems, refreshContentItems, courseTitle: course.title }}
       >
-        <div className='h-[80px] md:pl-80 fixed inset-y-0 w-full z-50'>
-          <CourseNavbar
-          // course={course}
-          // chapters={chapters.map(ch => ({
-          //     ...ch,
-          //     isCompleted: completedChapterIds.has(ch._id)
-          // }))}
-          />
+        <div className='h-20 fixed inset-y-0 w-full z-50'>
+          <CourseNavbar courseId={courseId} />
         </div>
 
         <div className='hidden md:flex w-80 flex-col fixed top-20 bottom-0 z-50 bg-white'>

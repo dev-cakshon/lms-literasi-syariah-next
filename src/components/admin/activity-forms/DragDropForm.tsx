@@ -81,188 +81,218 @@ export const DragDropForm = ({ onBack, onNext }: DragDropFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-6'>
-        <FormField
-          control={form.control}
-          name='title'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Judul Aktivitas</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='Contoh: Klasifikasi Akad Syariah'
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-4'>
+        {/* Info Dasar */}
+        <section className='rounded-lg border bg-white p-4 space-y-4'>
+          <h2 className='text-xs font-bold uppercase tracking-wide text-slate-500 border-l-4 border-primary-400 pl-2'>
+            Info Dasar
+          </h2>
 
-        <FormField
-          control={form.control}
-          name='maxPoints'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Maksimal Poin</FormLabel>
-              <FormControl>
-                <Input
-                  type='number'
-                  min={1}
-                  value={field.value}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name='title'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Judul Aktivitas</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder='Contoh: Klasifikasi Akad Syariah'
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage className='text-red-500 text-xs' />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name='feedbackMode'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Mode Feedback</FormLabel>
-              <FormControl>
-                <div className='flex gap-4'>
-                  <label className='flex items-center gap-2 text-sm'>
-                    <input
-                      type='radio'
-                      checked={field.value === 'immediate'}
-                      onChange={() => field.onChange('immediate')}
-                    />
-                    Langsung
-                  </label>
-                  <label className='flex items-center gap-2 text-sm'>
-                    <input
-                      type='radio'
-                      checked={field.value === 'end'}
-                      onChange={() => field.onChange('end')}
-                    />
-                    Di Akhir
-                  </label>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name='maxPoints'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Maksimal Poin</FormLabel>
+                <FormControl>
+                  <Input
+                    type='number'
+                    min={1}
+                    value={field.value}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage className='text-red-500 text-xs' />
+              </FormItem>
+            )}
+          />
 
-        <div className='space-y-3 rounded-md border p-4'>
-          <div className='flex items-center justify-between'>
-            <h4 className='text-sm font-semibold'>Kategori</h4>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => appendCategory({ name: '' })}
-            >
-              Tambah Kategori
-            </Button>
-          </div>
+          <FormField
+            control={form.control}
+            name='feedbackMode'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Mode Feedback</FormLabel>
+                <FormControl>
+                  <div className='flex gap-4'>
+                    <label className='flex items-center gap-2 text-sm'>
+                      <input
+                        type='radio'
+                        checked={field.value === 'immediate'}
+                        onChange={() => field.onChange('immediate')}
+                      />
+                      Langsung
+                    </label>
+                    <label className='flex items-center gap-2 text-sm'>
+                      <input
+                        type='radio'
+                        checked={field.value === 'end'}
+                        onChange={() => field.onChange('end')}
+                      />
+                      Di Akhir
+                    </label>
+                  </div>
+                </FormControl>
+                <FormMessage className='text-red-500 text-xs' />
+              </FormItem>
+            )}
+          />
+        </section>
 
-          {categoryFields.map((category, index) => (
-            <div key={category.id} className='flex items-start gap-2'>
-              <FormField
-                control={form.control}
-                name={`categories.${index}.name`}
-                render={({ field }) => (
-                  <FormItem className='flex-1'>
-                    <FormControl>
-                      <Input placeholder={`Kategori ${index + 1}`} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type='button'
-                variant='outline'
-                onClick={() => removeCategory(index)}
-                disabled={categoryFields.length <= 2}
+        {/* Konten */}
+        <section className='rounded-lg border bg-white p-4 space-y-6'>
+          <h2 className='text-xs font-bold uppercase tracking-wide text-slate-500 border-l-4 border-primary-400 pl-2'>
+            Konten
+          </h2>
+
+          {/* Categories sub-section */}
+          <div className='space-y-3'>
+            <p className='text-sm font-semibold text-slate-700'>Kategori</p>
+
+            {categoryFields.map((category, index) => (
+              <div
+                key={category.id}
+                className='bg-slate-50 rounded-md p-2.5 flex items-start gap-2'
               >
-                Hapus
-              </Button>
-            </div>
-          ))}
-        </div>
-
-        <div className='space-y-3 rounded-md border p-4'>
-          <div className='flex items-center justify-between'>
-            <h4 className='text-sm font-semibold'>Item Drag & Drop</h4>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => appendItem({ label: '', categoryIndex: 0 })}
-            >
-              Tambah Item
-            </Button>
-          </div>
-
-          {itemFields.map((item, index) => (
-            <div
-              key={item.id}
-              className='grid grid-cols-1 gap-2 md:grid-cols-5'
-            >
-              <div className='md:col-span-3'>
+                <span className='text-xs text-slate-400 mt-2.5 w-4 shrink-0'>
+                  {index + 1}
+                </span>
                 <FormField
                   control={form.control}
-                  name={`items.${index}.label`}
+                  name={`categories.${index}.name`}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className='flex-1'>
                       <FormControl>
-                        <Input placeholder='Label item' {...field} />
+                        <Input
+                          placeholder={`Kategori ${index + 1}`}
+                          {...field}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className='text-red-500 text-xs' />
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <div className='md:col-span-1'>
-                <FormField
-                  control={form.control}
-                  name={`items.${index}.categoryIndex`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <select
-                          value={field.value}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                          className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
-                        >
-                          {categories.map((cat, catIndex) => (
-                            <option
-                              key={`${cat.name}-${catIndex}`}
-                              value={catIndex}
-                            >
-                              {cat.name || `Kategori ${catIndex + 1}`}
-                            </option>
-                          ))}
-                        </select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className='md:col-span-1'>
                 <Button
                   type='button'
                   variant='outline'
-                  onClick={() => removeItem(index)}
-                  disabled={itemFields.length <= 1}
-                  className='w-full'
+                  size='sm'
+                  onClick={() => removeCategory(index)}
+                  disabled={categoryFields.length <= 2}
                 >
                   Hapus
                 </Button>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={() => appendCategory({ name: '' })}
+            >
+              + Tambah Kategori
+            </Button>
+          </div>
+
+          {/* Items sub-section */}
+          <div className='space-y-3'>
+            <p className='text-sm font-semibold text-slate-700'>
+              Item Drag &amp; Drop
+            </p>
+
+            {itemFields.map((item, index) => (
+              <div
+                key={item.id}
+                className='bg-slate-50 rounded-md p-2.5 flex items-start gap-2'
+              >
+                <span className='text-xs text-slate-400 mt-2.5 w-4 shrink-0'>
+                  {index + 1}
+                </span>
+                <div className='flex-1 grid grid-cols-1 gap-2 md:grid-cols-5'>
+                  <div className='md:col-span-3'>
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.label`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder='Label item' {...field} />
+                          </FormControl>
+                          <FormMessage className='text-red-500 text-xs' />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className='md:col-span-2'>
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.categoryIndex`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <select
+                              value={field.value}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                              className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
+                            >
+                              {categories.map((cat, catIndex) => (
+                                <option
+                                  key={`${cat.name}-${catIndex}`}
+                                  value={catIndex}
+                                >
+                                  {cat.name || `Kategori ${catIndex + 1}`}
+                                </option>
+                              ))}
+                            </select>
+                          </FormControl>
+                          <FormMessage className='text-red-500 text-xs' />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => removeItem(index)}
+                  disabled={itemFields.length <= 1}
+                >
+                  Hapus
+                </Button>
+              </div>
+            ))}
+
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={() => appendItem({ label: '', categoryIndex: 0 })}
+            >
+              + Tambah Item
+            </Button>
+          </div>
+        </section>
 
         <div className='flex items-center justify-end gap-2 border-t pt-4'>
           <Button type='button' variant='outline' onClick={onBack}>

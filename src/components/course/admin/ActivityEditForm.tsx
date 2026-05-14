@@ -4,9 +4,9 @@ import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { ApiError, updateActivity } from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 
 import type { AdminActivity } from '@/types';
@@ -148,16 +148,40 @@ export const ActivityEditForm = ({
   };
 
   return (
-    <div className='space-y-6'>
-      <div>
-        <h2 className='text-xl font-bold'>Edit Aktivitas</h2>
-        <p className='text-sm text-muted-foreground'>
-          Perbarui konfigurasi aktivitas ini.
-        </p>
-        {error && <p className='text-sm text-red-600 mt-2'>{error}</p>}
+    <div className='space-y-4'>
+      {/* Sticky save status bar */}
+      <div className='sticky top-0 z-10 flex items-center justify-between rounded-lg border bg-white px-4 py-3 shadow-sm'>
+        <span className='text-sm font-semibold text-slate-700'>
+          Edit Aktivitas
+        </span>
+        <span
+          className={cn(
+            'text-xs font-semibold',
+            saving
+              ? 'text-slate-400'
+              : saved
+                ? 'text-green-600'
+                : error
+                  ? 'text-red-500'
+                  : 'text-slate-300',
+          )}
+        >
+          {saving
+            ? 'Menyimpan...'
+            : saved
+              ? '✓ Tersimpan'
+              : error
+                ? `Error: ${error}`
+                : '—'}
+        </span>
       </div>
 
-      <div className='space-y-6'>
+      {/* Info Dasar */}
+      <section className='rounded-lg border bg-white p-4 space-y-4'>
+        <h2 className='text-xs font-bold uppercase tracking-wide text-slate-500 border-l-4 border-primary-400 pl-2'>
+          Info Dasar
+        </h2>
+
         <div className='space-y-2'>
           <label className='text-sm font-medium'>Judul Aktivitas</label>
           <Input
@@ -180,32 +204,63 @@ export const ActivityEditForm = ({
           />
         </div>
 
-        {form.type === 'drag_drop' && (
-          <div className='space-y-6 rounded-md border p-4'>
-            <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
-                <h4 className='text-sm font-semibold'>Kategori</h4>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={() =>
-                    setForm((prev) => {
-                      if (prev.type !== 'drag_drop') return prev;
-                      return {
-                        ...prev,
-                        categories: [...prev.categories, ''],
-                      };
-                    })
+        {(form.type === 'drag_drop' || form.type === 'true_or_false') && (
+          <div className='space-y-2'>
+            <label className='text-sm font-medium'>Mode Feedback</label>
+            <div className='flex gap-4'>
+              <label className='flex items-center gap-2 text-sm'>
+                <input
+                  type='radio'
+                  checked={form.feedbackMode === 'immediate'}
+                  onChange={() =>
+                    setForm((prev) =>
+                      prev.type === 'drag_drop' || prev.type === 'true_or_false'
+                        ? { ...prev, feedbackMode: 'immediate' }
+                        : prev
+                    )
                   }
-                >
-                  <Plus className='w-4 h-4 mr-1' />
-                  Tambah
-                </Button>
-              </div>
+                />
+                Langsung
+              </label>
+              <label className='flex items-center gap-2 text-sm'>
+                <input
+                  type='radio'
+                  checked={form.feedbackMode === 'end'}
+                  onChange={() =>
+                    setForm((prev) =>
+                      prev.type === 'drag_drop' || prev.type === 'true_or_false'
+                        ? { ...prev, feedbackMode: 'end' }
+                        : prev
+                    )
+                  }
+                />
+                Di Akhir
+              </label>
+            </div>
+          </div>
+        )}
+      </section>
 
+      {/* Konten */}
+      <section className='rounded-lg border bg-white p-4 space-y-4'>
+        <h2 className='text-xs font-bold uppercase tracking-wide text-slate-500 border-l-4 border-primary-400 pl-2'>
+          Konten
+        </h2>
+
+        {/* Drag & Drop */}
+        {form.type === 'drag_drop' && (
+          <div className='space-y-6'>
+            {/* Categories */}
+            <div className='space-y-3'>
+              <p className='text-sm font-semibold text-slate-700'>Kategori</p>
               {form.categories.map((category, index) => (
-                <div key={`cat-${index}`} className='flex items-center gap-2'>
+                <div
+                  key={`cat-${index}`}
+                  className='bg-slate-50 rounded-md p-2.5 flex items-center gap-2'
+                >
+                  <span className='text-xs text-slate-400 w-4 shrink-0'>
+                    {index + 1}
+                  </span>
                   <Input
                     value={category}
                     onChange={(e) => {
@@ -248,171 +303,136 @@ export const ActivityEditForm = ({
                   </Button>
                 </div>
               ))}
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() =>
+                  setForm((prev) => {
+                    if (prev.type !== 'drag_drop') return prev;
+                    return { ...prev, categories: [...prev.categories, ''] };
+                  })
+                }
+              >
+                <Plus className='w-4 h-4 mr-1' />
+                Tambah Kategori
+              </Button>
             </div>
 
+            {/* Items */}
             <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
-                <h4 className='text-sm font-semibold'>Items</h4>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={() => {
-                    setForm((prev) => {
-                      if (prev.type !== 'drag_drop') return prev;
-                      return {
-                        ...prev,
-                        items: [
-                          ...prev.items,
-                          {
-                            id: `item_${Date.now()}_${prev.items.length}`,
-                            label: '',
-                            correctCategory: prev.categories[0] ?? '',
-                          },
-                        ],
-                      };
-                    });
-                  }}
-                >
-                  <Plus className='w-4 h-4 mr-1' />
-                  Tambah
-                </Button>
-              </div>
-
+              <p className='text-sm font-semibold text-slate-700'>Items</p>
               {form.items.map((item, index) => (
                 <div
                   key={item.id || `item-${index}`}
-                  className='grid grid-cols-1 gap-2 md:grid-cols-6'
+                  className='bg-slate-50 rounded-md p-2.5 flex items-start gap-2'
                 >
-                  <div className='md:col-span-3'>
-                    <Input
-                      value={item.label}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setForm((prev) => {
-                          if (prev.type !== 'drag_drop') return prev;
-                          const items = [...prev.items];
-                          items[index] = { ...items[index], label: value };
-                          return { ...prev, items };
-                        });
-                      }}
-                      placeholder='Label item'
-                    />
+                  <span className='text-xs text-slate-400 mt-2.5 w-4 shrink-0'>
+                    {index + 1}
+                  </span>
+                  <div className='flex-1 grid grid-cols-1 gap-2 md:grid-cols-6'>
+                    <div className='md:col-span-3'>
+                      <Input
+                        value={item.label}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setForm((prev) => {
+                            if (prev.type !== 'drag_drop') return prev;
+                            const items = [...prev.items];
+                            items[index] = { ...items[index], label: value };
+                            return { ...prev, items };
+                          });
+                        }}
+                        placeholder='Label item'
+                      />
+                    </div>
+                    <div className='md:col-span-3'>
+                      <select
+                        value={item.correctCategory}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setForm((prev) => {
+                            if (prev.type !== 'drag_drop') return prev;
+                            const items = [...prev.items];
+                            items[index] = {
+                              ...items[index],
+                              correctCategory: value,
+                            };
+                            return { ...prev, items };
+                          });
+                        }}
+                        className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
+                      >
+                        {form.categories.map((cat, categoryIndex) => (
+                          <option
+                            key={`${cat}-${categoryIndex}`}
+                            value={cat}
+                          >
+                            {cat || `Kategori ${categoryIndex + 1}`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                  <div className='md:col-span-2'>
-                    <select
-                      value={item.correctCategory}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setForm((prev) => {
-                          if (prev.type !== 'drag_drop') return prev;
-                          const items = [...prev.items];
-                          items[index] = {
-                            ...items[index],
-                            correctCategory: value,
-                          };
-                          return { ...prev, items };
-                        });
-                      }}
-                      className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
-                    >
-                      {form.categories.map((category, categoryIndex) => (
-                        <option
-                          key={`${category}-${categoryIndex}`}
-                          value={category}
-                        >
-                          {category || `Kategori ${categoryIndex + 1}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className='md:col-span-1'>
-                    <Button
-                      type='button'
-                      variant='outline'
-                      size='sm'
-                      className='w-full'
-                      onClick={() => {
-                        setForm((prev) => {
-                          if (prev.type !== 'drag_drop') return prev;
-                          if (prev.items.length <= 1) return prev;
-                          const items = prev.items.filter(
-                            (_, i) => i !== index
-                          );
-                          return { ...prev, items };
-                        });
-                      }}
-                      disabled={form.items.length <= 1}
-                    >
-                      <Trash2 className='w-4 h-4' />
-                    </Button>
-                  </div>
+                  <Button
+                    type='button'
+                    variant='outline'
+                    size='sm'
+                    onClick={() => {
+                      setForm((prev) => {
+                        if (prev.type !== 'drag_drop') return prev;
+                        if (prev.items.length <= 1) return prev;
+                        const items = prev.items.filter((_, i) => i !== index);
+                        return { ...prev, items };
+                      });
+                    }}
+                    disabled={form.items.length <= 1}
+                  >
+                    <Trash2 className='w-4 h-4' />
+                  </Button>
                 </div>
               ))}
-            </div>
-
-            <div className='space-y-2'>
-              <label className='text-sm font-medium'>Mode Feedback</label>
-              <div className='flex gap-4'>
-                <label className='flex items-center gap-2 text-sm'>
-                  <input
-                    type='radio'
-                    checked={form.feedbackMode === 'immediate'}
-                    onChange={() =>
-                      setForm((prev) =>
-                        prev.type === 'drag_drop'
-                          ? { ...prev, feedbackMode: 'immediate' }
-                          : prev
-                      )
-                    }
-                  />
-                  Langsung
-                </label>
-                <label className='flex items-center gap-2 text-sm'>
-                  <input
-                    type='radio'
-                    checked={form.feedbackMode === 'end'}
-                    onChange={() =>
-                      setForm((prev) =>
-                        prev.type === 'drag_drop'
-                          ? { ...prev, feedbackMode: 'end' }
-                          : prev
-                      )
-                    }
-                  />
-                  Di Akhir
-                </label>
-              </div>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setForm((prev) => {
+                    if (prev.type !== 'drag_drop') return prev;
+                    return {
+                      ...prev,
+                      items: [
+                        ...prev.items,
+                        {
+                          id: `item_${Date.now()}_${prev.items.length}`,
+                          label: '',
+                          correctCategory: prev.categories[0] ?? '',
+                        },
+                      ],
+                    };
+                  });
+                }}
+              >
+                <Plus className='w-4 h-4 mr-1' />
+                Tambah Item
+              </Button>
             </div>
           </div>
         )}
 
+        {/* Word Search */}
         {form.type === 'word_search' && (
-          <div className='space-y-6 rounded-md border p-4'>
+          <div className='space-y-6'>
             <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
-                <h4 className='text-sm font-semibold'>Daftar Kata</h4>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={() =>
-                    setForm((prev) => {
-                      if (prev.type !== 'word_search') return prev;
-                      return {
-                        ...prev,
-                        wordList: [...prev.wordList, ''],
-                      };
-                    })
-                  }
-                >
-                  <Plus className='w-4 h-4 mr-1' />
-                  Tambah
-                </Button>
-              </div>
-
+              <p className='text-sm font-semibold text-slate-700'>Daftar Kata</p>
               {form.wordList.map((word, index) => (
-                <div key={`word-${index}`} className='flex items-center gap-2'>
+                <div
+                  key={`word-${index}`}
+                  className='bg-slate-50 rounded-md p-2.5 flex items-center gap-2'
+                >
+                  <span className='text-xs text-slate-400 w-4 shrink-0'>
+                    {index + 1}
+                  </span>
                   <Input
                     value={word}
                     onChange={(e) => {
@@ -446,6 +466,20 @@ export const ActivityEditForm = ({
                   </Button>
                 </div>
               ))}
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() =>
+                  setForm((prev) => {
+                    if (prev.type !== 'word_search') return prev;
+                    return { ...prev, wordList: [...prev.wordList, ''] };
+                  })
+                }
+              >
+                <Plus className='w-4 h-4 mr-1' />
+                Tambah Kata
+              </Button>
             </div>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
@@ -504,147 +538,137 @@ export const ActivityEditForm = ({
           </div>
         )}
 
+        {/* True or False */}
         {form.type === 'true_or_false' && (
-          <div className='space-y-6 rounded-md border p-4'>
-            <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
-                <h4 className='text-sm font-semibold'>Pernyataan</h4>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={() => {
-                    setForm((prev) => {
-                      if (prev.type !== 'true_or_false') return prev;
-                      return {
-                        ...prev,
-                        statements: [
-                          ...prev.statements,
-                          {
-                            id: `tof_${Date.now()}_${prev.statements.length}`,
-                            text: '',
-                            correct: true,
-                          },
-                        ],
-                      };
-                    });
-                  }}
-                >
-                  <Plus className='w-4 h-4 mr-1' />
-                  Tambah
-                </Button>
-              </div>
-
-              {form.statements.map((statement, index) => (
-                <div
-                  key={statement.id || `statement-${index}`}
-                  className='space-y-2 rounded-md border p-3'
-                >
-                  <div className='flex items-start gap-2'>
-                    <Input
-                      value={statement.text}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setForm((prev) => {
-                          if (prev.type !== 'true_or_false') return prev;
-                          const statements = [...prev.statements];
-                          statements[index] = {
-                            ...statements[index],
-                            text: value,
-                          };
-                          return { ...prev, statements };
-                        });
-                      }}
-                      placeholder={`Pernyataan ${index + 1}`}
-                    />
-                    <Button
-                      type='button'
-                      variant='outline'
-                      size='sm'
-                      onClick={() => {
-                        setForm((prev) => {
-                          if (prev.type !== 'true_or_false') return prev;
-                          if (prev.statements.length <= 1) return prev;
-                          const statements = prev.statements.filter(
-                            (_, i) => i !== index
-                          );
-                          return { ...prev, statements };
-                        });
-                      }}
-                      disabled={form.statements.length <= 1}
-                    >
-                      <Trash2 className='w-4 h-4' />
-                    </Button>
-                  </div>
-
-                  <label className='flex items-center gap-2 text-sm'>
-                    <Checkbox
-                      checked={statement.correct}
-                      onCheckedChange={(checked) => {
-                        setForm((prev) => {
-                          if (prev.type !== 'true_or_false') return prev;
-                          const statements = [...prev.statements];
-                          statements[index] = {
-                            ...statements[index],
-                            correct: checked === true,
-                          };
-                          return { ...prev, statements };
-                        });
-                      }}
-                    />
-                    Tandai sebagai Benar
-                  </label>
+          <div className='space-y-3'>
+            {form.statements.map((statement, index) => (
+              <div
+                key={statement.id || `statement-${index}`}
+                className='bg-slate-50 rounded-md p-3 space-y-3'
+              >
+                <div className='flex items-start gap-2'>
+                  <span className='text-xs text-slate-400 mt-2.5 w-4 shrink-0'>
+                    {index + 1}
+                  </span>
+                  <Input
+                    value={statement.text}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setForm((prev) => {
+                        if (prev.type !== 'true_or_false') return prev;
+                        const statements = [...prev.statements];
+                        statements[index] = {
+                          ...statements[index],
+                          text: value,
+                        };
+                        return { ...prev, statements };
+                      });
+                    }}
+                    placeholder={`Pernyataan ${index + 1}`}
+                  />
+                  <Button
+                    type='button'
+                    variant='outline'
+                    size='sm'
+                    onClick={() => {
+                      setForm((prev) => {
+                        if (prev.type !== 'true_or_false') return prev;
+                        if (prev.statements.length <= 1) return prev;
+                        const statements = prev.statements.filter(
+                          (_, i) => i !== index
+                        );
+                        return { ...prev, statements };
+                      });
+                    }}
+                    disabled={form.statements.length <= 1}
+                  >
+                    <Trash2 className='w-4 h-4' />
+                  </Button>
                 </div>
-              ))}
-            </div>
 
-            <div className='space-y-2'>
-              <label className='text-sm font-medium'>Mode Feedback</label>
-              <div className='flex gap-4'>
-                <label className='flex items-center gap-2 text-sm'>
-                  <input
-                    type='radio'
-                    checked={form.feedbackMode === 'immediate'}
-                    onChange={() =>
-                      setForm((prev) =>
-                        prev.type === 'true_or_false'
-                          ? { ...prev, feedbackMode: 'immediate' }
-                          : prev
-                      )
+                <div className='flex gap-2 pl-6'>
+                  <button
+                    type='button'
+                    onClick={() =>
+                      setForm((prev) => {
+                        if (prev.type !== 'true_or_false') return prev;
+                        const statements = [...prev.statements];
+                        statements[index] = {
+                          ...statements[index],
+                          correct: true,
+                        };
+                        return { ...prev, statements };
+                      })
                     }
-                  />
-                  Langsung
-                </label>
-                <label className='flex items-center gap-2 text-sm'>
-                  <input
-                    type='radio'
-                    checked={form.feedbackMode === 'end'}
-                    onChange={() =>
-                      setForm((prev) =>
-                        prev.type === 'true_or_false'
-                          ? { ...prev, feedbackMode: 'end' }
-                          : prev
-                      )
+                    className={cn(
+                      'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors',
+                      statement.correct === true
+                        ? 'bg-green-600 text-white border-green-600'
+                        : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+                    )}
+                  >
+                    Benar
+                  </button>
+                  <button
+                    type='button'
+                    onClick={() =>
+                      setForm((prev) => {
+                        if (prev.type !== 'true_or_false') return prev;
+                        const statements = [...prev.statements];
+                        statements[index] = {
+                          ...statements[index],
+                          correct: false,
+                        };
+                        return { ...prev, statements };
+                      })
                     }
-                  />
-                  Di Akhir
-                </label>
+                    className={cn(
+                      'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors',
+                      statement.correct === false
+                        ? 'bg-red-600 text-white border-red-600'
+                        : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+                    )}
+                  >
+                    Salah
+                  </button>
+                </div>
               </div>
-            </div>
+            ))}
+
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={() => {
+                setForm((prev) => {
+                  if (prev.type !== 'true_or_false') return prev;
+                  return {
+                    ...prev,
+                    statements: [
+                      ...prev.statements,
+                      {
+                        id: `tof_${Date.now()}_${prev.statements.length}`,
+                        text: '',
+                        correct: true,
+                      },
+                    ],
+                  };
+                });
+              }}
+            >
+              <Plus className='w-4 h-4 mr-1' />
+              Tambah Pernyataan
+            </Button>
           </div>
         )}
+      </section>
 
-        <div className='flex items-center gap-3'>
-          <Button type='button' onClick={onSave} disabled={saving}>
-            {saving && <Loader2 className='w-4 h-4 mr-2 animate-spin' />}
-            Simpan Perubahan
-          </Button>
-          {saved && (
-            <span className='text-sm text-green-600 font-medium'>
-              Tersimpan!
-            </span>
-          )}
-        </div>
+      {/* Save button */}
+      <div className='flex items-center gap-3'>
+        <Button type='button' onClick={onSave} disabled={saving}>
+          {saving && <Loader2 className='w-4 h-4 mr-2 animate-spin' />}
+          Simpan Perubahan
+        </Button>
       </div>
     </div>
   );

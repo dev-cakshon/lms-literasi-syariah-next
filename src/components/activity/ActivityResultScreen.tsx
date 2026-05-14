@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -13,6 +14,21 @@ import { useAuth } from '@/contexts/AuthContext';
 
 import type { Badge, Certificate, SubmitActivityResponse } from '@/types';
 import { BADGE_IDS } from '@/types';
+
+function useCountUp(target: number, duration = 800): number {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let start: number | null = null;
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      setCount(Math.floor(progress * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration]);
+  return count;
+}
 
 interface ActivityResultScreenProps {
   result: SubmitActivityResponse;
@@ -30,6 +46,8 @@ export const ActivityResultScreen = ({
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [showCertModal, setShowCertModal] = useState(false);
+
+  const displayCount = useCountUp(result.score);
 
   const awardedBadges = useMemo<Badge[]>(() => {
     const validBadges = new Set<string>(BADGE_IDS);
@@ -82,40 +100,77 @@ export const ActivityResultScreen = ({
       )}
 
       <div className='min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-8'>
-        <div className='w-full max-w-xl rounded-2xl border bg-white p-8 shadow-sm'>
-          <div className='text-center'>
-            <p className='text-sm font-medium uppercase tracking-wide text-muted-foreground'>
+        <div className='w-full max-w-xl shadow-sm'>
+          {/* Header zone */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className='rounded-t-2xl px-8 py-10 text-center'
+            style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
+          >
+            <p className='text-xs font-bold uppercase tracking-[1.2px] text-white/50'>
               Hasil Aktivitas
             </p>
-            <h1 className='mt-3 text-5xl font-bold text-slate-900'>
-              {result.score} / {result.totalItems}
+            <h1 className='mt-3 text-6xl font-bold text-white'>
+              {displayCount} / {result.totalItems}
             </h1>
-            <p className='mt-2 text-lg font-medium text-slate-600'>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+              className='mt-2 text-lg font-semibold text-white/70'
+            >
               {result.scorePercent}%
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          {result.pointsEarned > 0 && (
-            <div className='mt-6 rounded-lg border border-green-200 bg-green-50 p-3 text-center text-green-800'>
-              Kamu mendapat +{result.pointsEarned} poin! 🎉
+          {/* Body zone */}
+          <div className='rounded-b-2xl border border-t-0 bg-white px-8 py-6 space-y-4'>
+            {result.pointsEarned > 0 && (
+              <motion.div
+                initial={{ y: 12, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className='flex justify-center'
+              >
+                <span
+                  className='rounded-full px-4 py-1.5 text-sm font-bold'
+                  style={{
+                    background: 'rgba(144,210,109,0.2)',
+                    border: '1px solid rgba(144,210,109,0.35)',
+                    color: '#174339',
+                  }}
+                >
+                  ⚡ +{result.pointsEarned} XP
+                </span>
+              </motion.div>
+            )}
+
+            {isPerfectScore && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1, type: 'spring', stiffness: 300 }}
+                className='flex justify-center'
+              >
+                <span className='rounded-full bg-yellow-100 px-3 py-1 text-sm font-semibold text-yellow-800'>
+                  Sempurna! ⭐
+                </span>
+              </motion.div>
+            )}
+
+            <div className='flex flex-col gap-3 sm:flex-row sm:justify-center pt-2'>
+              <Button variant='outline' onClick={onRetry}>
+                Coba Lagi
+              </Button>
+              <Button
+                onClick={() => router.push(`/course/${courseId}`)}
+                style={{ background: 'linear-gradient(160deg, #174339, #1e5548)' }}
+                className='text-white hover:opacity-90'
+              >
+                Kembali ke Kursus
+              </Button>
             </div>
-          )}
-
-          {isPerfectScore && (
-            <div className='mt-4 flex justify-center'>
-              <span className='inline-flex rounded-full bg-yellow-100 px-3 py-1 text-sm font-semibold text-yellow-800'>
-                Sempurna! ⭐
-              </span>
-            </div>
-          )}
-
-          <div className='mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center'>
-            <Button variant='outline' onClick={onRetry}>
-              Coba Lagi
-            </Button>
-            <Button onClick={() => router.push(`/course/${courseId}`)}>
-              Kembali ke Kursus
-            </Button>
           </div>
         </div>
       </div>
