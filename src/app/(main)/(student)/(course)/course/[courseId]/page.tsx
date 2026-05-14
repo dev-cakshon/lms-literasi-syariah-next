@@ -116,7 +116,7 @@ export default function CourseIdPage({
         />
       )}
       <div className='mx-auto w-full max-w-5xl space-y-6 p-4 md:p-8'>
-        <section className='rounded-[var(--radius-card)] border bg-white p-6 shadow-[var(--shadow-elevated-1)]'>
+        <section className='rounded-(--radius-card) border bg-white p-6 shadow-(--shadow-elevated-1)'>
           <h1 className='font-display text-3xl font-bold text-slate-900 tracking-tight md:text-4xl'>
             {course.title}
           </h1>

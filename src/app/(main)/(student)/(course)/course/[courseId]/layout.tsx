@@ -93,7 +93,7 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
         <div className='hidden md:flex w-80 flex-col fixed top-20 bottom-0 z-50 bg-white'>
           <CourseSidebar course={course} contentItems={contentItems} />
         </div>
-        <main className='md:pl-80 pt-20 h-full'>{children}</main>
+        <main className='md:pl-80 pt-20 h-full bg-forest-bg'>{children}</main>
       </CourseLayoutContext.Provider>
     </div>
   );
