@@ -1,6 +1,5 @@
 export const siteConfig = {
-  title: 'EaSyairah - LMS Literasi Syariah',
-  description: 'A learning management system for Literasi Syariah courses.',
-  /** Without additional '/' on the end, e.g. https://theodorusclarence.com */
-  url: 'https://easysyariah.vercel.app',
+  title: 'Eduloca - Platform Belajar Syariah',
+  description: 'Platform belajar syariah yang interaktif dan tergamifikasi.',
+  url: 'https://eduloca.algoritme.tech',
 };

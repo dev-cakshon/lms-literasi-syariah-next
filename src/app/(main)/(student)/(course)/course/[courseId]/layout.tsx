@@ -84,22 +84,16 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
   return (
     <div className='h-full'>
       <CourseLayoutContext.Provider
-        value={{ contentItems, refreshContentItems }}
+        value={{ contentItems, refreshContentItems, courseTitle: course.title }}
       >
-        <div className='h-[80px] md:pl-80 fixed inset-y-0 w-full z-50'>
-          <CourseNavbar
-          // course={course}
-          // chapters={chapters.map(ch => ({
-          //     ...ch,
-          //     isCompleted: completedChapterIds.has(ch._id)
-          // }))}
-          />
+        <div className='h-20 fixed inset-y-0 w-full z-50'>
+          <CourseNavbar courseId={courseId} />
         </div>
 
-        <div className='hidden md:flex h-full w-80 flex-col fixed inset-y-0 z-50'>
+        <div className='hidden md:flex w-80 flex-col fixed top-20 bottom-0 z-50 bg-white'>
           <CourseSidebar course={course} contentItems={contentItems} />
         </div>
-        <main className='md:pl-80 h-full pt-[80px]'>{children}</main>
+        <main className='md:pl-80 pt-20 h-full'>{children}</main>
       </CourseLayoutContext.Provider>
     </div>
   );

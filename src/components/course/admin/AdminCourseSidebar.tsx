@@ -13,7 +13,8 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useCallback, useContext, useEffect, useState } from 'react';
 
 import {
   ApiError,
@@ -30,21 +31,22 @@ import { Badge } from '@/components/ui/badge';
 
 import type { Course, CourseContentItem } from '@/types';
 
+import { AdminCourseLayoutContext } from '@/app/(main)/admin/course/[courseId]/AdminCourseLayoutContext';
+
 interface AdminCourseSidebarProps {
+  courseId: string;
   course: Course;
   contentItems: CourseContentItem[];
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-  onContentChanged: () => void;
 }
 
 export const AdminCourseSidebar = ({
+  courseId,
   course,
   contentItems,
-  activeTab,
-  onTabChange,
-  onContentChanged,
 }: AdminCourseSidebarProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { refreshContentItems } = useContext(AdminCourseLayoutContext);
   const [localItems, setLocalItems] = useState<CourseContentItem[]>(contentItems);
   const [adding, setAdding] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -71,8 +73,8 @@ export const AdminCourseSidebar = ({
         mediaUrl: '',
         order: nextOrder,
       });
-      onContentChanged();
-      onTabChange(`chapter:${newChapter.id}`);
+      refreshContentItems();
+      router.push(`/admin/course/${courseId}/chapter/${newChapter.id}?edit=true`);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -89,10 +91,10 @@ export const AdminCourseSidebar = ({
     try {
       setError(null);
       await deleteChapter(course.id, chapterId);
-      if (activeTab === `chapter:${chapterId}` || activeTab === chapterId) {
-        onTabChange('info');
+      refreshContentItems();
+      if (pathname.includes(`/chapter/${chapterId}`)) {
+        router.push(`/admin/course/${courseId}`);
       }
-      onContentChanged();
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -107,10 +109,10 @@ export const AdminCourseSidebar = ({
     try {
       setError(null);
       await deleteActivity(course.id, activityId);
-      if (activeTab === `activity:${activityId}`) {
-        onTabChange('info');
+      refreshContentItems();
+      if (pathname.includes(activityId)) {
+        router.push(`/admin/course/${courseId}`);
       }
-      onContentChanged();
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -119,6 +121,31 @@ export const AdminCourseSidebar = ({
       }
     }
   };
+
+  const handleItemClick = useCallback(
+    (item: CourseContentItem) => {
+      if (item.itemType === 'chapter') {
+        router.push(`/admin/course/${courseId}/chapter/${item.id}`);
+      } else {
+        switch (item.type) {
+          case 'drag_drop':
+            router.push(`/admin/course/${courseId}/drag-drop/${item.id}`);
+            break;
+          case 'word_search':
+            router.push(
+              `/admin/course/${courseId}/activity/${item.id}/word-search`,
+            );
+            break;
+          case 'true_or_false':
+            router.push(
+              `/admin/course/${courseId}/activity/${item.id}/true-or-false`,
+            );
+            break;
+        }
+      }
+    },
+    [courseId, router],
+  );
 
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
@@ -156,7 +183,7 @@ export const AdminCourseSidebar = ({
           return updateActivity(course.id, item.id, { position: nextPosition });
         }),
       );
-      onContentChanged();
+      refreshContentItems();
     } catch (err) {
       setLocalItems(snapshot);
       if (err instanceof ApiError) {
@@ -182,12 +209,12 @@ export const AdminCourseSidebar = ({
         {error && <p className='text-sm text-red-600'>{error}</p>}
       </div>
 
-      {/* Info tab */}
+      {/* Info Kursus tab */}
       <button
-        onClick={() => onTabChange('info')}
+        onClick={() => router.push(`/admin/course/${courseId}`)}
         className={cn(
           'flex items-center gap-x-2 text-sm font-medium pl-6 pr-4 py-4 transition-all hover:bg-slate-100 text-slate-600',
-          activeTab === 'info' &&
+          pathname === `/admin/course/${courseId}` &&
             'bg-primary-50 text-primary-700 border-r-2 border-primary-700',
         )}
       >
@@ -204,77 +231,82 @@ export const AdminCourseSidebar = ({
               {...provided.droppableProps}
               className='flex flex-col'
             >
-              {localItems.map((item, index) => (
-                <Draggable
-                  key={`${item.itemType}:${item.id}`}
-                  draggableId={`${item.itemType}:${item.id}`}
-                  index={index}
-                >
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      className={cn(
-                        'flex items-center text-sm text-slate-600 transition-all hover:bg-slate-100 group',
-                        activeTab === `${item.itemType}:${item.id}` &&
-                          'bg-primary-50 text-primary-700 border-r-2 border-primary-700',
-                        snapshot.isDragging && 'bg-slate-200 shadow-md',
-                      )}
-                    >
-                      {/* Drag handle */}
+              {localItems.map((item, index) => {
+                const isActive =
+                  item.itemType === 'chapter'
+                    ? pathname.includes(`/chapter/${item.id}`)
+                    : pathname.includes(item.id);
+
+                return (
+                  <Draggable
+                    key={`${item.itemType}:${item.id}`}
+                    draggableId={`${item.itemType}:${item.id}`}
+                    index={index}
+                  >
+                    {(provided, snapshot) => (
                       <div
-                        {...provided.dragHandleProps}
-                        className='pl-2 py-4 cursor-grab active:cursor-grabbing'
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={cn(
+                          'flex items-center text-sm text-slate-600 transition-all hover:bg-slate-100 group',
+                          isActive &&
+                            'bg-primary-50 text-primary-700 border-r-2 border-primary-700',
+                          snapshot.isDragging && 'bg-slate-200 shadow-md',
+                        )}
                       >
-                        <GripVertical size={16} className='text-slate-400' />
+                        {/* Drag handle */}
+                        <div
+                          {...provided.dragHandleProps}
+                          className='pl-2 py-4 cursor-grab active:cursor-grabbing'
+                        >
+                          <GripVertical size={16} className='text-slate-400' />
+                        </div>
+
+                        {/* Item label */}
+                        <button
+                          onClick={() => handleItemClick(item)}
+                          className='flex-1 text-left py-4 pl-1 pr-2 font-medium truncate'
+                        >
+                          {item.title}
+                        </button>
+
+                        {/* Delete button */}
+                        {item.itemType === 'chapter' && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void handleDeleteChapter(item.id);
+                            }}
+                            className='p-2 mr-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition'
+                            title='Hapus bab'
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                        {item.itemType === 'activity' && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void handleDeleteActivity(item.id);
+                            }}
+                            className='p-2 mr-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition'
+                            title='Hapus aktivitas'
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
-
-                      {/* Chapter label */}
-                      <button
-                        onClick={() =>
-                          onTabChange(`${item.itemType}:${item.id}`)
-                        }
-                        className='flex-1 text-left py-4 pl-1 pr-2 font-medium truncate'
-                      >
-                        {item.title}
-                      </button>
-
-                      {/* Delete button */}
-                      {item.itemType === 'chapter' && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteChapter(item.id);
-                          }}
-                          className='p-2 mr-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition'
-                          title='Hapus bab'
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                      {item.itemType === 'activity' && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            void handleDeleteActivity(item.id);
-                          }}
-                          className='p-2 mr-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition'
-                          title='Hapus aktivitas'
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </Draggable>
-              ))}
+                    )}
+                  </Draggable>
+                );
+              })}
               {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
 
-      {/* Add chapter button */}
+      {/* Add content button */}
       <div className='relative'>
         <button
           onClick={() => setIsDropdownOpen((prev) => !prev)}
@@ -322,7 +354,7 @@ export const AdminCourseSidebar = ({
         isOpen={isActivityModalOpen}
         onClose={() => setIsActivityModalOpen(false)}
         courseId={course.id}
-        onActivityCreated={onContentChanged}
+        onActivityCreated={refreshContentItems}
       />
     </div>
   );

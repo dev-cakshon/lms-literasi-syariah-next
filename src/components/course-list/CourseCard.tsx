@@ -21,6 +21,7 @@ interface CourseCardProps {
   points?: number;
   originalPoints?: number;
   progress?: number;
+  accent?: 'green' | 'orange';
   editUrl?: string;
   actions?: React.ReactNode;
 }
@@ -36,6 +37,8 @@ export const CourseCard = ({
   author,
   points,
   originalPoints,
+  progress,
+  accent = 'green',
   editUrl,
   actions,
 }: CourseCardProps) => {
@@ -45,8 +48,29 @@ export const CourseCard = ({
   const href = editUrl || `/course/${id}`;
   const showImage = normalizedImageUrl && !imgError;
 
+  const labelChip =
+    progress !== undefined && progress > 0 ? (
+      <span
+        className={cn(
+          'absolute top-2 right-2 text-[10px] font-bold px-2 py-1 rounded-full',
+          progress === 100
+            ? 'bg-primary-600 text-white'
+            : accent === 'orange'
+              ? ''
+              : 'bg-primary-100 text-primary-700',
+        )}
+        style={
+          progress !== 100 && accent === 'orange'
+            ? { background: 'rgba(255,152,0,0.15)', color: '#e67e00' }
+            : undefined
+        }
+      >
+        {progress === 100 ? '✅ Selesai' : 'Sedang Berjalan'}
+      </span>
+    ) : null;
+
   return (
-    <div className='bg-white group shadow-[var(--shadow-elevated-1)] hover:shadow-[var(--shadow-elevated-2)] transition-shadow overflow-hidden border rounded-[var(--radius-card)] h-full flex flex-col'>
+    <div className='bg-white group shadow-[0_1px_3px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-[shadow,transform] overflow-hidden rounded-[var(--radius-card)] h-full flex flex-col'>
       <Link href={href} className='flex flex-col flex-1'>
         {/* Thumbnail */}
         {showImage ? (
@@ -58,10 +82,12 @@ export const CourseCard = ({
               src={normalizedImageUrl}
               onError={() => setImgError(true)}
             />
+            {labelChip}
           </div>
         ) : (
           <div className='relative w-full aspect-video overflow-hidden bg-slate-200 flex items-center justify-center'>
             <BookOpen className='h-10 w-10 text-slate-400' />
+            {labelChip}
           </div>
         )}
 
@@ -132,6 +158,33 @@ export const CourseCard = ({
           </div>
         </div>
       </Link>
+
+      {/* Progress bar + CTA — only when progress is provided (student view) */}
+      {progress !== undefined && (
+        <div className='px-4 pb-4 space-y-2'>
+          <div className='flex items-center justify-between text-xs text-gray-500'>
+            <span>
+              {progress === 0
+                ? 'Belum dimulai'
+                : progress === 100
+                  ? '✅ Selesai'
+                  : 'Progres'}
+            </span>
+            <span>{progress}%</span>
+          </div>
+          <div className='h-1.5 bg-primary-100 rounded-full overflow-hidden'>
+            <div
+              className={cn('h-full', accent !== 'orange' && 'bg-gradient-to-r from-primary-600 to-lime')}
+              style={
+                accent === 'orange'
+                  ? { background: 'linear-gradient(90deg, #e67e00, #FF9800)', width: `${progress}%` }
+                  : { width: `${progress}%` }
+              }
+            />
+          </div>
+        </div>
+      )}
+
       {actions && <div className='border-t border-gray-100'>{actions}</div>}
     </div>
   );

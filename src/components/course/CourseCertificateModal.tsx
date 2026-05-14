@@ -207,7 +207,7 @@ export default function CourseCertificateModal({
                   color: '#166534',
                 }}
               >
-                LMS Literasi Syariah
+                Eduloca
               </div>
 
               {/* Completion date (right-aligned relative to the right edge) */}

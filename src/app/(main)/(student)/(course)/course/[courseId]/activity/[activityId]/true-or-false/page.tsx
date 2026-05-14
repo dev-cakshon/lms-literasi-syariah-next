@@ -2,12 +2,14 @@
 
 import { useContext, useEffect, useMemo, useState } from 'react';
 
+import { motion } from 'framer-motion';
+
 import { getStudentActivity, submitActivity } from '@/lib/api';
 
 import { ActivityResultScreen } from '@/components/activity/ActivityResultScreen';
 import { Button } from '@/components/ui/button';
 
-import { CourseLayoutContext } from '@/app/(course)/course/[courseId]/CourseLayoutContext';
+import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
 
 import type {
   StudentActivity,
@@ -79,6 +81,9 @@ export default function TrueOrFalseActivityPage({
     void fetchActivity();
   }, [courseId, activityId]);
 
+  const answeredCount = Object.keys(answers).length;
+  const total = activity?.statements.length ?? 0;
+
   const isAllAnswered = useMemo(() => {
     if (!activity) return false;
     return activity.statements.every((statement, index) => {
@@ -88,6 +93,7 @@ export default function TrueOrFalseActivityPage({
   }, [activity, answers]);
 
   const setStatementAnswer = (statementId: string, value: boolean) => {
+    if (answers[statementId] !== undefined) return;
     setAnswers((prev) => ({ ...prev, [statementId]: value }));
   };
 
@@ -147,32 +153,75 @@ export default function TrueOrFalseActivityPage({
   }
 
   return (
-    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 space-y-6'>
-      <div>
-        <h1 className='text-2xl font-semibold text-slate-900'>
-          {activity.title}
-        </h1>
-        <p className='text-sm text-slate-600 mt-1'>
-          Pilih benar atau salah untuk setiap pernyataan.
-        </p>
-      </div>
+    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 pb-24 space-y-6'>
+      {/* Header card */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className='relative overflow-hidden rounded-2xl px-5 py-5'
+        style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
+      >
+        <div
+          aria-hidden
+          className='absolute -top-6 -right-6 w-28 h-28 rounded-full pointer-events-none'
+          style={{ background: 'rgba(144,210,109,0.08)' }}
+        />
+        <div
+          aria-hidden
+          className='absolute -bottom-8 -left-4 w-20 h-20 rounded-full pointer-events-none'
+          style={{ background: 'rgba(144,210,109,0.08)' }}
+        />
 
+        <div className='relative z-10 flex items-start gap-3'>
+          <span className='rounded-xl bg-white/10 p-2 text-2xl leading-none select-none'>
+            ✅
+          </span>
+          <div className='flex-1 min-w-0'>
+            <p className='text-xs font-bold uppercase tracking-wide text-white/60 mb-0.5'>
+              True/False
+            </p>
+            <h1 className='font-bold text-white text-xl leading-snug mb-2'>
+              {activity.title}
+            </h1>
+            <div
+              className='inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold'
+              style={{
+                background: 'rgba(144,210,109,0.2)',
+                border: '1px solid rgba(144,210,109,0.35)',
+                color: '#d9edbf',
+              }}
+            >
+              ⚡ Hingga {activity.maxPoints} XP
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Statement cards — selection-lock path (isTrue not available in student type) */}
       <div className='rounded-lg border bg-white p-4 md:p-6 space-y-4'>
         {activity.statements.map((statement, index) => {
           const answerKey = getStatementKey(statement.id, index);
+          const isLocked = answers[answerKey] !== undefined;
+          const chosen = answers[answerKey];
 
           return (
-            <div key={answerKey} className='rounded-md border p-3 space-y-2'>
+            <div
+              key={answerKey}
+              className={`rounded-md border p-3 space-y-2 transition-colors ${
+                isLocked ? 'bg-slate-50' : 'bg-white'
+              }`}
+            >
               <p className='text-sm font-medium text-slate-800'>
                 {statement.text}
               </p>
               <div className='flex gap-2'>
                 <Button
-                  variant={answers[answerKey] === true ? 'default' : 'outline'}
+                  variant={chosen === true ? 'default' : 'outline'}
                   size='sm'
                   onClick={() => setStatementAnswer(answerKey, true)}
+                  disabled={isLocked}
                   className={
-                    answers[answerKey] === true
+                    chosen === true
                       ? 'border-green-600 bg-green-600 hover:bg-green-700 text-white'
                       : 'text-slate-700 border-slate-300 hover:bg-slate-50'
                   }
@@ -180,11 +229,12 @@ export default function TrueOrFalseActivityPage({
                   Benar
                 </Button>
                 <Button
-                  variant={answers[answerKey] === false ? 'default' : 'outline'}
+                  variant={chosen === false ? 'default' : 'outline'}
                   size='sm'
                   onClick={() => setStatementAnswer(answerKey, false)}
+                  disabled={isLocked}
                   className={
-                    answers[answerKey] === false
+                    chosen === false
                       ? 'border-red-600 bg-red-600 hover:bg-red-700 text-white'
                       : 'text-slate-700 border-slate-300 hover:bg-slate-50'
                   }
@@ -197,10 +247,23 @@ export default function TrueOrFalseActivityPage({
         })}
       </div>
 
-      <div className='flex justify-end'>
-        <Button onClick={onSubmit} disabled={!isAllAnswered || submitting}>
-          Kirim Jawaban
-        </Button>
+      {/* Sticky bottom bar */}
+      <div
+        className='sticky bottom-3 z-10 flex items-center justify-between rounded-xl p-3'
+        style={{ background: 'linear-gradient(160deg, #174339, #1e5548)' }}
+      >
+        <span className='text-xs text-white/80 font-medium'>
+          {answeredCount} / {total} dijawab
+        </span>
+        {isAllAnswered && (
+          <Button
+            onClick={onSubmit}
+            disabled={submitting}
+            className='bg-white text-[#174339] hover:bg-white/90 font-semibold text-sm px-4 h-8'
+          >
+            {submitting ? 'Mengirim...' : 'Kirim Jawaban'}
+          </Button>
+        )}
       </div>
     </div>
   );

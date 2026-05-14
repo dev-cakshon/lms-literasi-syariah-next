@@ -154,7 +154,7 @@ export default function CertificateViewModal({ certificate, onClose }: Props) {
               color: '#166534',
             }}
           >
-            LMS Literasi Syariah
+            Eduloca
           </div>
 
           {/* Completion date (right-aligned relative to the right edge) */}

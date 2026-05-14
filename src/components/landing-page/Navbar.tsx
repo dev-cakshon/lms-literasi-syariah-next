@@ -3,6 +3,7 @@
 import { Menu, X } from 'lucide-react';
 import * as React from 'react';
 
+import { Logo } from '@/components/Logo';
 import ButtonLink from '../links/ButtonLink';
 import UnstyledLink from '../links/UnstyledLink';
 
@@ -14,7 +15,7 @@ export const Navbar = () => {
       <nav className='layout flex items-center justify-between py-4'>
         {/* Logo */}
         <div className='flex items-center'>
-          <h1>EaSyariah</h1>
+          <Logo logotype='textless' theme='light' size='sm' />
         </div>
 
         {/* Desktop Navigation */}

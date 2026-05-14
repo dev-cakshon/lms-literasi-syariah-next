@@ -5,9 +5,11 @@ import type { CourseContentItem } from '@/types';
 export type CourseLayoutContextType = {
   contentItems: CourseContentItem[];
   refreshContentItems: () => void;
+  courseTitle: string;
 };
 
 export const CourseLayoutContext = createContext<CourseLayoutContextType>({
   contentItems: [],
   refreshContentItems: () => undefined,
+  courseTitle: '',
 });

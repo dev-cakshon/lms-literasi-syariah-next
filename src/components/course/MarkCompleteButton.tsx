@@ -8,10 +8,10 @@ import { ApiError, issueCertificate, markChapterComplete } from '@/lib/api';
 import { useCourseProgress } from '@/hooks/use-realtime';
 
 import CourseCertificateModal from '@/components/course/CourseCertificateModal';
-import { BadgeAwardModal, PointsToast } from '@/components/gamification';
+import { BadgeAwardModal } from '@/components/gamification';
 import { Button } from '@/components/ui/button';
 
-import { CourseLayoutContext } from '@/app/(course)/course/[courseId]/CourseLayoutContext';
+import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
 import { useAuth } from '@/contexts/AuthContext';
 
 import type { Badge, Certificate } from '@/types';
@@ -19,17 +19,24 @@ import type { Badge, Certificate } from '@/types';
 interface MarkCompleteButtonProps {
   courseId: string;
   chapterId: string;
+  onComplete: (points: number) => void;
+  className?: string;
+  label?: string;
+  style?: React.CSSProperties;
 }
 
 export const MarkCompleteButton = ({
   courseId,
   chapterId,
+  onComplete,
+  className,
+  label,
+  style,
 }: MarkCompleteButtonProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const { user, refreshProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [toastPoints, setToastPoints] = useState(0);
   const [awardedBadges, setAwardedBadges] = useState<Badge[]>([]);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
   const [certificate, setCertificate] = useState<Certificate | null>(null);
@@ -42,7 +49,6 @@ export const MarkCompleteButton = ({
 
   useEffect(() => {
     setIsLoading(false);
-    setToastPoints(0);
   }, [pathname, courseId, chapterId]);
 
   const handleMarkComplete = async () => {
@@ -59,7 +65,7 @@ export const MarkCompleteButton = ({
         result.badges ?? result.earnedBadges?.map((badge) => badge.id) ?? [];
 
       if (awarded > 0) {
-        setToastPoints(awarded);
+        onComplete(awarded);
       }
 
       if (badges.length > 0) {
@@ -141,20 +147,19 @@ export const MarkCompleteButton = ({
 
   return (
     <>
-      <PointsToast points={toastPoints} isOpen={toastPoints > 0} />
       <BadgeAwardModal
         isOpen={showBadgeModal}
         badges={awardedBadges}
         onClose={() => setShowBadgeModal(false)}
       />
-      <Button onClick={handleMarkComplete} disabled={isLoading}>
+      <Button onClick={handleMarkComplete} disabled={isLoading} className={className} style={style}>
         {isLoading ? (
           <>
             <Loader2 className='animate-spin h-4 w-4 mr-2' />
             Loading...
           </>
         ) : (
-          'Mark as Complete'
+          label ?? 'Mark as Complete'
         )}
       </Button>
     </>

@@ -4,7 +4,7 @@ import { LogOut, Menu, User, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { Logo } from '@/components/sidebar/Logo';
+import { Logo } from '@/components/Logo';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +32,7 @@ export const Navbar = () => {
         <div className='flex h-16 items-center justify-between'>
           {/* Logo */}
           <div className='shrink-0'>
-            <Logo />
+            <Logo logotype='textless' theme='light' size='sm' />
           </div>
 
           {/* Desktop Navigation */}

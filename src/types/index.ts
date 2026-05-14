@@ -56,6 +56,7 @@ export interface Course {
   thumbnailUrl?: string;
   imageUrl?: string;
   totalChapters?: number;
+  totalActivities?: number;
   isPublished?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -225,6 +226,7 @@ export interface CourseContentChapterItem {
   position: number;
   locked: boolean;
   completed: boolean;
+  isPublished?: boolean;
 }
 
 export interface CourseContentActivityItem {
