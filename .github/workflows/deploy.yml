@@ -53,6 +53,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          port: 9735
           script: |
             docker compose -f /home/eduloca/web-lms/docker-compose.yml pull
             docker compose -f /home/eduloca/web-lms/docker-compose.yml up -d
