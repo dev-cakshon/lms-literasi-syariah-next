@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
 
 @theme {
   /* Fonts — reference CSS vars injected by next/font/google on <html> */
