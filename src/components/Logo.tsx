@@ -12,29 +12,21 @@ const sizes = {
   lg: { px: 80, textClass: 'text-4xl' },
 };
 
-export const Logo = ({ logotype = 'textless', theme = 'light', size = 'md' }: LogoProps) => {
+export const Logo = ({
+  logotype = 'textless',
+  theme = 'light',
+  size = 'md',
+}: LogoProps) => {
   const src = `/svg/logo${theme}${logotype}.svg`;
   const { px, textClass } = sizes[size];
 
   if (logotype === 'text') {
-    return (
-      <Image
-        src={src}
-        alt='Eduloca'
-        width={px}
-        height={px}
-      />
-    );
+    return <Image src={src} alt='Eduloca' width={px} height={px} />;
   }
 
   return (
     <div className='flex items-center gap-2'>
-      <Image
-        src={src}
-        alt='Eduloca logo'
-        width={px}
-        height={px}
-      />
+      <Image src={src} alt='Eduloca logo' width={px} height={px} />
       <span
         className={`font-bold ${textClass} ${theme === 'dark' ? 'text-white' : 'text-green-800'}`}
       >

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useContext } from 'react';
 
+import { getChapterOrdinal } from '@/lib/courseUtils';
+
 import { Logo } from '@/components/Logo';
 import {
   DropdownMenu,
@@ -12,8 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
 import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
-import { getChapterOrdinal } from '@/lib/courseUtils';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface CourseNavbarProps {
@@ -120,7 +122,10 @@ export const CourseNavbar = ({ courseId }: CourseNavbarProps) => {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end' className='w-44'>
-            <DropdownMenuItem onClick={handleSignOut} className='cursor-pointer'>
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className='cursor-pointer'
+            >
               <LogOut className='w-4 h-4 mr-2' />
               Keluar
             </DropdownMenuItem>

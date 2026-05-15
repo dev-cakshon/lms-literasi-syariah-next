@@ -20,10 +20,22 @@ const ACTIVITY_CONFIG: Record<
   string,
   { icon: string; tagClass: string; label: string }
 > = {
-  drag_drop:     { icon: '🎯', tagClass: 'bg-amber-100 text-amber-700',  label: 'Drag & Drop' },
-  word_search:   { icon: '🔍', tagClass: 'bg-sky-100 text-sky-700',      label: 'Word Search' },
-  true_or_false: { icon: '✅', tagClass: 'bg-violet-100 text-violet-700', label: 'True/False'  },
-  quiz:          { icon: '📝', tagClass: 'bg-slate-100 text-slate-600',   label: 'Kuis'        },
+  drag_drop: {
+    icon: '🎯',
+    tagClass: 'bg-amber-100 text-amber-700',
+    label: 'Drag & Drop',
+  },
+  word_search: {
+    icon: '🔍',
+    tagClass: 'bg-sky-100 text-sky-700',
+    label: 'Word Search',
+  },
+  true_or_false: {
+    icon: '✅',
+    tagClass: 'bg-violet-100 text-violet-700',
+    label: 'True/False',
+  },
+  quiz: { icon: '📝', tagClass: 'bg-slate-100 text-slate-600', label: 'Kuis' },
 };
 
 export const CourseSidebarItem = ({
@@ -41,14 +53,19 @@ export const CourseSidebarItem = ({
 
   const isActive = Boolean(pathname?.includes(id));
   const isChapter = type === 'chapter';
-  const actConfig = !isChapter ? (ACTIVITY_CONFIG[type] ?? ACTIVITY_CONFIG['quiz']) : null;
+  const actConfig = !isChapter
+    ? (ACTIVITY_CONFIG[type] ?? ACTIVITY_CONFIG['quiz'])
+    : null;
 
   const onClick = () => {
     if (isLocked) return;
     if (type === 'quiz') router.push(`/course/${courseId}/quiz/${id}`);
-    else if (type === 'drag_drop') router.push(`/course/${courseId}/drag-drop/${id}`);
-    else if (type === 'word_search') router.push(`/course/${courseId}/activity/${id}/word-search`);
-    else if (type === 'true_or_false') router.push(`/course/${courseId}/activity/${id}/true-or-false`);
+    else if (type === 'drag_drop')
+      router.push(`/course/${courseId}/drag-drop/${id}`);
+    else if (type === 'word_search')
+      router.push(`/course/${courseId}/activity/${id}/word-search`);
+    else if (type === 'true_or_false')
+      router.push(`/course/${courseId}/activity/${id}/true-or-false`);
     else router.push(`/course/${courseId}/chapter/${id}`);
   };
 
@@ -61,10 +78,10 @@ export const CourseSidebarItem = ({
         isLocked
           ? 'opacity-50 cursor-not-allowed border-l-transparent'
           : isActive
-          ? 'bg-primary-50 border-l-primary-700'
-          : isCompleted
-          ? 'border-l-primary-400 hover:bg-primary-50/40'
-          : 'border-l-transparent hover:bg-slate-50',
+            ? 'bg-primary-50 border-l-primary-700'
+            : isCompleted
+              ? 'border-l-primary-400 hover:bg-primary-50/40'
+              : 'border-l-transparent hover:bg-slate-50',
       )}
     >
       {/* Icon */}
@@ -73,15 +90,27 @@ export const CourseSidebarItem = ({
           'w-8.5 h-8.5 flex items-center justify-center shrink-0 text-lg',
           isChapter ? 'rounded-lg' : 'rounded-xl',
           isLocked && 'grayscale opacity-60',
-          !isLocked && isChapter && (isActive ? 'bg-mint' : isCompleted ? 'bg-primary-50' : 'bg-slate-100'),
-          !isLocked && !isChapter && (isActive ? 'bg-sky-100' : isCompleted ? 'bg-emerald-50' : 'bg-slate-100'),
+          !isLocked &&
+            isChapter &&
+            (isActive
+              ? 'bg-mint'
+              : isCompleted
+                ? 'bg-primary-50'
+                : 'bg-slate-100'),
+          !isLocked &&
+            !isChapter &&
+            (isActive
+              ? 'bg-sky-100'
+              : isCompleted
+                ? 'bg-emerald-50'
+                : 'bg-slate-100'),
         )}
       >
         {isLocked
           ? '🔒'
           : isChapter
-          ? getChapterEmoji(position)
-          : (actConfig?.icon ?? '📝')}
+            ? getChapterEmoji(position)
+            : (actConfig?.icon ?? '📝')}
       </div>
 
       {/* Info */}
@@ -92,10 +121,10 @@ export const CourseSidebarItem = ({
             isLocked
               ? 'text-slate-400'
               : isActive
-              ? 'text-primary-700 font-bold'
-              : isCompleted
-              ? 'text-primary-600'
-              : 'text-slate-700',
+                ? 'text-primary-700 font-bold'
+                : isCompleted
+                  ? 'text-primary-600'
+                  : 'text-slate-700',
           )}
         >
           {label}

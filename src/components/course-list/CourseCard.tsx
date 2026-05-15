@@ -174,10 +174,17 @@ export const CourseCard = ({
           </div>
           <div className='h-1.5 bg-primary-100 rounded-full overflow-hidden'>
             <div
-              className={cn('h-full', accent !== 'orange' && 'bg-gradient-to-r from-primary-600 to-lime')}
+              className={cn(
+                'h-full',
+                accent !== 'orange' &&
+                  'bg-gradient-to-r from-primary-600 to-lime',
+              )}
               style={
                 accent === 'orange'
-                  ? { background: 'linear-gradient(90deg, #e67e00, #FF9800)', width: `${progress}%` }
+                  ? {
+                      background: 'linear-gradient(90deg, #e67e00, #FF9800)',
+                      width: `${progress}%`,
+                    }
                   : { width: `${progress}%` }
               }
             />

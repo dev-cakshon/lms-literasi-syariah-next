@@ -31,12 +31,26 @@ const turndown = new TurndownService({
   codeBlockStyle: 'fenced',
 });
 
+// Preserve blank paragraphs as &nbsp; so they survive the markdown round-trip.
+// Without this, TurndownService normalises consecutive blank lines away and
+// blank lines entered in the editor disappear after save-reload.
+turndown.addRule('emptyParagraph', {
+  filter: (node: HTMLElement) =>
+    node.nodeName === 'P' && (node.textContent ?? '').trim() === '',
+  replacement: () => '\n\n&nbsp;\n\n',
+});
+
 function markdownToHtml(md: string): string {
   return marked.parse(md, { async: false }) as string;
 }
 
 function htmlToMarkdown(html: string): string {
-  return turndown.turndown(html);
+  // Strip trailing blank-line markers produced by the emptyParagraph rule so
+  // documents don't accumulate a trailing &nbsp; on every save.
+  return turndown
+    .turndown(html)
+    .replace(/(\n\n&nbsp;\n*)+$/, '')
+    .trimEnd();
 }
 
 export const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
@@ -97,7 +111,7 @@ export const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
       title={title}
       className={cn(
         'p-1.5 rounded hover:bg-slate-200 transition',
-        isActive && 'bg-slate-200 text-primary-700'
+        isActive && 'bg-slate-200 text-primary-700',
       )}
     >
       {children}

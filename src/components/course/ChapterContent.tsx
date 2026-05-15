@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-
 import ReactMarkdown from 'react-markdown';
 
-import { useCourseProgress } from '@/hooks/use-realtime';
 import { getChapterEmoji } from '@/lib/courseUtils';
+import { useCourseProgress } from '@/hooks/use-realtime';
 
 import { PointsToast } from '@/components/gamification';
+
 import { MarkCompleteButton } from './MarkCompleteButton';
 import { SlidesPlayer } from './SlidesPlayer';
 import { YoutubePlayer } from './YoutubePlayer';
@@ -40,11 +40,12 @@ export const ChapterContent = ({
 
   return (
     <div className='max-w-3/4 mx-auto pb-16 px-4 md:px-6 space-y-4 pt-4'>
-
       {/* ① Chapter header card */}
       <div
         className='rounded-[14px] px-6 py-5 relative overflow-hidden'
-        style={{ background: 'linear-gradient(135deg, #174339 0%, #1e5548 100%)' }}
+        style={{
+          background: 'linear-gradient(135deg, #174339 0%, #1e5548 100%)',
+        }}
       >
         <div
           aria-hidden
@@ -146,7 +147,8 @@ export const ChapterContent = ({
                 Sudah paham materinya?
               </p>
               <p className='text-[12px] text-slate-500 mt-0.5 leading-relaxed'>
-                Tandai bab ini selesai untuk membuka konten berikutnya dan mendapatkan poin.
+                Tandai bab ini selesai untuk membuka konten berikutnya dan
+                mendapatkan poin.
               </p>
             </div>
           </div>
@@ -156,11 +158,14 @@ export const ChapterContent = ({
             onComplete={setToastPoints}
             label='✅ Tandai Bab Ini Selesai'
             className='w-full justify-center rounded-[10px] py-3 text-[14px] font-bold text-white border-0'
-            style={{ background: 'linear-gradient(135deg, #174339, #2c7865)' } as React.CSSProperties}
+            style={
+              {
+                background: 'linear-gradient(135deg, #174339, #2c7865)',
+              } as React.CSSProperties
+            }
           />
         </div>
       )}
-
     </div>
   );
 };

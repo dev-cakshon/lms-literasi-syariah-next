@@ -152,14 +152,19 @@ export const MarkCompleteButton = ({
         badges={awardedBadges}
         onClose={() => setShowBadgeModal(false)}
       />
-      <Button onClick={handleMarkComplete} disabled={isLoading} className={className} style={style}>
+      <Button
+        onClick={handleMarkComplete}
+        disabled={isLoading}
+        className={className}
+        style={style}
+      >
         {isLoading ? (
           <>
             <Loader2 className='animate-spin h-4 w-4 mr-2' />
             Loading...
           </>
         ) : (
-          label ?? 'Mark as Complete'
+          (label ?? 'Mark as Complete')
         )}
       </Button>
     </>

@@ -26,7 +26,7 @@ const wordSearchFormSchema = z.object({
     .array(
       z.object({
         word: z.string().min(1),
-      })
+      }),
     )
     .min(1),
 });

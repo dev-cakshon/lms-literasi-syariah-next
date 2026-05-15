@@ -28,7 +28,7 @@ export const PointsToast = ({
         'flex items-center gap-2 rounded-lg border border-emerald-300',
         'bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg',
         'animate-in slide-in-from-top-3 fade-in duration-300',
-        className
+        className,
       )}
     >
       <Sparkles className='h-4 w-4' />

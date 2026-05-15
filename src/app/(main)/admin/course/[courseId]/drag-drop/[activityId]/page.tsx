@@ -1,9 +1,10 @@
 'use client';
 
-import { Suspense, useContext, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { Suspense, useContext, useEffect, useState } from 'react';
 
 import { getActivityAdmin } from '@/lib/api';
+
 import { ActivityEditForm } from '@/components/course/admin/ActivityEditForm';
 import { Badge } from '@/components/ui/badge';
 

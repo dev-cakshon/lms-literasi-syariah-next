@@ -26,7 +26,7 @@ const trueOrFalseFormSchema = z.object({
       z.object({
         text: z.string().min(1),
         isTrue: z.boolean(),
-      })
+      }),
     )
     .min(1),
 });
@@ -196,7 +196,7 @@ export const TrueOrFalseForm = ({ onBack, onNext }: TrueOrFalseFormProps) => {
                             'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors',
                             field.value === true
                               ? 'bg-green-600 text-white border-green-600'
-                              : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+                              : 'border-slate-300 text-slate-600 hover:bg-slate-50',
                           )}
                         >
                           Benar
@@ -208,7 +208,7 @@ export const TrueOrFalseForm = ({ onBack, onNext }: TrueOrFalseFormProps) => {
                             'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors',
                             field.value === false
                               ? 'bg-red-600 text-white border-red-600'
-                              : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+                              : 'border-slate-300 text-slate-600 hover:bg-slate-50',
                           )}
                         >
                           Salah

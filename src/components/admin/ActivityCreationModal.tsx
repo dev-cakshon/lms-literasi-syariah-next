@@ -178,10 +178,10 @@ export const ActivityCreationModal = ({
     selectedType === 'drag-drop'
       ? 'Drag & Drop'
       : selectedType === 'word-search'
-      ? 'Word Search'
-      : selectedType === 'true-or-false'
-      ? 'True or False'
-      : '-';
+        ? 'Word Search'
+        : selectedType === 'true-or-false'
+          ? 'True or False'
+          : '-';
 
   if (!isOpen) {
     return null;

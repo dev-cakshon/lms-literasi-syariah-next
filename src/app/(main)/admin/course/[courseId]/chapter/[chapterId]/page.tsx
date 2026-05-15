@@ -6,11 +6,12 @@ import { Suspense, useContext, useEffect, useState } from 'react';
 
 import { getChapter } from '@/lib/api';
 
-import { AdminCourseLayoutContext } from '../../AdminCourseLayoutContext';
-import { ChapterContent } from '@/components/course/ChapterContent';
 import { ChapterEditForm } from '@/components/course/admin/ChapterEditForm';
+import { ChapterContent } from '@/components/course/ChapterContent';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+
+import { AdminCourseLayoutContext } from '../../AdminCourseLayoutContext';
 
 import type { Chapter } from '@/types';
 
@@ -52,7 +53,9 @@ function ChapterDetailContent() {
   const basePath = `/admin/course/${courseId}/chapter/${chapterId}`;
 
   const handleChapterUpdated = () => {
-    getChapter(courseId, chapterId).then(setChapter).catch(() => null);
+    getChapter(courseId, chapterId)
+      .then(setChapter)
+      .catch(() => null);
     refreshContentItems();
     router.push(basePath);
   };
@@ -102,7 +105,7 @@ function ChapterDetailContent() {
             mediaType={chapter.mediaType}
             content={chapter.content}
             chapterOrdinal={1}
-            courseTitle=""
+            courseTitle=''
           />
         </div>
       )}

@@ -1,9 +1,15 @@
 'use client';
 
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { getStudentActivity, submitActivity } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -197,7 +203,13 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     } finally {
       setSubmitting(false);
     }
-  }, [courseId, activityId, foundWords, normalizedToOriginal, refreshContentItems]);
+  }, [
+    courseId,
+    activityId,
+    foundWords,
+    normalizedToOriginal,
+    refreshContentItems,
+  ]);
 
   useEffect(() => {
     if (
@@ -322,7 +334,9 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         className='relative overflow-hidden rounded-2xl px-5 py-5'
-        style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
+        style={{
+          background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)',
+        }}
       >
         <div
           aria-hidden
@@ -396,6 +410,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
               return (
                 <motion.button
                   key={key}
+                  data-testid={`cell-${rowIndex}-${colIndex}`}
                   type='button'
                   animate={foundColor ? { scale: [1, 1.15, 1] } : { scale: 1 }}
                   transition={{ duration: 0.3 }}
@@ -438,6 +453,8 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
               return (
                 <span
                   key={`${normalized || 'empty'}-${index}`}
+                  data-testid={`word-item-${index}`}
+                  data-found={found ? 'true' : 'false'}
                   className={cn(
                     'rounded-full px-2.5 py-1 text-xs font-medium border inline-flex items-center gap-0.5',
                     found

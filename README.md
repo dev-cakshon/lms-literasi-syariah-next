@@ -4,15 +4,15 @@ A Learning Management System for Islamic economic literacy. Built with Next.js 1
 
 ## Stack
 
-| Layer        | Tech                                                        |
-| ------------ | ----------------------------------------------------------- |
-| Frontend     | Next.js 15 (App Router), React 19, TypeScript               |
-| Styling      | Tailwind CSS v4, shadcn/ui                                  |
-| Auth & DB    | Firebase Auth + Firestore (client SDK)                      |
-| Backend API  | `lms-be-firebase` (Firebase Functions + Express 5)          |
-| Forms        | react-hook-form + zod                                       |
-| Editor       | Tiptap                                                      |
-| File uploads | uploadthing                                                 |
+| Layer        | Tech                                               |
+| ------------ | -------------------------------------------------- |
+| Frontend     | Next.js 15 (App Router), React 19, TypeScript      |
+| Styling      | Tailwind CSS v4, shadcn/ui                         |
+| Auth & DB    | Firebase Auth + Firestore (client SDK)             |
+| Backend API  | `lms-be-firebase` (Firebase Functions + Express 5) |
+| Forms        | react-hook-form + zod                              |
+| Editor       | Tiptap                                             |
+| File uploads | uploadthing                                        |
 
 ## Features
 
@@ -44,24 +44,24 @@ A Learning Management System for Islamic economic literacy. Built with Next.js 1
 
 ## User Journeys
 
-| Journey | Role | Entry → Destination |
-| ------- | ---- | ------------------- |
-| Register account | Student | `/signup` → `/dashboard` |
-| Login | Student | `/login` → `/dashboard` |
-| Login | Admin | `/login` → `/admin/course` |
-| Browse courses (public) | Any | `/` |
-| View enrolled courses | Student | `/my-courses` |
-| Read chapter content | Student | `/course/[courseId]/chapter/[chapterId]` |
-| Complete True/False activity | Student | `/course/[courseId]/activity/[activityId]/true-or-false` |
-| Complete Word Search activity | Student | `/course/[courseId]/activity/[activityId]/word-search` |
-| Complete Drag & Drop activity | Student | `/course/[courseId]/activity/[activityId]/drag-drop` |
-| View / earn certificate | Student | `/course/[courseId]` → certificate modal |
-| View leaderboard | Student | `/dashboard` |
-| Use chatbot | Student | `/chatbot` |
-| Create / edit / delete course | Admin | `/admin/course` |
-| Edit chapter | Admin | `/admin/course/[courseId]/chapter/[chapterId]` |
-| Edit activity | Admin | `/admin/course/[courseId]/activity/[activityId]/…` |
-| Manage users | Admin | `/admin/user` |
+| Journey                       | Role    | Entry → Destination                                      |
+| ----------------------------- | ------- | -------------------------------------------------------- |
+| Register account              | Student | `/signup` → `/dashboard`                                 |
+| Login                         | Student | `/login` → `/dashboard`                                  |
+| Login                         | Admin   | `/login` → `/admin/course`                               |
+| Browse courses (public)       | Any     | `/`                                                      |
+| View enrolled courses         | Student | `/my-courses`                                            |
+| Read chapter content          | Student | `/course/[courseId]/chapter/[chapterId]`                 |
+| Complete True/False activity  | Student | `/course/[courseId]/activity/[activityId]/true-or-false` |
+| Complete Word Search activity | Student | `/course/[courseId]/activity/[activityId]/word-search`   |
+| Complete Drag & Drop activity | Student | `/course/[courseId]/activity/[activityId]/drag-drop`     |
+| View / earn certificate       | Student | `/course/[courseId]` → certificate modal                 |
+| View leaderboard              | Student | `/dashboard`                                             |
+| Use chatbot                   | Student | `/chatbot`                                               |
+| Create / edit / delete course | Admin   | `/admin/course`                                          |
+| Edit chapter                  | Admin   | `/admin/course/[courseId]/chapter/[chapterId]`           |
+| Edit activity                 | Admin   | `/admin/course/[courseId]/activity/[activityId]/…`       |
+| Manage users                  | Admin   | `/admin/user`                                            |
 
 ## Getting Started
 

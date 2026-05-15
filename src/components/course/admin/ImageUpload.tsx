@@ -14,8 +14,8 @@ interface ImageUploadProps {
 
 export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(
-    () => (value ? buildMediaViewUrl(value) : null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(() =>
+    value ? buildMediaViewUrl(value) : null,
   );
   const [error, setError] = useState<string | null>(null);
 

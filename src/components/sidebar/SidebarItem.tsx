@@ -29,7 +29,7 @@ export const SidebarItem = ({ icon: Icon, label, href }: SidebarItemProps) => {
       className={cn(
         'flex items-center gap-x-2 text-slate-500 text-sm font-[500] pl-6 transition-all hover:text-slate-600 hover:bg-slate-300/20',
         isActive &&
-          ' text-primary-800 font-[600] bg-primary-300/20 hover:bg-primary-200/20 hover:text-primary-700'
+          ' text-primary-800 font-[600] bg-primary-300/20 hover:bg-primary-200/20 hover:text-primary-700',
       )}
     >
       <div className='flex items-center gap-x-2 py-4'>
@@ -42,7 +42,7 @@ export const SidebarItem = ({ icon: Icon, label, href }: SidebarItemProps) => {
       <div
         className={cn(
           'ml-auto opacity-0 border-2 h-full border-primary-700',
-          isActive && 'opacity-100'
+          isActive && 'opacity-100',
         )}
       />
     </button>

@@ -91,9 +91,12 @@ export default function MyCoursesPage() {
   );
 
   return (
-    <div className='min-h-full bg-[#f5f7f2]'>
+    <div className='min-h-full bg-forest-bg'>
       {/* Animated Hero */}
-      <div className='relative overflow-hidden px-6 pt-10 pb-8' style={heroStyle}>
+      <div
+        className='relative overflow-hidden px-6 pt-10 pb-8'
+        style={heroStyle}
+      >
         {/* Blob 1 */}
         <div
           className='absolute top-4 right-8 w-48 h-48 rounded-full opacity-20 bg-[#90D26D]'
@@ -101,7 +104,7 @@ export default function MyCoursesPage() {
         />
         {/* Blob 2 */}
         <div
-          className='absolute bottom-2 left-12 w-32 h-32 rounded-full opacity-15 bg-[#3a9478]'
+          className='absolute bottom-2 left-12 w-32 h-32 rounded-full opacity-15 bg-primary-400'
           style={{ animation: 'floatBlob 10s ease-in-out infinite reverse' }}
         />
 

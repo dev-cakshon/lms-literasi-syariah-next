@@ -29,9 +29,9 @@ import { cn } from '@/lib/utils';
 import { ActivityCreationModal } from '@/components/admin/ActivityCreationModal';
 import { Badge } from '@/components/ui/badge';
 
-import type { Course, CourseContentItem } from '@/types';
-
 import { AdminCourseLayoutContext } from '@/app/(main)/admin/course/[courseId]/AdminCourseLayoutContext';
+
+import type { Course, CourseContentItem } from '@/types';
 
 interface AdminCourseSidebarProps {
   courseId: string;
@@ -47,7 +47,8 @@ export const AdminCourseSidebar = ({
   const router = useRouter();
   const pathname = usePathname();
   const { refreshContentItems } = useContext(AdminCourseLayoutContext);
-  const [localItems, setLocalItems] = useState<CourseContentItem[]>(contentItems);
+  const [localItems, setLocalItems] =
+    useState<CourseContentItem[]>(contentItems);
   const [adding, setAdding] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
@@ -74,7 +75,9 @@ export const AdminCourseSidebar = ({
         order: nextOrder,
       });
       refreshContentItems();
-      router.push(`/admin/course/${courseId}/chapter/${newChapter.id}?edit=true`);
+      router.push(
+        `/admin/course/${courseId}/chapter/${newChapter.id}?edit=true`,
+      );
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);

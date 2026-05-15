@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { GeometricDivider } from '@/components/ornaments/GeometricDivider';
 import { Logo } from '@/components/Logo';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -52,7 +51,7 @@ export const SignupForm = () => {
         <div className='flex justify-center mb-4'>
           <Logo logotype='text' theme='light' size='lg' />
         </div>
-        
+
         <div className='text-center mb-8'>
           <h1 className='font-display text-4xl font-bold text-slate-800 tracking-tight'>
             Daftar
