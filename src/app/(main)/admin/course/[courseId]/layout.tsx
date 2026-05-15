@@ -44,7 +44,7 @@ function AdminCourseLayoutClient({
   }, [courseId, router]);
 
   const refreshContentItems = useCallback(() => {
-    void fetchData();
+    return fetchData();
   }, [fetchData]);
 
   useEffect(() => {

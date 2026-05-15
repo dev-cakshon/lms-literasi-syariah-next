@@ -74,7 +74,7 @@ export const AdminCourseSidebar = ({
         mediaUrl: '',
         order: nextOrder,
       });
-      refreshContentItems();
+      await refreshContentItems();
       router.push(
         `/admin/course/${courseId}/chapter/${newChapter.id}?edit=true`,
       );
@@ -94,7 +94,7 @@ export const AdminCourseSidebar = ({
     try {
       setError(null);
       await deleteChapter(course.id, chapterId);
-      refreshContentItems();
+      void refreshContentItems();
       if (pathname.includes(`/chapter/${chapterId}`)) {
         router.push(`/admin/course/${courseId}`);
       }
@@ -112,7 +112,7 @@ export const AdminCourseSidebar = ({
     try {
       setError(null);
       await deleteActivity(course.id, activityId);
-      refreshContentItems();
+      void refreshContentItems();
       if (pathname.includes(activityId)) {
         router.push(`/admin/course/${courseId}`);
       }
@@ -186,7 +186,7 @@ export const AdminCourseSidebar = ({
           return updateActivity(course.id, item.id, { position: nextPosition });
         }),
       );
-      refreshContentItems();
+      void refreshContentItems();
     } catch (err) {
       setLocalItems(snapshot);
       if (err instanceof ApiError) {
