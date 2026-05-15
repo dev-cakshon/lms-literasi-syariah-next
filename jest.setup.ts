@@ -21,8 +21,12 @@ jest.mock('firebase/firestore', () => ({
   getFirestore: jest.fn(),
   doc: jest.fn(),
   collection: jest.fn(),
-  getDoc: jest.fn().mockResolvedValue({ exists: () => false, data: () => ({}) }),
-  getDocs: jest.fn().mockResolvedValue({ docs: [], size: 0, forEach: jest.fn() }),
+  getDoc: jest
+    .fn()
+    .mockResolvedValue({ exists: () => false, data: () => ({}) }),
+  getDocs: jest
+    .fn()
+    .mockResolvedValue({ docs: [], size: 0, forEach: jest.fn() }),
   setDoc: jest.fn(),
   updateDoc: jest.fn(),
   deleteDoc: jest.fn(),
@@ -70,7 +74,10 @@ jest.mock('framer-motion', () => {
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_target, tag: string) {
       return React.forwardRef(function MotionEl(
-        { children, ...props }: React.PropsWithChildren<Record<string, unknown>>,
+        {
+          children,
+          ...props
+        }: React.PropsWithChildren<Record<string, unknown>>,
         ref: React.Ref<unknown>,
       ) {
         return React.createElement(tag, { ...props, ref }, children);
@@ -95,7 +102,11 @@ jest.mock('react-markdown', () => ({
   __esModule: true,
   default: function ReactMarkdown({ children }: { children: string }) {
     const React = require('react') as typeof import('react');
-    return React.createElement('div', { 'data-testid': 'markdown-content' }, children);
+    return React.createElement(
+      'div',
+      { 'data-testid': 'markdown-content' },
+      children,
+    );
   },
 }));
 
@@ -111,7 +122,10 @@ jest.mock('@hello-pangea/dnd', () => {
     Droppable: ({
       children,
     }: {
-      children: (provided: Record<string, unknown>, snapshot: Record<string, unknown>) => React.ReactNode;
+      children: (
+        provided: Record<string, unknown>,
+        snapshot: Record<string, unknown>,
+      ) => React.ReactNode;
     }) =>
       React.createElement(
         React.Fragment,
@@ -124,7 +138,10 @@ jest.mock('@hello-pangea/dnd', () => {
     Draggable: ({
       children,
     }: {
-      children: (provided: Record<string, unknown>, snapshot: Record<string, unknown>) => React.ReactNode;
+      children: (
+        provided: Record<string, unknown>,
+        snapshot: Record<string, unknown>,
+      ) => React.ReactNode;
     }) =>
       React.createElement(
         React.Fragment,

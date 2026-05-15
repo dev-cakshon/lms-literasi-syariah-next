@@ -7,16 +7,15 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { MarkCompleteButton } from '@/components/course/MarkCompleteButton';
-import { AchievementBadges } from '@/components/dashboard/AchievementBadges';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import { ProfileInfo } from '@/components/dashboard/ProfileOverview';
 
-import { renderWithProviders } from '@/test-utils/render';
 import {
   mockCourseProgress,
   mockLeaderboardUser,
   mockUserProfile,
 } from '@/test-utils/mocks/api';
+import { renderWithProviders } from '@/test-utils/render';
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
@@ -60,24 +59,49 @@ function getAuthMock() {
 }
 
 function buildMockRouter() {
-  return { push: jest.fn(), replace: jest.fn(), back: jest.fn(), prefetch: jest.fn() };
+  return {
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+    prefetch: jest.fn(),
+  };
 }
 
 const contentItems = [
-  { id: 'ch-1', title: 'Bab 1', itemType: 'chapter' as const, position: 1, completed: false, locked: false },
-  { id: 'ch-2', title: 'Bab 2', itemType: 'chapter' as const, position: 2, completed: false, locked: false },
+  {
+    id: 'ch-1',
+    title: 'Bab 1',
+    itemType: 'chapter' as const,
+    position: 1,
+    completed: false,
+    locked: false,
+  },
+  {
+    id: 'ch-2',
+    title: 'Bab 2',
+    itemType: 'chapter' as const,
+    position: 2,
+    completed: false,
+    locked: false,
+  },
 ];
 
 // ─── F4 — Gamifikasi ──────────────────────────────────────────────────────────
 
 describe('F4 — Gamifikasi', () => {
   beforeEach(() => {
-    const { useRouter } = require('next/navigation') as { useRouter: jest.Mock };
+    const { useRouter } = require('next/navigation') as {
+      useRouter: jest.Mock;
+    };
     useRouter.mockReturnValue(buildMockRouter());
 
     getAuthMock().useAuth.mockReturnValue({
       user: { uid: 'user-1' },
-      userProfile: mockUserProfile({ uid: 'user-1', totalPoints: 50, badges: ['first_step'] }),
+      userProfile: mockUserProfile({
+        uid: 'user-1',
+        totalPoints: 50,
+        badges: ['first_step'],
+      }),
       loading: false,
       idToken: 'token',
       refreshProfile: jest.fn().mockResolvedValue(undefined),
@@ -120,7 +144,9 @@ describe('F4 — Gamifikasi', () => {
       { courseLayout: { contentItems, refreshContentItems: jest.fn() } },
     );
 
-    await userEvent.click(screen.getByRole('button', { name: /tandai selesai/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /tandai selesai/i }),
+    );
 
     await waitFor(() => {
       // onComplete called with 10 poin → drives the PointsToast in ChapterContent
@@ -149,7 +175,9 @@ describe('F4 — Gamifikasi', () => {
     );
 
     // Button is absent → no second API call possible from the UI
-    expect(screen.queryByRole('button', { name: /tandai selesai/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /tandai selesai/i }),
+    ).not.toBeInTheDocument();
   });
 
   // TC-F.16 ──────────────────────────────────────────────────────────────────
@@ -175,7 +203,9 @@ describe('F4 — Gamifikasi', () => {
       { courseLayout: { contentItems, refreshContentItems: jest.fn() } },
     );
 
-    await userEvent.click(screen.getByRole('button', { name: /tandai selesai/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /tandai selesai/i }),
+    );
 
     await waitFor(() => {
       // BadgeAwardModal shows "Badge Unlocked" dialog when awardedBadges.length > 0
@@ -188,7 +218,11 @@ describe('F4 — Gamifikasi', () => {
   it('TC-F.17: Student membuka halaman Dashboard — Points & Badges', () => {
     getAuthMock().useAuth.mockReturnValue({
       user: { uid: 'user-1' },
-      userProfile: mockUserProfile({ uid: 'user-1', totalPoints: 150, badges: ['first_step', 'active_learner'] }),
+      userProfile: mockUserProfile({
+        uid: 'user-1',
+        totalPoints: 150,
+        badges: ['first_step', 'active_learner'],
+      }),
       loading: false,
       idToken: 'token',
       refreshProfile: jest.fn(),
@@ -211,8 +245,16 @@ describe('F4 — Gamifikasi', () => {
   it('TC-F.18: Student membuka halaman Dashboard — Leaderboard', () => {
     const leaderboardUsers = [
       mockLeaderboardUser({ uid: 'u1', name: 'Siti Aminah', totalPoints: 300 }),
-      mockLeaderboardUser({ uid: 'u2', name: 'Budi Santoso', totalPoints: 250 }),
-      mockLeaderboardUser({ uid: 'u3', name: 'Dewi Rahmawati', totalPoints: 200 }),
+      mockLeaderboardUser({
+        uid: 'u2',
+        name: 'Budi Santoso',
+        totalPoints: 250,
+      }),
+      mockLeaderboardUser({
+        uid: 'u3',
+        name: 'Dewi Rahmawati',
+        totalPoints: 200,
+      }),
     ];
 
     getHookMocks().useLeaderboard.mockReturnValue({
@@ -242,9 +284,9 @@ describe('F4 — Gamifikasi', () => {
 
     // Verify descending order by DOM position:
     // Siti (300 poin) must appear before Budi (250 poin) in the document
-    const sitiPosition = screen.getByText('Siti Aminah').compareDocumentPosition(
-      screen.getByText('Budi Santoso'),
-    );
+    const sitiPosition = screen
+      .getByText('Siti Aminah')
+      .compareDocumentPosition(screen.getByText('Budi Santoso'));
     // Node.DOCUMENT_POSITION_FOLLOWING (4) means Budi comes after Siti → correct order
     expect(sitiPosition & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

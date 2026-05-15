@@ -83,7 +83,7 @@ function inBounds(cell: GridCell, size: GridSize): boolean {
 function buildCells(
   start: GridCell,
   direction: { dr: number; dc: number },
-  length: number
+  length: number,
 ): GridCell[] {
   return Array.from({ length }, (_, index) => ({
     row: start.row + direction.dr * index,
@@ -94,7 +94,7 @@ function buildCells(
 function canPlaceWord(
   grid: (string | null)[][],
   word: string,
-  cells: GridCell[]
+  cells: GridCell[],
 ) {
   for (let i = 0; i < cells.length; i += 1) {
     const cell = cells[i];
@@ -124,7 +124,7 @@ export function createSeedFromActivityId(activityId: string): number {
 export function generateWordSearch(
   wordList: string[],
   gridSize: GridSize,
-  seed: number
+  seed: number,
 ): WordSearchResult {
   const words: BuildWord[] = wordList
     .map((word, orderIndex) => ({
@@ -139,7 +139,7 @@ export function generateWordSearch(
   }
 
   const longestWordLength = Math.max(
-    ...words.map((item) => item.normalized.length)
+    ...words.map((item) => item.normalized.length),
   );
   if (longestWordLength > Math.max(gridSize.rows, gridSize.cols)) {
     throw new Error('Grid terlalu kecil untuk menempatkan kata terpanjang.');
@@ -153,7 +153,7 @@ export function generateWordSearch(
 
     const grid: (string | null)[][] = Array.from(
       { length: gridSize.rows },
-      () => Array.from({ length: gridSize.cols }, () => null)
+      () => Array.from({ length: gridSize.cols }, () => null),
     );
 
     const placements: WordPlacement[] = [];
@@ -173,7 +173,7 @@ export function generateWordSearch(
           row: Math.floor(index / gridSize.cols),
           col: index % gridSize.cols,
         })),
-        rng
+        rng,
       );
 
       const dirOrder = shuffled(directions, rng);
@@ -218,7 +218,7 @@ export function generateWordSearch(
     }
 
     const completedGrid = grid.map((row) =>
-      row.map((char) => char ?? randomLetter(rng))
+      row.map((char) => char ?? randomLetter(rng)),
     );
 
     return {
@@ -228,6 +228,6 @@ export function generateWordSearch(
   }
 
   throw new Error(
-    'Gagal membuat grid Word Search. Coba ubah ukuran grid atau daftar kata.'
+    'Gagal membuat grid Word Search. Coba ubah ukuran grid atau daftar kata.',
   );
 }

@@ -7,7 +7,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import MyCoursesPage from '@/app/(main)/(student)/my-courses/page';
-
 import { mockCourse } from '@/test-utils/mocks/api';
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
@@ -41,7 +40,11 @@ function getApiMocks() {
 const sampleCourses = [
   mockCourse({ id: 'c1', title: 'Ekonomi Syariah Dasar', totalChapters: 3 }),
   mockCourse({ id: 'c2', title: 'Perbankan Islam Lanjutan', totalChapters: 5 }),
-  mockCourse({ id: 'c3', title: 'Manajemen Zakat dan Wakaf', totalChapters: 4 }),
+  mockCourse({
+    id: 'c3',
+    title: 'Manajemen Zakat dan Wakaf',
+    totalChapters: 4,
+  }),
 ];
 
 // ─── F2 — Katalog Kursus ──────────────────────────────────────────────────────
@@ -79,8 +82,12 @@ describe('F2 — Katalog Kursus', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Perbankan Islam Lanjutan')).toBeInTheDocument();
-      expect(screen.queryByText('Ekonomi Syariah Dasar')).not.toBeInTheDocument();
-      expect(screen.queryByText('Manajemen Zakat dan Wakaf')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Ekonomi Syariah Dasar'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Manajemen Zakat dan Wakaf'),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -97,9 +104,15 @@ describe('F2 — Katalog Kursus', () => {
     await userEvent.type(searchInput, 'kursus tidak ada sama sekali xyz');
 
     await waitFor(() => {
-      expect(screen.queryByText('Ekonomi Syariah Dasar')).not.toBeInTheDocument();
-      expect(screen.queryByText('Perbankan Islam Lanjutan')).not.toBeInTheDocument();
-      expect(screen.queryByText('Manajemen Zakat dan Wakaf')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Ekonomi Syariah Dasar'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Perbankan Islam Lanjutan'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Manajemen Zakat dan Wakaf'),
+      ).not.toBeInTheDocument();
     });
   });
 });

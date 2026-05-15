@@ -23,7 +23,7 @@ const dragDropFormSchema = z.object({
     .array(
       z.object({
         name: z.string().min(1),
-      })
+      }),
     )
     .min(2, 'Minimal 2 kategori'),
   items: z
@@ -31,7 +31,7 @@ const dragDropFormSchema = z.object({
       z.object({
         label: z.string().min(1),
         categoryIndex: z.number().int().min(0),
-      })
+      }),
     )
     .min(1),
 });

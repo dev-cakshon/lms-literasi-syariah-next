@@ -89,5 +89,18 @@ module.exports = {
         '@typescript-eslint/no-var-requires': 'off',
       },
     },
+    {
+      // jest.mock() factories must be synchronous — require() is unavoidable
+      files: [
+        '**/*.test.ts',
+        '**/*.test.tsx',
+        'src/test-utils/**',
+        'jest.setup.ts',
+      ],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-empty-function': 'off',
+      },
+    },
   ],
 };

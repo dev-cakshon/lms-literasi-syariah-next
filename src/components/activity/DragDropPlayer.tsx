@@ -30,7 +30,7 @@ interface DragDropPlayerProps {
 const poolId = 'pool';
 
 function cloneBuckets(
-  source: Record<string, string[]>
+  source: Record<string, string[]>,
 ): Record<string, string[]> {
   const next: Record<string, string[]> = {};
   for (const [category, itemIds] of Object.entries(source)) {
@@ -43,7 +43,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
   const [courseId, setCourseId] = useState<string | null>(null);
   const [activityId, setActivityId] = useState<string | null>(null);
   const [activity, setActivity] = useState<StudentDragDropActivity | null>(
-    null
+    null,
   );
   const [unassignedItemIds, setUnassignedItemIds] = useState<string[]>([]);
   const [bucketByCategory, setBucketByCategory] = useState<
@@ -75,7 +75,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
       try {
         const data = (await getStudentActivity(
           resolvedCourseId,
-          resolvedActivityId
+          resolvedActivityId,
         )) as StudentActivity;
 
         if (data.type !== 'drag_drop') {
@@ -191,7 +191,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
       activity.categories.reduce<Record<string, string[]>>((acc, category) => {
         acc[category] = [];
         return acc;
-      }, {})
+      }, {}),
     );
     prevItemCountsRef.current = {};
   };
@@ -237,7 +237,9 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         className='relative overflow-hidden rounded-2xl px-5 py-5'
-        style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
+        style={{
+          background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)',
+        }}
       >
         <div
           aria-hidden
@@ -315,7 +317,11 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
                                 ? '0 8px 24px rgba(0,0,0,0.15)'
                                 : undefined,
                             }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                            transition={{
+                              type: 'spring',
+                              stiffness: 300,
+                              damping: 20,
+                            }}
                             className='rounded-md border bg-white px-3 py-2 text-sm font-medium text-slate-800 shadow-sm'
                           >
                             {itemLabelById.get(itemId) ?? itemId}
@@ -343,7 +349,9 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
               return (
                 <motion.div
                   key={category}
-                  animate={countIncreased ? { scale: [1, 1.03, 1] } : { scale: 1 }}
+                  animate={
+                    countIncreased ? { scale: [1, 1.03, 1] } : { scale: 1 }
+                  }
                   transition={{ duration: 0.3 }}
                   className='rounded-lg border bg-white p-4'
                 >
@@ -385,7 +393,11 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
                                       ? '0 8px 24px rgba(0,0,0,0.15)'
                                       : undefined,
                                   }}
-                                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                                  transition={{
+                                    type: 'spring',
+                                    stiffness: 300,
+                                    damping: 20,
+                                  }}
                                   className='rounded-md border bg-white px-3 py-2 text-sm font-medium text-slate-800 shadow-sm'
                                 >
                                   {itemLabelById.get(itemId) ?? itemId}

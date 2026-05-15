@@ -93,7 +93,10 @@ export default function MyCoursesPage() {
   return (
     <div className='min-h-full bg-forest-bg'>
       {/* Animated Hero */}
-      <div className='relative overflow-hidden px-6 pt-10 pb-8' style={heroStyle}>
+      <div
+        className='relative overflow-hidden px-6 pt-10 pb-8'
+        style={heroStyle}
+      >
         {/* Blob 1 */}
         <div
           className='absolute top-4 right-8 w-48 h-48 rounded-full opacity-20 bg-[#90D26D]'

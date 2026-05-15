@@ -3,13 +3,15 @@
  * Black-box integration tests for the True/False activity.
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import TrueOrFalseActivityPage from '@/app/(main)/(student)/(course)/course/[courseId]/activity/[activityId]/true-or-false/page';
-
+import {
+  mockSubmitActivityResponse,
+  mockTrueOrFalseActivity,
+} from '@/test-utils/mocks/api';
 import { renderWithProviders } from '@/test-utils/render';
-import { mockSubmitActivityResponse, mockTrueOrFalseActivity } from '@/test-utils/mocks/api';
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
@@ -60,8 +62,14 @@ const sampleActivity = mockTrueOrFalseActivity();
 
 describe('F6 — Aktivitas: True/False', () => {
   beforeEach(() => {
-    const { useRouter } = require('next/navigation') as { useRouter: jest.Mock };
-    useRouter.mockReturnValue({ push: jest.fn(), replace: jest.fn(), back: jest.fn() });
+    const { useRouter } = require('next/navigation') as {
+      useRouter: jest.Mock;
+    };
+    useRouter.mockReturnValue({
+      push: jest.fn(),
+      replace: jest.fn(),
+      back: jest.fn(),
+    });
 
     getAuthMock().useAuth.mockReturnValue({
       user: { uid: 'user-1' },
@@ -83,7 +91,10 @@ describe('F6 — Aktivitas: True/False', () => {
   function renderPage() {
     return renderWithProviders(
       <TrueOrFalseActivityPage
-        params={Promise.resolve({ courseId: 'course-1', activityId: 'activity-tf-1' })}
+        params={Promise.resolve({
+          courseId: 'course-1',
+          activityId: 'activity-tf-1',
+        })}
       />,
       { courseLayout: { refreshContentItems: jest.fn() } },
     );
@@ -99,9 +110,13 @@ describe('F6 — Aktivitas: True/False', () => {
     });
 
     // All three statements rendered
-    expect(screen.getByText('Riba adalah haram dalam Islam')).toBeInTheDocument();
+    expect(
+      screen.getByText('Riba adalah haram dalam Islam'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Zakat adalah rukun iman')).toBeInTheDocument();
-    expect(screen.getByText('Akad murabahah adalah akad jual beli')).toBeInTheDocument();
+    expect(
+      screen.getByText('Akad murabahah adalah akad jual beli'),
+    ).toBeInTheDocument();
 
     // Each statement has Benar + Salah buttons (6 total)
     const benarButtons = screen.getAllByRole('button', { name: /benar/i });
@@ -110,7 +125,9 @@ describe('F6 — Aktivitas: True/False', () => {
     expect(salahButtons).toHaveLength(3);
 
     // Submit button is NOT visible yet (not all answered)
-    expect(screen.queryByRole('button', { name: /kirim jawaban/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /kirim jawaban/i }),
+    ).not.toBeInTheDocument();
   });
 
   // TC-F.24 ──────────────────────────────────────────────────────────────────
@@ -119,7 +136,9 @@ describe('F6 — Aktivitas: True/False', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Riba adalah haram dalam Islam')).toBeInTheDocument();
+      expect(
+        screen.getByText('Riba adalah haram dalam Islam'),
+      ).toBeInTheDocument();
     });
 
     const benarButtons = screen.getAllByRole('button', { name: /benar/i });
@@ -135,17 +154,21 @@ describe('F6 — Aktivitas: True/False', () => {
 
   it('TC-F.25: Student menjawab semua pernyataan lalu menekan Submit', async () => {
     const { submitActivity } = getApiMocks();
-    submitActivity.mockResolvedValue(mockSubmitActivityResponse({
-      score: 3,
-      totalItems: 3,
-      scorePercent: 100,
-      pointsEarned: 30,
-    }));
+    submitActivity.mockResolvedValue(
+      mockSubmitActivityResponse({
+        score: 3,
+        totalItems: 3,
+        scorePercent: 100,
+        pointsEarned: 30,
+      }),
+    );
 
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Riba adalah haram dalam Islam')).toBeInTheDocument();
+      expect(
+        screen.getByText('Riba adalah haram dalam Islam'),
+      ).toBeInTheDocument();
     });
 
     const benarButtons = screen.getAllByRole('button', { name: /benar/i });
@@ -157,7 +180,9 @@ describe('F6 — Aktivitas: True/False', () => {
     await userEvent.click(benarButtons[2]);
 
     // Submit button appears only after all answered
-    const submitButton = await screen.findByRole('button', { name: /kirim jawaban/i });
+    const submitButton = await screen.findByRole('button', {
+      name: /kirim jawaban/i,
+    });
     expect(submitButton).toBeInTheDocument();
 
     await userEvent.click(submitButton);

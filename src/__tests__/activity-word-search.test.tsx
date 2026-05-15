@@ -6,12 +6,11 @@
  * DOM drag events with precise cell coordinates → see e2e/activity-word-search.spec.ts.
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 
 import WordSearchActivityPage from '@/app/(main)/(student)/(course)/course/[courseId]/activity/[activityId]/word-search/page';
-
-import { renderWithProviders } from '@/test-utils/render';
 import { mockWordSearchActivity } from '@/test-utils/mocks/api';
+import { renderWithProviders } from '@/test-utils/render';
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
@@ -27,9 +26,7 @@ jest.mock('@/lib/api', () => ({
 jest.mock('@/lib/wordSearch', () => ({
   createSeedFromActivityId: jest.fn(() => 42),
   generateWordSearch: jest.fn(() => ({
-    grid: Array.from({ length: 8 }, () =>
-      Array.from({ length: 8 }, () => 'A'),
-    ),
+    grid: Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => 'A')),
     placements: [],
   })),
   normalizeWord: jest.fn((w: string) => w.toUpperCase().replace(/\s/g, '')),
@@ -57,7 +54,10 @@ describe('F7 — Aktivitas: Word Search', () => {
   function renderPage() {
     return renderWithProviders(
       <WordSearchActivityPage
-        params={Promise.resolve({ courseId: 'course-1', activityId: 'activity-ws-1' })}
+        params={Promise.resolve({
+          courseId: 'course-1',
+          activityId: 'activity-ws-1',
+        })}
       />,
       { courseLayout: { refreshContentItems: jest.fn() } },
     );

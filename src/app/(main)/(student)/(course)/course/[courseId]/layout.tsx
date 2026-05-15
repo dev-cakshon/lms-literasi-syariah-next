@@ -51,7 +51,7 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
       });
 
       setContentItems(
-        [...courseContentData].sort((a, b) => a.position - b.position)
+        [...courseContentData].sort((a, b) => a.position - b.position),
       );
     } catch (err) {
       console.error('Failed to load course:', err);

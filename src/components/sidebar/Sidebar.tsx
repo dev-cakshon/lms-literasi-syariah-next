@@ -3,9 +3,10 @@
 import { LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+import { Logo } from '@/components/Logo';
+
 import { useAuth } from '@/contexts/AuthContext';
 
-import { Logo } from '@/components/Logo';
 import SidebarRoutes from './SidebarRoutes';
 
 export const Sidebar = () => {

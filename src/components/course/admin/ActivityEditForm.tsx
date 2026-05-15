@@ -55,7 +55,7 @@ export const ActivityEditForm = ({
   }, [saved]);
 
   const updateCommon = (
-    updates: Partial<Pick<AdminActivity, 'title' | 'maxPoints'>>
+    updates: Partial<Pick<AdminActivity, 'title' | 'maxPoints'>>,
   ) => {
     setForm((prev) => ({ ...prev, ...updates }));
   };
@@ -216,7 +216,7 @@ export const ActivityEditForm = ({
                     setForm((prev) =>
                       prev.type === 'drag_drop' || prev.type === 'true_or_false'
                         ? { ...prev, feedbackMode: 'immediate' }
-                        : prev
+                        : prev,
                     )
                   }
                 />
@@ -230,7 +230,7 @@ export const ActivityEditForm = ({
                     setForm((prev) =>
                       prev.type === 'drag_drop' || prev.type === 'true_or_false'
                         ? { ...prev, feedbackMode: 'end' }
-                        : prev
+                        : prev,
                     )
                   }
                 />
@@ -283,7 +283,7 @@ export const ActivityEditForm = ({
                         if (prev.type !== 'drag_drop') return prev;
                         if (prev.categories.length <= 2) return prev;
                         const categories = prev.categories.filter(
-                          (_, i) => i !== index
+                          (_, i) => i !== index,
                         );
                         const items = prev.items.map((item) => {
                           if (item.correctCategory === category) {
@@ -364,10 +364,7 @@ export const ActivityEditForm = ({
                         className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
                       >
                         {form.categories.map((cat, categoryIndex) => (
-                          <option
-                            key={`${cat}-${categoryIndex}`}
-                            value={cat}
-                          >
+                          <option key={`${cat}-${categoryIndex}`} value={cat}>
                             {cat || `Kategori ${categoryIndex + 1}`}
                           </option>
                         ))}
@@ -424,7 +421,9 @@ export const ActivityEditForm = ({
         {form.type === 'word_search' && (
           <div className='space-y-6'>
             <div className='space-y-3'>
-              <p className='text-sm font-semibold text-slate-700'>Daftar Kata</p>
+              <p className='text-sm font-semibold text-slate-700'>
+                Daftar Kata
+              </p>
               {form.wordList.map((word, index) => (
                 <div
                   key={`word-${index}`}
@@ -455,7 +454,7 @@ export const ActivityEditForm = ({
                         if (prev.type !== 'word_search') return prev;
                         if (prev.wordList.length <= 1) return prev;
                         const wordList = prev.wordList.filter(
-                          (_, i) => i !== index
+                          (_, i) => i !== index,
                         );
                         return { ...prev, wordList };
                       });
@@ -503,7 +502,7 @@ export const ActivityEditForm = ({
                                 : prev.gridSize.rows,
                             },
                           }
-                        : prev
+                        : prev,
                     );
                   }}
                 />
@@ -529,7 +528,7 @@ export const ActivityEditForm = ({
                                 : prev.gridSize.cols,
                             },
                           }
-                        : prev
+                        : prev,
                     );
                   }}
                 />
@@ -575,7 +574,7 @@ export const ActivityEditForm = ({
                         if (prev.type !== 'true_or_false') return prev;
                         if (prev.statements.length <= 1) return prev;
                         const statements = prev.statements.filter(
-                          (_, i) => i !== index
+                          (_, i) => i !== index,
                         );
                         return { ...prev, statements };
                       });
@@ -604,7 +603,7 @@ export const ActivityEditForm = ({
                       'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors',
                       statement.correct === true
                         ? 'bg-green-600 text-white border-green-600'
-                        : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+                        : 'border-slate-300 text-slate-600 hover:bg-slate-50',
                     )}
                   >
                     Benar
@@ -626,7 +625,7 @@ export const ActivityEditForm = ({
                       'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors',
                       statement.correct === false
                         ? 'bg-red-600 text-white border-red-600'
-                        : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+                        : 'border-slate-300 text-slate-600 hover:bg-slate-50',
                     )}
                   >
                     Salah

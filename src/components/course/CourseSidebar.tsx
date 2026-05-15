@@ -50,11 +50,12 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
 
   return (
     <div className='h-full flex flex-col overflow-hidden border-r'>
-
       {/* ── Zone 1: Gamification block ── */}
       <div
         className='shrink-0 px-4.5 py-5 relative overflow-hidden'
-        style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
+        style={{
+          background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)',
+        }}
       >
         {/* decorative circle */}
         <div
@@ -134,8 +135,7 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
         </p>
         {contentItems.map((item, index) => {
           const isChapter = item.itemType === 'chapter';
-          const showDivider =
-            isChapter && index < contentItems.length - 1;
+          const showDivider = isChapter && index < contentItems.length - 1;
 
           return (
             <div key={item.id}>
@@ -147,16 +147,17 @@ export const CourseSidebar = ({ course, contentItems }: CourseSidebarProps) => {
                 isLocked={item.locked}
                 type={isChapter ? 'chapter' : (item.type ?? 'true_or_false')}
                 position={item.position}
-                bestScorePercent={item.itemType === 'activity' ? item.bestScorePercent : undefined}
+                bestScorePercent={
+                  item.itemType === 'activity'
+                    ? item.bestScorePercent
+                    : undefined
+                }
               />
-              {showDivider && (
-                <div className='mx-4 h-px bg-slate-100' />
-              )}
+              {showDivider && <div className='mx-4 h-px bg-slate-100' />}
             </div>
           );
         })}
       </div>
-
     </div>
   );
 };

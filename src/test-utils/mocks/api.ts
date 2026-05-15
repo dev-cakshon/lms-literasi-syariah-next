@@ -1,19 +1,21 @@
 import type {
   Course,
-  CourseContentChapterItem,
   CourseContentActivityItem,
+  CourseContentChapterItem,
   CourseProgress,
   LeaderboardUser,
+  StudentDragDropActivity,
   StudentTrueOrFalseActivity,
   StudentWordSearchActivity,
-  StudentDragDropActivity,
   SubmitActivityResponse,
   UserProfile,
 } from '@/types';
 
 // Factories for common mock shapes matching the real types exactly.
 
-export const mockUserProfile = (overrides: Partial<UserProfile> = {}): UserProfile => ({
+export const mockUserProfile = (
+  overrides: Partial<UserProfile> = {},
+): UserProfile => ({
   uid: 'user-1',
   name: 'Test Student',
   email: 'student@test.com',

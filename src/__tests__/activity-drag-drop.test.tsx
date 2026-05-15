@@ -6,12 +6,12 @@
  * that cannot be reliably simulated in jsdom → see e2e/activity-drag-drop.spec.ts.
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 
 import { DragDropPlayer } from '@/components/activity/DragDropPlayer';
 
-import { renderWithProviders } from '@/test-utils/render';
 import { mockDragDropActivity } from '@/test-utils/mocks/api';
+import { renderWithProviders } from '@/test-utils/render';
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
@@ -46,7 +46,10 @@ describe('F8 — Aktivitas: Drag & Drop', () => {
   function renderPage() {
     return renderWithProviders(
       <DragDropPlayer
-        params={Promise.resolve({ courseId: 'course-1', activityId: 'activity-dd-1' })}
+        params={Promise.resolve({
+          courseId: 'course-1',
+          activityId: 'activity-dd-1',
+        })}
       />,
       { courseLayout: { refreshContentItems: jest.fn() } },
     );

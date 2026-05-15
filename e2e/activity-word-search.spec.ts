@@ -23,13 +23,18 @@ const foundWordsSelector = '[data-testid^="word-item-"][data-found="true"]';
 test.describe('F7 — Word Search (E2E)', () => {
   test.beforeEach(() => {
     if (!TEST_COURSE_ID || !TEST_WORD_SEARCH_ACTIVITY_ID) {
-      test.skip(true, 'E2E_TEST_COURSE_ID / E2E_WORD_SEARCH_ACTIVITY_ID not configured');
+      test.skip(
+        true,
+        'E2E_TEST_COURSE_ID / E2E_WORD_SEARCH_ACTIVITY_ID not configured',
+      );
     }
   });
 
   // TC-F.27 ───────────────────────────────────────────────────────────────────
 
-  test('TC-F.27: Student men-drag pada grid dan berhasil menemukan satu kata', async ({ studentPage: page }) => {
+  test('TC-F.27: Student men-drag pada grid dan berhasil menemukan satu kata', async ({
+    studentPage: page,
+  }) => {
     await page.goto(activityUrl());
     await page.waitForLoadState('networkidle');
 
@@ -43,11 +48,19 @@ test.describe('F7 — Word Search (E2E)', () => {
     const endCell = page.getByTestId('cell-0-4');
     const endBox = await endCell.boundingBox();
 
-    if (!startBox || !endBox) throw new Error('Grid cells not found in viewport');
+    if (!startBox || !endBox)
+      throw new Error('Grid cells not found in viewport');
 
-    await page.mouse.move(startBox.x + startBox.width / 2, startBox.y + startBox.height / 2);
+    await page.mouse.move(
+      startBox.x + startBox.width / 2,
+      startBox.y + startBox.height / 2,
+    );
     await page.mouse.down();
-    await page.mouse.move(endBox.x + endBox.width / 2, endBox.y + endBox.height / 2, { steps: 5 });
+    await page.mouse.move(
+      endBox.x + endBox.width / 2,
+      endBox.y + endBox.height / 2,
+      { steps: 5 },
+    );
     await page.mouse.up();
 
     // Allow the component state to settle
@@ -62,33 +75,44 @@ test.describe('F7 — Word Search (E2E)', () => {
 
   // TC-F.28 ───────────────────────────────────────────────────────────────────
 
-  test('TC-F.28: Student menemukan semua kata dalam daftar — aktivitas auto-submit', async ({ studentPage: page }) => {
+  test('TC-F.28: Student menemukan semua kata dalam daftar — aktivitas auto-submit', async ({
+    studentPage: page,
+  }) => {
     await page.goto(activityUrl());
     await page.waitForLoadState('networkidle');
 
     const firstCell = page.getByTestId('cell-0-0');
     await firstCell.waitFor({ state: 'visible', timeout: 10_000 });
 
-    const totalWords = await page.locator('[data-testid^="word-item-"]').count();
+    const totalWords = await page
+      .locator('[data-testid^="word-item-"]')
+      .count();
 
     // Sweep every row horizontally (lengths 3–8) to find all words
     outer: for (let row = 0; row < 20; row++) {
       const startCellEl = page.getByTestId(`cell-${row}-0`);
-      if (await startCellEl.count() === 0) break;
+      if ((await startCellEl.count()) === 0) break;
 
       const startBox = await startCellEl.boundingBox();
       if (!startBox) continue;
 
       for (let len = 3; len <= 8; len++) {
         const endCellEl = page.getByTestId(`cell-${row}-${len}`);
-        if (await endCellEl.count() === 0) break;
+        if ((await endCellEl.count()) === 0) break;
 
         const endBox = await endCellEl.boundingBox();
         if (!endBox) continue;
 
-        await page.mouse.move(startBox.x + startBox.width / 2, startBox.y + startBox.height / 2);
+        await page.mouse.move(
+          startBox.x + startBox.width / 2,
+          startBox.y + startBox.height / 2,
+        );
         await page.mouse.down();
-        await page.mouse.move(endBox.x + endBox.width / 2, endBox.y + endBox.height / 2, { steps: len });
+        await page.mouse.move(
+          endBox.x + endBox.width / 2,
+          endBox.y + endBox.height / 2,
+          { steps: len },
+        );
         await page.mouse.up();
         await page.waitForTimeout(200);
 
@@ -98,7 +122,9 @@ test.describe('F7 — Word Search (E2E)', () => {
     }
 
     // When all words are found, the component auto-submits → result screen appears
-    await expect(page.getByText(/hasil aktivitas/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/hasil aktivitas/i)).toBeVisible({
+      timeout: 10_000,
+    });
     await expect(page.getByText(/skor|score/i)).toBeVisible();
   });
 });

@@ -1,4 +1,4 @@
-import { getChapterEmoji, getChapterOrdinal, CHAPTER_EMOJIS } from '@/lib/courseUtils';
+import { getChapterOrdinal } from '@/lib/courseUtils';
 
 // describe('getChapterEmoji', () => {
 //   it('returns the emoji at index 0 for ordinal 1', () => {

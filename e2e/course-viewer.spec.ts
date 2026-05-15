@@ -14,20 +14,28 @@ import { TEST_COURSE_ID, TEST_CHAPTER_ID } from './constants';
 test.describe('F3 — Course Viewer (E2E)', () => {
   test.beforeEach(() => {
     if (!TEST_COURSE_ID || !TEST_CHAPTER_ID) {
-      test.skip(true, 'E2E_TEST_COURSE_ID / E2E_TEST_CHAPTER_ID not configured');
+      test.skip(
+        true,
+        'E2E_TEST_COURSE_ID / E2E_TEST_CHAPTER_ID not configured',
+      );
     }
   });
 
   // TC-F.13 ───────────────────────────────────────────────────────────────────
 
-  test('TC-F.13: Status bab tetap "selesai" tanpa perlu refresh; progress sidebar/overview akurat', async ({ studentPage, context }) => {
+  test('TC-F.13: Status bab tetap "selesai" tanpa perlu refresh; progress sidebar/overview akurat', async ({
+    studentPage,
+    context,
+  }) => {
     const page1 = studentPage;
 
     // Open the chapter page and mark it complete
     await page1.goto(`/course/${TEST_COURSE_ID}/chapter/${TEST_CHAPTER_ID}`);
     await page1.waitForLoadState('networkidle');
 
-    const markCompleteBtn = page1.getByRole('button', { name: /tandai|mark.*complete/i });
+    const markCompleteBtn = page1.getByRole('button', {
+      name: /tandai|mark.*complete/i,
+    });
     await markCompleteBtn.waitFor({ state: 'visible', timeout: 10_000 });
     await markCompleteBtn.click();
 
@@ -45,8 +53,10 @@ test.describe('F3 — Course Viewer (E2E)', () => {
     await expect(progressText).not.toContainText('0/');
 
     // Chapter status badge/indicator for our chapter should say "selesai" (completed)
-    const chapterStatus = page2.getByTestId(`chapter-${TEST_CHAPTER_ID}-status`);
-    if (await chapterStatus.count() > 0) {
+    const chapterStatus = page2.getByTestId(
+      `chapter-${TEST_CHAPTER_ID}-status`,
+    );
+    if ((await chapterStatus.count()) > 0) {
       await expect(chapterStatus).toContainText(/selesai/i);
     }
 

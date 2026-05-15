@@ -100,7 +100,10 @@ export const ChapterEditForm = ({
       setSaving(true);
       setError(null);
       const patch: Partial<
-        Pick<Chapter, 'title' | 'mediaType' | 'mediaUrl' | 'content' | 'isPublished'>
+        Pick<
+          Chapter,
+          'title' | 'mediaType' | 'mediaUrl' | 'content' | 'isPublished'
+        >
       > = {};
 
       if (values.title !== chapter.title) {
@@ -255,7 +258,9 @@ export const ChapterEditForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {mediaType === 'slides' ? 'URL Google Slides' : 'URL Video YouTube'}
+                  {mediaType === 'slides'
+                    ? 'URL Google Slides'
+                    : 'URL Video YouTube'}
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -269,7 +274,8 @@ export const ChapterEditForm = ({
                 </FormControl>
                 {mediaType === 'slides' && (
                   <FormDescription>
-                    Pastikan presentasi diatur sebagai &apos;Siapa saja yang memiliki tautan&apos;.
+                    Pastikan presentasi diatur sebagai &apos;Siapa saja yang
+                    memiliki tautan&apos;.
                   </FormDescription>
                 )}
                 <FormMessage />
@@ -341,7 +347,12 @@ export const ChapterEditForm = ({
               Simpan Perubahan
             </Button>
             {onCancel && (
-              <Button type='button' variant='outline' onClick={onCancel} disabled={saving}>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={onCancel}
+                disabled={saving}
+              >
                 Batal
               </Button>
             )}

@@ -1,18 +1,16 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 import { getCourse, getCourseContent } from '@/lib/api';
 
 import { AdminCourseSidebar } from '@/components/course/admin/AdminCourseSidebar';
-
-import type { Course, CourseContentItem } from '@/types';
+import UnstyledLink from '@/components/links/UnstyledLink';
 
 import { AdminCourseLayoutContext } from './AdminCourseLayoutContext';
-import UnstyledLink from '@/components/links/UnstyledLink';
+
+import type { Course, CourseContentItem } from '@/types';
 
 interface AdminCourseLayoutClientProps {
   children: React.ReactNode;
@@ -62,7 +60,9 @@ function AdminCourseLayoutClient({
   }
 
   return (
-    <AdminCourseLayoutContext.Provider value={{ refreshContentItems, contentItems, loading }}>
+    <AdminCourseLayoutContext.Provider
+      value={{ refreshContentItems, contentItems, loading }}
+    >
       <div className='h-full'>
         <div className='h-15 md:pl-85 fixed inset-x-0 top-0 z-40 bg-white border-b flex items-center px-4 shadow-sm float-end'>
           <UnstyledLink

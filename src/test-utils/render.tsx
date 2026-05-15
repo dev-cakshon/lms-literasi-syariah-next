@@ -1,5 +1,5 @@
+import { type RenderOptions, render } from '@testing-library/react';
 import React from 'react';
-import { render, type RenderOptions } from '@testing-library/react';
 
 import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
 

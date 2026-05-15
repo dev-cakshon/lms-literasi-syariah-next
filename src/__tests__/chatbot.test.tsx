@@ -81,7 +81,13 @@ describe('F5 — Chatbot AI', () => {
     mocks.getSessions.mockResolvedValue([]);
     mocks.createSession.mockResolvedValue(mockSession);
     mocks.streamChat.mockImplementation(
-      (_sessionId: string, _prompt: string, _token: string, onToken: (t: string) => void, onDone: () => void) => {
+      (
+        _sessionId: string,
+        _prompt: string,
+        _token: string,
+        onToken: (t: string) => void,
+        onDone: () => void,
+      ) => {
         onToken('Bagi hasil adalah...');
         onDone();
         return Promise.resolve();
@@ -108,7 +114,9 @@ describe('F5 — Chatbot AI', () => {
 
     // User message appears in chat
     await waitFor(() => {
-      expect(screen.getByText('Jelaskan konsep bagi hasil')).toBeInTheDocument();
+      expect(
+        screen.getByText('Jelaskan konsep bagi hasil'),
+      ).toBeInTheDocument();
     });
 
     // Bot response appears after streaming
@@ -139,7 +147,9 @@ describe('F5 — Chatbot AI', () => {
 
     await waitFor(() => {
       // History messages are loaded
-      expect(screen.getByText('Jelaskan konsep bagi hasil')).toBeInTheDocument();
+      expect(
+        screen.getByText('Jelaskan konsep bagi hasil'),
+      ).toBeInTheDocument();
       expect(screen.getByText('Bagi hasil adalah...')).toBeInTheDocument();
     });
 
@@ -168,7 +178,10 @@ describe('F5 — Chatbot AI', () => {
   it('TC-F.21: Student menekan tombol "New Chat"', async () => {
     const mocks = getChatbotMocks();
     // Use a unique bot response text that is NOT one of the suggestion chips
-    const uniqueBotMsg = { ...mockBotMessage, content: 'Murabahah adalah akad jual beli...' };
+    const uniqueBotMsg = {
+      ...mockBotMessage,
+      content: 'Murabahah adalah akad jual beli...',
+    };
     mocks.getSessions.mockResolvedValue([mockSession]);
     mocks.getMessages.mockResolvedValue([mockMessage, uniqueBotMsg]);
 
@@ -180,16 +193,22 @@ describe('F5 — Chatbot AI', () => {
 
     // Bot message from history is visible
     await waitFor(() => {
-      expect(screen.getByText('Murabahah adalah akad jual beli...')).toBeInTheDocument();
+      expect(
+        screen.getByText('Murabahah adalah akad jual beli...'),
+      ).toBeInTheDocument();
     });
 
     // Multiple "Chat Baru" buttons exist (sidebar + chat area). Click the first.
-    const newChatButtons = screen.getAllByRole('button', { name: /chat baru/i });
+    const newChatButtons = screen.getAllByRole('button', {
+      name: /chat baru/i,
+    });
     await userEvent.click(newChatButtons[0]);
 
     // Chat history is cleared (bot response no longer shown)
     await waitFor(() => {
-      expect(screen.queryByText('Murabahah adalah akad jual beli...')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Murabahah adalah akad jual beli...'),
+      ).not.toBeInTheDocument();
     });
 
     // Welcome / empty state is shown

@@ -106,7 +106,9 @@ export const ActivityResultScreen = ({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             className='rounded-t-2xl px-8 py-10 text-center'
-            style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
+            style={{
+              background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)',
+            }}
           >
             <p className='text-xs font-bold uppercase tracking-[1.2px] text-white/50'>
               Hasil Aktivitas
@@ -165,7 +167,9 @@ export const ActivityResultScreen = ({
               </Button>
               <Button
                 onClick={() => router.push(`/course/${courseId}`)}
-                style={{ background: 'linear-gradient(160deg, #174339, #1e5548)' }}
+                style={{
+                  background: 'linear-gradient(160deg, #174339, #1e5548)',
+                }}
                 className='text-white hover:opacity-90'
               >
                 Kembali ke Kursus

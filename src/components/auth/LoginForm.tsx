@@ -4,7 +4,6 @@ import { FirebaseError } from 'firebase/app';
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { GeometricDivider } from '@/components/ornaments/GeometricDivider';
 import { Logo } from '@/components/Logo';
 
 import { useAuth } from '@/contexts/AuthContext';

@@ -1,8 +1,7 @@
 'use client';
 
-import { useContext, useEffect, useMemo, useState } from 'react';
-
 import { motion } from 'framer-motion';
+import { useContext, useEffect, useMemo, useState } from 'react';
 
 import { getStudentActivity, submitActivity } from '@/lib/api';
 
@@ -159,7 +158,9 @@ export default function TrueOrFalseActivityPage({
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         className='relative overflow-hidden rounded-2xl px-5 py-5'
-        style={{ background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)' }}
+        style={{
+          background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)',
+        }}
       >
         <div
           aria-hidden

@@ -6,19 +6,19 @@
  * TC-F.13 (cross-tab real-time) is in e2e/course-viewer.spec.ts.
  */
 
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ChapterContent } from '@/components/course/ChapterContent';
 import { MarkCompleteButton } from '@/components/course/MarkCompleteButton';
-import CourseIdPage from '@/app/(main)/(student)/(course)/course/[courseId]/page';
 
-import { renderWithProviders } from '@/test-utils/render';
+import CourseIdPage from '@/app/(main)/(student)/(course)/course/[courseId]/page';
 import {
   mockChapterItem,
   mockCourse,
   mockCourseProgress,
 } from '@/test-utils/mocks/api';
+import { renderWithProviders } from '@/test-utils/render';
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
@@ -79,7 +79,12 @@ function getAuthMock() {
 }
 
 function buildMockRouter() {
-  return { push: jest.fn(), replace: jest.fn(), back: jest.fn(), prefetch: jest.fn() };
+  return {
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+    prefetch: jest.fn(),
+  };
 }
 
 const courseContentItems = [
@@ -91,12 +96,19 @@ const courseContentItems = [
 
 describe('F3 — Course Viewer', () => {
   beforeEach(() => {
-    const { useRouter } = require('next/navigation') as { useRouter: jest.Mock };
+    const { useRouter } = require('next/navigation') as {
+      useRouter: jest.Mock;
+    };
     useRouter.mockReturnValue(buildMockRouter());
 
     getAuthMock().useAuth.mockReturnValue({
       user: { uid: 'user-1' },
-      userProfile: { uid: 'user-1', name: 'Student', totalPoints: 0, badges: [] },
+      userProfile: {
+        uid: 'user-1',
+        name: 'Student',
+        totalPoints: 0,
+        badges: [],
+      },
       loading: false,
       idToken: 'token',
       refreshProfile: jest.fn().mockResolvedValue(undefined),
@@ -117,13 +129,16 @@ describe('F3 — Course Viewer', () => {
 
   it('TC-F.09: Student membuka halaman overview kursus', async () => {
     const { getCourse, getCourseContent, getCertificate } = getApiMocks();
-    getCourse.mockResolvedValue(mockCourse({ id: 'course-1', title: 'Ekonomi Syariah Dasar' }));
-    getCourseContent.mockResolvedValue(courseContentItems);
-    getCertificate.mockRejectedValue({ code: 'CERTIFICATE_NOT_FOUND', status: 404 });
-
-    render(
-      <CourseIdPage params={Promise.resolve({ courseId: 'course-1' })} />,
+    getCourse.mockResolvedValue(
+      mockCourse({ id: 'course-1', title: 'Ekonomi Syariah Dasar' }),
     );
+    getCourseContent.mockResolvedValue(courseContentItems);
+    getCertificate.mockRejectedValue({
+      code: 'CERTIFICATE_NOT_FOUND',
+      status: 404,
+    });
+
+    render(<CourseIdPage params={Promise.resolve({ courseId: 'course-1' })} />);
 
     await waitFor(() => {
       expect(screen.getByText('1. Pengenalan')).toBeInTheDocument();
@@ -161,7 +176,9 @@ describe('F3 — Course Viewer', () => {
 
   it('TC-F.11: Student menekan tombol "Mark as Complete" pada bab yang belum selesai', async () => {
     const { markChapterComplete, issueCertificate } = getApiMocks();
-    const { useRouter } = require('next/navigation') as { useRouter: jest.Mock };
+    const { useRouter } = require('next/navigation') as {
+      useRouter: jest.Mock;
+    };
     const mockRouter = buildMockRouter();
     useRouter.mockReturnValue(mockRouter);
 
@@ -187,7 +204,9 @@ describe('F3 — Course Viewer', () => {
       },
     );
 
-    const button = screen.getByRole('button', { name: /tandai bab ini selesai/i });
+    const button = screen.getByRole('button', {
+      name: /tandai bab ini selesai/i,
+    });
     expect(button).toBeInTheDocument();
 
     await userEvent.click(button);
