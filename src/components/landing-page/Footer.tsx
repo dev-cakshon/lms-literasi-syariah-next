@@ -1,21 +1,16 @@
 import * as React from 'react';
 
+import { Logo } from '@/components/Logo';
+
 export const Footer = () => {
   return (
     <footer className='bg-surface-container w-full py-12'>
       <div className='flex flex-col md:flex-row justify-between items-start px-6 md:px-8 max-w-7xl mx-auto gap-8'>
         {/* Brand */}
         <div className='space-y-3'>
-          <div className='flex items-center gap-2'>
-            <span className='material-symbols-outlined text-primary-700 text-2xl'>
-              mosque
-            </span>
-            <span className='font-display font-bold text-xl text-primary-700'>
-              Eduloca
-            </span>
-          </div>
+          <Logo logotype='textless' theme='light' size='sm' />
           <p className='text-on-surface-soft text-sm max-w-xs'>
-            © 2024 Eduloca. Mencerahkan Umat Melalui Edukasi Keuangan Syariah.
+            © 2026 Eduloca. All rights reserved.
           </p>
         </div>
 

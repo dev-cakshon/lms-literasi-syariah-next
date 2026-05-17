@@ -60,7 +60,7 @@ export const HeroSection = () => {
                   </span>
                 </div>
               </div>
-              <div className='absolute -left-4 top-1/3 z-20 -rotate-12'>
+              <div className='absolute -left-4 top-1/2 z-20 -rotate-12'>
                 <div className='bg-white text-accent-lime-ink rounded-full px-3 py-1 text-xs font-bold shadow-lg'>
                   +10 XP
                 </div>

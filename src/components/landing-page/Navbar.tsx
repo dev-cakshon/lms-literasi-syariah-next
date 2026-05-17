@@ -3,6 +3,8 @@
 import { Menu, X } from 'lucide-react';
 import * as React from 'react';
 
+import { Logo } from '@/components/Logo';
+
 import UnstyledLink from '../links/UnstyledLink';
 
 export const Navbar = () => {
@@ -12,14 +14,7 @@ export const Navbar = () => {
     <header className='sticky top-0 z-50 w-full backdrop-blur-md bg-white/90 shadow-sm'>
       <nav className='layout flex items-center justify-between py-4'>
         {/* Brand */}
-        <div className='flex items-center gap-2'>
-          <span className='material-symbols-outlined text-primary-700 text-2xl'>
-            mosque
-          </span>
-          <span className='font-display font-bold text-xl text-primary-700'>
-            Eduloca
-          </span>
-        </div>
+        <Logo logotype='textless' theme='light' size='sm' />
 
         {/* Desktop Navigation */}
         <div className='hidden items-center gap-8 md:flex'>
