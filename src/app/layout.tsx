@@ -53,6 +53,14 @@ export default function RootLayout({
       lang='id'
       className={`${fontDisplay.variable} ${fontPrimary.variable}`}
     >
+      {/* eslint-disable @next/next/no-page-custom-font */}
+      <link rel='preconnect' href='https://fonts.googleapis.com' />
+      <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='' />
+      <link
+        rel='stylesheet'
+        href='https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap'
+      />
+      {/* eslint-enable @next/next/no-page-custom-font */}
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

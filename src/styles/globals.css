@@ -4,8 +4,8 @@
 
 @theme {
   /* Fonts — reference CSS vars injected by next/font/google on <html> */
-  --font-display: var(--font-fraunces), 'Fraunces', Georgia, serif;
-  --font-primary: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-epilogue), 'Epilogue', Georgia, sans-serif;
+  --font-primary: var(--font-jakarta), system-ui, sans-serif;
 
   /* Typography scale */
   --tracking-tight: -0.02em;
@@ -35,6 +35,19 @@
   --color-orange: #ff9800;
   --color-mint: #d9edbf;
   --color-forest-bg: #f5f7f2;
+
+  /* Reference (Eduloca/Material You) — landing-page tokens */
+  --color-emerald-deep: #055f4d;
+  --color-accent-lime: #b0f58b;
+  --color-accent-lime-dim: #95d872;
+  --color-accent-lime-ink: #1d5200;
+  --color-primary-fixed: #a6f1da;
+  --color-tertiary-fixed-dim: #a3d0c2;
+  --color-surface-soft: #f8faf5;
+  --color-surface-container: #ecefea;
+  --color-surface-variant: #e1e3de;
+  --color-on-surface-soft: #3f4945;
+  --color-error-pop: #ba1a1a;
 
   /* Dark color */
   --color-dark: #222222;
@@ -333,6 +346,11 @@
 
   .badges-scroll::-webkit-scrollbar-thumb:hover {
     background: rgba(217, 237, 191, 0.5);
+  }
+
+  .watermark-star {
+    font-variation-settings: 'FILL' 1;
+    transform: rotate(22.5deg);
   }
 }
 

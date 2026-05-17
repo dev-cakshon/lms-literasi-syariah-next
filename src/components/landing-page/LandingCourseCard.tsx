@@ -1,53 +1,65 @@
-import { Clock, FileText } from 'lucide-react';
 import * as React from 'react';
 
-import ButtonLink from '../links/ButtonLink';
+import UnstyledLink from '../links/UnstyledLink';
 
 export interface CourseCardProps {
   title: string;
-  illustration: React.ReactNode;
+  iconName: string;
   duration: string;
-  modules?: string;
+  level?: 'Pemula' | 'Menengah' | 'Lanjutan';
   href: string;
 }
 
 export const LandingCourseCard = ({
   title,
-  illustration,
+  iconName,
   duration,
-  modules,
+  level,
   href,
 }: CourseCardProps) => {
   return (
-    <div className='group flex flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:shadow-xl'>
-      {/* Top Section - Title & Illustration */}
-      <div className='flex items-center justify-between gap-4 p-6 pb-4'>
-        <h3 className='flex-1 text-xl font-bold text-dark leading-tight'>
-          {title}
-        </h3>
-        <div className='flex-shrink-0 transition-transform duration-300 group-hover:scale-110'>
-          {illustration}
-        </div>
-      </div>
+    <div className='bg-white rounded-xl p-6 border border-surface-variant relative overflow-hidden flex flex-col group hover:-translate-y-1 transition-transform duration-300 shadow-sm hover:shadow-md'>
+      {/* Watermark star */}
+      <span className='material-symbols-outlined absolute -right-10 -top-10 text-[150px] text-surface-variant opacity-40 watermark-star pointer-events-none'>
+        brightness_low
+      </span>
 
-      {/* Middle Section - Course Info */}
-      <div className='flex-1 space-y-2 px-6'>
-        <div className='flex items-center gap-2 text-gray-600'>
-          <Clock className='h-5 w-5' />
-          <span className='text-sm'>{duration}</span>
+      {/* Icon tile + level badge */}
+      <div className='flex justify-between items-start mb-6 relative z-10'>
+        <div className='w-16 h-16 rounded-xl bg-linear-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white shadow-inner'>
+          <span className='material-symbols-outlined text-3xl'>{iconName}</span>
         </div>
-
-        {modules && (
-          <div className='flex items-center gap-2 text-gray-600'>
-            <FileText className='h-5 w-5' />
-            <span className='text-sm'>{modules}</span>
-          </div>
+        {level && (
+          <span className='bg-accent-lime text-accent-lime-ink px-3 py-1 rounded-full font-bold text-xs uppercase tracking-wide'>
+            {level}
+          </span>
         )}
       </div>
 
-      {/* Bottom Section - CTA Button */}
-      <div className='p-6 pt-4'>
-        <ButtonLink href={href}>Lihat Kursus</ButtonLink>
+      {/* Title */}
+      <div className='relative z-10 flex-grow'>
+        <h3 className='font-display text-xl text-dark mb-2 line-clamp-2'>
+          {title}
+        </h3>
+      </div>
+
+      {/* Footer row */}
+      <div className='relative z-10 pt-6 border-t border-surface-variant flex items-center justify-between'>
+        <div className='flex items-center gap-2 text-on-surface-soft text-sm'>
+          <span className='material-symbols-outlined text-base'>
+            format_list_bulleted
+          </span>
+          <span>{duration}</span>
+        </div>
+        <UnstyledLink
+          href={href}
+          className='text-primary-700 font-bold hover:bg-surface-container px-4 py-2 rounded-full transition-colors flex items-center gap-1'
+        >
+          Lihat Kursus
+          <span className='material-symbols-outlined text-base'>
+            chevron_right
+          </span>
+        </UnstyledLink>
       </div>
     </div>
   );
