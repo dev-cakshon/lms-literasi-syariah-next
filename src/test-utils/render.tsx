@@ -9,6 +9,7 @@ interface CourseLayoutContextValue {
   contentItems: CourseContentItem[];
   refreshContentItems: () => void;
   courseTitle: string;
+  courseDescription: string;
   isPetaOpen: boolean;
   setPetaOpen: (open: boolean) => void;
   myRank: number | null;
@@ -18,6 +19,7 @@ const defaultCourseLayout: CourseLayoutContextValue = {
   contentItems: [],
   refreshContentItems: jest.fn(),
   courseTitle: 'Test Course',
+  courseDescription: '',
   isPetaOpen: false,
   setPetaOpen: jest.fn(),
   myRank: null,

@@ -17,6 +17,7 @@ import type { CourseContentItem } from '@/types';
 interface CourseData {
   id: string;
   title: string;
+  description: string;
   price: number;
 }
 
@@ -50,6 +51,7 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
       setCourse({
         id: courseData.id,
         title: courseData.title || 'Untitled Course',
+        description: courseData.description || '',
         price: 0,
       });
 
@@ -94,6 +96,7 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
           contentItems,
           refreshContentItems,
           courseTitle: course.title,
+          courseDescription: course.description,
           isPetaOpen,
           setPetaOpen: setIsPetaOpen,
           myRank,
