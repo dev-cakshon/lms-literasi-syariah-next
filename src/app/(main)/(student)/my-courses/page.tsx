@@ -4,17 +4,12 @@ import { Search } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { ApiError, getCourseProgressApi, getCourses } from '@/lib/api';
+import { useMyCertificates } from '@/hooks/use-certificates';
 
-import { CourseList } from '@/components/course-list/CourseList';
+import CourseCertificateModal from '@/components/course/CourseCertificateModal';
+import { MyCourseCard } from '@/components/course-list/MyCourseCard';
 
-import type { Course } from '@/types';
-
-const heroStyle: React.CSSProperties = {
-  background:
-    'linear-gradient(135deg, #1e5548 0%, #2C7865 40%, #3a9478 70%, #90D26D 100%)',
-  backgroundSize: '300% 300%',
-  animation: 'gradShift 9s ease infinite',
-};
+import type { Certificate, Course } from '@/types';
 
 export default function MyCoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +17,15 @@ export default function MyCoursesPage() {
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCertificate, setSelectedCertificate] =
+    useState<Certificate | null>(null);
+
+  const { certificates } = useMyCertificates();
+
+  const certByCourseId = useMemo(
+    () => Object.fromEntries(certificates.map((c) => [c.courseId, c])),
+    [certificates],
+  );
 
   useEffect(() => {
     let active = true;
@@ -91,63 +95,51 @@ export default function MyCoursesPage() {
   );
 
   return (
-    <div className='min-h-full bg-forest-bg'>
-      {/* Animated Hero */}
-      <div
-        className='relative overflow-hidden px-6 pt-10 pb-8'
-        style={heroStyle}
-      >
-        {/* Blob 1 */}
+    <div className='min-h-full bg-surface-soft'>
+      {/* Hero */}
+      <section className='relative h-[280px] w-full bg-primary-500 overflow-hidden flex items-center px-4 sm:px-6 lg:px-8'>
         <div
-          className='absolute top-4 right-8 w-48 h-48 rounded-full opacity-20 bg-[#90D26D]'
+          className='absolute top-[-100px] left-[-50px] w-[300px] h-[300px] bg-white/10 rounded-full blur-[100px] opacity-30'
           style={{ animation: 'floatBlob 7s ease-in-out infinite' }}
         />
-        {/* Blob 2 */}
         <div
-          className='absolute bottom-2 left-12 w-32 h-32 rounded-full opacity-15 bg-primary-400'
+          className='absolute bottom-[-150px] right-[-50px] w-[400px] h-[400px] bg-white/10 rounded-full blur-[100px] opacity-20'
           style={{ animation: 'floatBlob 10s ease-in-out infinite reverse' }}
         />
 
-        <div className='max-w-4xl mx-auto relative z-10'>
-          <h1 className='font-display text-4xl font-bold tracking-tight text-white'>
-            Kursus Saya
-          </h1>
-          <p className='mt-1 text-sm text-white/70'>
-            Lanjutkan perjalanan belajar Anda
-          </p>
+        <div className='relative z-10 w-full max-w-[80rem] mx-auto flex flex-col md:flex-row justify-between items-center gap-6'>
+          <div>
+            <h1 className='font-display text-3xl md:text-5xl font-bold text-white mb-2'>
+              Kursus Saya
+            </h1>
+            <p className='text-lg text-white/90'>
+              Lanjutkan misi belajar dan raih berkah finansial Anda.
+            </p>
+          </div>
 
-          {/* Glassmorphism search */}
-          <div className='mt-5 flex items-center gap-3'>
-            <div className='flex-1 relative'>
+          <div className='w-full md:w-[450px]'>
+            <div className='bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center px-5 py-4 shadow-2xl focus-within:bg-white/20 transition-all group'>
+              <Search className='w-5 h-5 text-white/70 mr-3 shrink-0 group-focus-within:text-white transition-colors' />
               <input
                 type='text'
-                placeholder='Cari kursus'
+                placeholder='Cari kursus yang sedang Anda ikuti...'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className='w-full rounded-full px-5 py-3 text-sm text-white placeholder-white/60 focus:outline-none'
-                style={{
-                  background: 'rgba(255,255,255,0.15)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(217,237,191,0.3)',
-                }}
+                className='bg-transparent border-none text-white placeholder:text-white/60 w-full focus:outline-none focus:ring-0 p-0 text-sm'
               />
             </div>
-            <button className='bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-3 rounded-full transition flex items-center gap-2 cursor-pointer backdrop-blur-sm'>
-              <Search className='w-4 h-4' />
-              Cari
-            </button>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Content */}
-      <div className='max-w-7xl mx-auto py-6 lg:py-8 px-4 sm:px-6 lg:px-8 space-y-6'>
+      <main className='max-w-[80rem] mx-auto w-full px-4 sm:px-6 lg:px-8 py-16'>
         {loading ? (
-          <div className='grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4'>
-            {Array.from({ length: 4 }).map((_, index) => (
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8'>
+            {Array.from({ length: 3 }).map((_, i) => (
               <div
-                key={index}
-                className='h-80 rounded-[var(--radius-card)] border bg-white shadow-[var(--shadow-elevated-1)] animate-pulse'
+                key={i}
+                className='h-[440px] rounded-3xl bg-white border border-surface-variant/50 animate-pulse'
               />
             ))}
           </div>
@@ -155,10 +147,43 @@ export default function MyCoursesPage() {
           <div className='rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700'>
             {error}
           </div>
+        ) : filteredCourses.length === 0 ? (
+          <div className='flex flex-col items-center justify-center py-20 gap-4 text-on-surface-soft'>
+            <Search className='w-12 h-12 opacity-30' />
+            <p className='text-sm font-medium'>Tidak ada kursus ditemukan</p>
+          </div>
         ) : (
-          <CourseList items={filteredCourses} />
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8'>
+            {filteredCourses.map((course) => (
+              <MyCourseCard
+                key={course.id}
+                id={course.id}
+                title={course.title}
+                description={course.description}
+                imageUrl={course.imageUrl}
+                chaptersLength={course.chaptersLength}
+                activities={course.activities}
+                progress={course.progress}
+                onViewCertificate={
+                  course.progress >= 100 && certByCourseId[course.id]
+                    ? () =>
+                        setSelectedCertificate(
+                          certByCourseId[course.id] ?? null,
+                        )
+                    : undefined
+                }
+              />
+            ))}
+          </div>
         )}
-      </div>
+      </main>
+
+      {selectedCertificate && (
+        <CourseCertificateModal
+          certificate={selectedCertificate}
+          onClose={() => setSelectedCertificate(null)}
+        />
+      )}
     </div>
   );
 }

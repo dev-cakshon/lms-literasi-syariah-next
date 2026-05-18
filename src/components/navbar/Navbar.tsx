@@ -37,8 +37,8 @@ export const Navbar = () => {
           {/* User area (Desktop) */}
           <div className='hidden md:flex md:items-center md:gap-2'>
             <div className='flex items-center gap-2 px-3 py-2 rounded-md'>
-              <div className='w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center'>
-                <User className='w-4 h-4 text-primary-700' />
+              <div className='w-8 h-8 bg-primary-50 rounded-full flex items-center justify-center'>
+                <User className='w-4 h-4 text-primary-600' />
               </div>
               <span className='text-sm font-semibold text-slate-800 max-w-32 truncate'>
                 {userProfile?.name || user?.email || 'Student'}
@@ -76,8 +76,8 @@ export const Navbar = () => {
           </div>
           <div className='border-t px-4 py-3'>
             <div className='flex items-center gap-3 mb-3'>
-              <div className='w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center'>
-                <User className='w-4 h-4 text-primary-700' />
+              <div className='w-8 h-8 bg-primary-50 rounded-full flex items-center justify-center'>
+                <User className='w-4 h-4 text-primary-600' />
               </div>
               <span className='text-sm font-semibold text-slate-800'>
                 {userProfile?.name || user?.email || 'Student'}
