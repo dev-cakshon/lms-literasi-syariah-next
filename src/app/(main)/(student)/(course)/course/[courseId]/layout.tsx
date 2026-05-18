@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
-import { getCourse, getCourseContent } from '@/lib/api';
+import { getCourse, getCourseContent, getLeaderboard } from '@/lib/api';
 
 import { CourseNavbar } from '@/components/course/CourseNavbar';
-import { CourseSidebar } from '@/components/course/CourseSidebar';
+import { CourseOverlay } from '@/components/course/CourseOverlay';
 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -31,12 +31,15 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
   const [course, setCourse] = useState<CourseData | null>(null);
   const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPetaOpen, setIsPetaOpen] = useState(false);
+  const [myRank, setMyRank] = useState<number | null>(null);
 
   const fetchCourseData = useCallback(async () => {
     try {
-      const [courseData, courseContentData] = await Promise.all([
+      const [courseData, courseContentData, leaderboard] = await Promise.all([
         getCourse(courseId),
         getCourseContent(courseId),
+        getLeaderboard().catch(() => []),
       ]);
 
       if (!courseData) {
@@ -53,13 +56,16 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
       setContentItems(
         [...courseContentData].sort((a, b) => a.position - b.position),
       );
+
+      const rankIndex = leaderboard.findIndex((e) => e.uid === user?.uid);
+      setMyRank(rankIndex >= 0 ? rankIndex + 1 : null);
     } catch (err) {
       console.error('Failed to load course:', err);
       router.push('/');
     } finally {
       setLoading(false);
     }
-  }, [courseId, router]);
+  }, [courseId, router, user?.uid]);
 
   const refreshContentItems = useCallback(() => {
     void fetchCourseData();
@@ -84,16 +90,25 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
   return (
     <div className='h-full'>
       <CourseLayoutContext.Provider
-        value={{ contentItems, refreshContentItems, courseTitle: course.title }}
+        value={{
+          contentItems,
+          refreshContentItems,
+          courseTitle: course.title,
+          isPetaOpen,
+          setPetaOpen: setIsPetaOpen,
+          myRank,
+        }}
       >
-        <div className='h-20 fixed inset-y-0 w-full z-50'>
-          <CourseNavbar courseId={courseId} />
-        </div>
-
-        <div className='hidden md:flex w-80 flex-col fixed top-20 bottom-0 z-50 bg-white'>
-          <CourseSidebar course={course} contentItems={contentItems} />
-        </div>
-        <main className='md:pl-80 pt-20 h-full bg-forest-bg'>{children}</main>
+        <CourseNavbar courseId={courseId} />
+        <main className='pt-20 pb-28 bg-pattern-organic min-h-screen'>
+          {children}
+        </main>
+        <CourseOverlay
+          course={course}
+          contentItems={contentItems}
+          isOpen={isPetaOpen}
+          onClose={() => setIsPetaOpen(false)}
+        />
       </CourseLayoutContext.Provider>
     </div>
   );

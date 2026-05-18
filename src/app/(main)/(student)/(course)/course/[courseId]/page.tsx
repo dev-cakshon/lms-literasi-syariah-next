@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckSquare, Grid2X2, Search } from 'lucide-react';
+import { BookOpen, CheckSquare, Grid2X2, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,6 @@ import {
 import { cn } from '@/lib/utils';
 
 import CourseCertificateModal from '@/components/course/CourseCertificateModal';
-import { CourseSidebarItem } from '@/components/course/CourseSidebarItem';
 import { ProgressRing } from '@/components/dashboard/ProgressRing';
 
 import type { Certificate, Course, CourseContentItem } from '@/types';
@@ -176,17 +175,37 @@ export default function CourseIdPage({
             <div className='overflow-hidden rounded-md border'>
               {sortedContentItems.map((item) => {
                 if (item.itemType === 'chapter') {
+                  const chapterHref = `/course/${courseId}/chapter/${item.id}`;
+                  if (item.locked) {
+                    return (
+                      <div
+                        key={item.id}
+                        className='flex items-center gap-x-2 text-slate-500 text-sm font-medium pl-6 py-4 opacity-50 cursor-not-allowed'
+                      >
+                        <BookOpen size={22} className='text-slate-500' />
+                        <span>{`${item.position}. ${item.title}`}</span>
+                      </div>
+                    );
+                  }
                   return (
-                    <CourseSidebarItem
+                    <Link
                       key={item.id}
-                      id={item.id}
-                      courseId={courseId}
-                      label={`${item.position}. ${item.title}`}
-                      isCompleted={item.completed}
-                      isLocked={item.locked}
-                      type='chapter'
-                      position={item.position}
-                    />
+                      href={chapterHref}
+                      className={cn(
+                        'flex items-center gap-x-2 text-slate-500 text-sm font-medium pl-6 py-4 transition-all hover:text-slate-600 hover:bg-slate-300/20',
+                        item.completed &&
+                          'text-primary-700 hover:text-primary-700',
+                      )}
+                    >
+                      <BookOpen
+                        size={22}
+                        className={cn(
+                          'text-slate-500',
+                          item.completed && 'text-primary-700',
+                        )}
+                      />
+                      <span>{`${item.position}. ${item.title}`}</span>
+                    </Link>
                   );
                 }
 

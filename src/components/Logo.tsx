@@ -4,6 +4,7 @@ type LogoProps = {
   logotype?: 'text' | 'textless';
   theme?: 'light' | 'dark';
   size?: 'sm' | 'md' | 'lg';
+  showText?: boolean;
 };
 
 const sizes = {
@@ -16,6 +17,7 @@ export const Logo = ({
   logotype = 'textless',
   theme = 'light',
   size = 'md',
+  showText = true,
 }: LogoProps) => {
   const src = `/svg/logo${theme}${logotype}.svg`;
   const { px, textClass } = sizes[size];
@@ -27,11 +29,13 @@ export const Logo = ({
   return (
     <div className='flex items-center gap-2'>
       <Image src={src} alt='Eduloca logo' width={px} height={px} />
-      <span
-        className={`font-bold ${textClass} ${theme === 'dark' ? 'text-white' : 'text-green-800'}`}
-      >
-        Eduloca
-      </span>
+      {showText && (
+        <span
+          className={`font-bold ${textClass} ${theme === 'dark' ? 'text-white' : 'text-green-800'}`}
+        >
+          Eduloca
+        </span>
+      )}
     </div>
   );
 };

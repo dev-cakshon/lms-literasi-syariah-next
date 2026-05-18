@@ -9,12 +9,18 @@ interface CourseLayoutContextValue {
   contentItems: CourseContentItem[];
   refreshContentItems: () => void;
   courseTitle: string;
+  isPetaOpen: boolean;
+  setPetaOpen: (open: boolean) => void;
+  myRank: number | null;
 }
 
 const defaultCourseLayout: CourseLayoutContextValue = {
   contentItems: [],
   refreshContentItems: jest.fn(),
   courseTitle: 'Test Course',
+  isPetaOpen: false,
+  setPetaOpen: jest.fn(),
+  myRank: null,
 };
 
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {

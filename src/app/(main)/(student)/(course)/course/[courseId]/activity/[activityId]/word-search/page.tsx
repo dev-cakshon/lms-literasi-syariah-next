@@ -2,6 +2,7 @@
 
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import {
   useCallback,
   useContext,
@@ -12,6 +13,7 @@ import {
 } from 'react';
 
 import { getStudentActivity, submitActivity } from '@/lib/api';
+import { getNeighborPaths } from '@/lib/courseUtils';
 import { cn } from '@/lib/utils';
 import {
   type GridCell,
@@ -22,6 +24,7 @@ import {
 } from '@/lib/wordSearch';
 
 import { ActivityResultScreen } from '@/components/activity/ActivityResultScreen';
+import { CourseActionBar } from '@/components/course/CourseActionBar';
 import { Button } from '@/components/ui/button';
 
 import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
@@ -70,6 +73,7 @@ const highlightPalette = [
 ];
 
 export default function WordSearchActivityPage({ params }: { params: Params }) {
+  const router = useRouter();
   const [courseId, setCourseId] = useState<string | null>(null);
   const [activityId, setActivityId] = useState<string | null>(null);
   const [activity, setActivity] = useState<StudentWordSearchActivity | null>(
@@ -88,7 +92,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   const [submitting, setSubmitting] = useState(false);
   const [autoSubmitting, setAutoSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { refreshContentItems } = useContext(CourseLayoutContext);
+  const { contentItems, refreshContentItems } = useContext(CourseLayoutContext);
   const autoSubmitFiredRef = useRef(false);
 
   useEffect(() => {
@@ -327,8 +331,11 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   const progressPct =
     targetSet.size > 0 ? (foundWords.length / targetSet.size) * 100 : 0;
 
+  const neighbors = getNeighborPaths(contentItems, activityId ?? '', courseId);
+  const prevPath = neighbors.prev;
+
   return (
-    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 pb-24 space-y-6'>
+    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 space-y-6'>
       {/* Header card */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -479,9 +486,9 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
         </div>
       </div>
 
-      {/* Sticky bottom bar */}
+      {/* Game progress bar + reset */}
       <div
-        className='sticky bottom-3 z-10 flex items-center justify-between rounded-xl p-3'
+        className='flex items-center justify-between rounded-xl p-3'
         style={{ background: 'linear-gradient(160deg, #174339, #1e5548)' }}
       >
         <div className='flex items-center gap-2'>
@@ -515,6 +522,14 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
           Reset Pilihan
         </Button>
       </div>
+
+      <CourseActionBar
+        prev={prevPath ? { onClick: () => router.push(prevPath) } : null}
+        next={{
+          state: 'disabled',
+          tooltipText: 'Temukan semua kata untuk lanjut',
+        }}
+      />
     </div>
   );
 }

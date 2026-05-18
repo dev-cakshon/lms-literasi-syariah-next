@@ -1,11 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useMemo, useState } from 'react';
 
 import { getStudentActivity, submitActivity } from '@/lib/api';
+import { getNeighborPaths } from '@/lib/courseUtils';
 
 import { ActivityResultScreen } from '@/components/activity/ActivityResultScreen';
+import { CourseActionBar } from '@/components/course/CourseActionBar';
 import { Button } from '@/components/ui/button';
 
 import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
@@ -28,6 +31,7 @@ export default function TrueOrFalseActivityPage({
 }: {
   params: Params;
 }) {
+  const router = useRouter();
   const [courseId, setCourseId] = useState<string | null>(null);
   const [activityId, setActivityId] = useState<string | null>(null);
   const [activity, setActivity] = useState<StudentTrueOrFalseActivity | null>(
@@ -38,7 +42,7 @@ export default function TrueOrFalseActivityPage({
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { refreshContentItems } = useContext(CourseLayoutContext);
+  const { contentItems, refreshContentItems } = useContext(CourseLayoutContext);
 
   useEffect(() => {
     params.then((p) => {
@@ -151,8 +155,17 @@ export default function TrueOrFalseActivityPage({
     );
   }
 
+  const neighbors = getNeighborPaths(contentItems, activityId, courseId);
+  const prevPath = neighbors.prev;
+
+  const nextState = submitting
+    ? 'loading'
+    : isAllAnswered
+      ? 'enabled'
+      : 'disabled';
+
   return (
-    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 pb-24 space-y-6'>
+    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 space-y-6'>
       {/* Header card */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -179,7 +192,7 @@ export default function TrueOrFalseActivityPage({
           </span>
           <div className='flex-1 min-w-0'>
             <p className='text-xs font-bold uppercase tracking-wide text-white/60 mb-0.5'>
-              True/False
+              True/False · {answeredCount}/{total} dijawab
             </p>
             <h1 className='font-bold text-white text-xl leading-snug mb-2'>
               {activity.title}
@@ -198,7 +211,7 @@ export default function TrueOrFalseActivityPage({
         </div>
       </motion.div>
 
-      {/* Statement cards — selection-lock path (isTrue not available in student type) */}
+      {/* Statement cards */}
       <div className='rounded-lg border bg-white p-4 md:p-6 space-y-4'>
         {activity.statements.map((statement, index) => {
           const answerKey = getStatementKey(statement.id, index);
@@ -248,24 +261,18 @@ export default function TrueOrFalseActivityPage({
         })}
       </div>
 
-      {/* Sticky bottom bar */}
-      <div
-        className='sticky bottom-3 z-10 flex items-center justify-between rounded-xl p-3'
-        style={{ background: 'linear-gradient(160deg, #174339, #1e5548)' }}
-      >
-        <span className='text-xs text-white/80 font-medium'>
-          {answeredCount} / {total} dijawab
-        </span>
-        {isAllAnswered && (
-          <Button
-            onClick={onSubmit}
-            disabled={submitting}
-            className='bg-white text-[#174339] hover:bg-white/90 font-semibold text-sm px-4 h-8'
-          >
-            {submitting ? 'Mengirim...' : 'Kirim Jawaban'}
-          </Button>
-        )}
-      </div>
+      <CourseActionBar
+        prev={prevPath ? { onClick: () => router.push(prevPath) } : null}
+        next={{
+          state: nextState,
+          label: submitting ? 'Mengirim...' : 'Kirim Jawaban',
+          onClick:
+            isAllAnswered && !submitting ? () => void onSubmit() : undefined,
+          tooltipText: isAllAnswered
+            ? undefined
+            : 'Jawab semua pertanyaan untuk lanjut',
+        }}
+      />
     </div>
   );
 }

@@ -55,6 +55,26 @@
   --color-on-surface-soft: #3f4945;
   --color-error-pop: #ba1a1a;
 
+  /* Material-3 course shell tokens */
+  --color-primary-container: #2c7865;
+  --color-on-primary-container: #b2fde5;
+  --color-secondary: #306b11;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #b0f58b;
+  --color-on-secondary-container: #367218;
+  --color-on-secondary-fixed-variant: #1d5200;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-highest: #e1e3de;
+  --color-outline: #6f7975;
+  --color-on-surface-variant: #3f4945;
+  --color-inverse-surface: #2e312e;
+  --color-inverse-on-surface: #eff1ec;
+  --color-tertiary: #315b50;
+  --color-primary-fixed-dim: #8bd5be;
+  --color-on-primary-fixed-variant: #005141;
+  --color-secondary-fixed: #b0f58b;
+  --color-tertiary-fixed: #beecde;
+
   /* Dark color */
   --color-dark: #222222;
 
@@ -271,6 +291,27 @@
 }
 
 @layer utilities {
+  /* Course shell — tactile button press effect */
+  .squishy-shadow {
+    box-shadow: 0 4px 0 0 var(--tw-shadow-color);
+  }
+  .squishy-active:active {
+    transform: translateY(4px);
+    box-shadow: none !important;
+  }
+
+  /* Course shell — dotted organic background pattern */
+  .bg-pattern-organic {
+    background-color: var(--color-surface-soft);
+    background-image:
+      radial-gradient(var(--color-surface-variant) 1.5px, transparent 1.5px),
+      radial-gradient(var(--color-surface-variant) 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+    background-position:
+      0 0,
+      16px 16px;
+  }
+
   .animated-underline {
     background-image:
       linear-gradient(#33333300, #33333300),
