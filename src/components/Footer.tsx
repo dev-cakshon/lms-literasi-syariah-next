@@ -10,7 +10,7 @@ export default function Footer() {
 
   return (
     <footer className='w-full bg-surface-container'>
-      <div className='max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6'>
+      <div className='w-full py-8 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6'>
         <div className='flex flex-col items-center md:items-start gap-2'>
           <span className='text-2xl font-bold text-emerald-deep font-display'>
             Eduloca

@@ -22,7 +22,7 @@ export const Navbar = () => {
 
   return (
     <nav className='sticky top-0 z-50 w-full bg-white border-b border-slate-200'>
-      <div className='max-w-[80rem] mx-auto px-4 sm:px-6 lg:px-8'>
+      <div className='w-full px-4 sm:px-6 lg:px-8'>
         <div className='flex h-16 items-center justify-between'>
           {/* Logo */}
           <div className='shrink-0'>
