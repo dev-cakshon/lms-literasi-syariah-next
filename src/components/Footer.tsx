@@ -9,13 +9,13 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className='w-full py-10 px-5 md:px-12 lg:px-20 flex flex-col md:flex-row justify-between items-center gap-6 bg-[var(--color-surface-variant)] border-t-2 border-[var(--color-outline-variant)]'>
+    <footer className='w-full py-10 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6 bg-[var(--color-surface-variant)] border-t-2 border-[var(--color-outline-variant)]'>
       <div className='flex flex-col items-center md:items-start gap-1'>
         <span className='text-2xl font-bold text-[var(--color-emerald-deep)] font-display'>
-          Literasi Syariah
+          Eduloca
         </span>
         <p className='text-sm text-[var(--color-on-surface-soft)] text-center md:text-left'>
-          © {year} Literasi Syariah. Terangi Ekonomi dengan Syariah.
+          © {year} Eduloca. All rights reserved.
         </p>
       </div>
 

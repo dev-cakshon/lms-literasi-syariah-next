@@ -183,7 +183,7 @@ export const ProfileInfo = () => {
 
 export const ProfileOverview = () => {
   return (
-    <section className='bg-gradient-to-br from-[#2c7865] to-[var(--color-emerald-deep)] rounded-3xl shadow-md relative overflow-hidden flex flex-col md:flex-row gap-6 items-center p-5 md:p-7 md:gap-8'>
+    <section className='bg-gradient-to-br from-[#2c7865] to-[var(--color-emerald-deep)] rounded-3xl shadow-md relative overflow-hidden flex flex-col md:flex-row gap-6 items-center p-5 md:p-7 md:gap-8 h-full'>
       <div
         className='absolute inset-0 opacity-10 pointer-events-none'
         style={{

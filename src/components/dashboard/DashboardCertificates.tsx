@@ -71,7 +71,7 @@ export function DashboardCertificates() {
 
   return (
     <section className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden flex flex-col'>
-      <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] flex items-center justify-between bg-[var(--color-surface-soft)]'>
+      <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] flex items-center justify-between bg-white'>
         <h2 className='text-xl font-bold text-[var(--color-on-surface)]'>
           🎓 Sertifikat Saya
         </h2>
@@ -85,7 +85,7 @@ export function DashboardCertificates() {
         )}
       </div>
 
-      <div className='p-5 lg:p-6 bg-[var(--color-surface-soft)] flex-grow'>
+      <div className='p-5 lg:p-6 bg-white flex-grow'>
         {loading && (
           <p className='text-gray-500 text-sm'>Memuat sertifikat...</p>
         )}
@@ -102,8 +102,8 @@ export function DashboardCertificates() {
         )}
 
         {!loading && !error && certificates.length > 0 && (
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-            {certificates.slice(0, 4).map((cert, index) => (
+          <div className='grid grid-cols-1 gap-4'>
+            {certificates.slice(0, 3).map((cert, index) => (
               <CertificateTile
                 key={cert.id}
                 cert={cert}

@@ -8,7 +8,7 @@ import { ProfileOverview } from '@/components/dashboard/ProfileOverview';
 export default function DashboardPage() {
   return (
     <main className='bg-[var(--color-surface-soft)] min-h-screen'>
-      <div className='max-w-[80rem] mx-auto px-5 md:px-12 lg:px-20 py-8 flex flex-col gap-6 lg:gap-8'>
+      <div className='max-w-[80rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6 lg:gap-8'>
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8'>
           <div className='lg:col-span-2'>
             <ProfileOverview />
@@ -16,8 +16,10 @@ export default function DashboardPage() {
           <AchievementBadges />
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8'>
-          <Leaderboard />
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8'>
+          <div className='lg:col-span-2'>
+            <Leaderboard />
+          </div>
           <DashboardCertificates />
         </div>
       </div>

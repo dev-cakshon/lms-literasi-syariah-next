@@ -13,7 +13,7 @@ export const AchievementBadges = () => {
 
   return (
     <section className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden flex flex-col relative'>
-      <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] flex items-center bg-[var(--color-surface-soft)]'>
+      <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] flex items-center bg-white'>
         <h2 className='text-xl font-bold text-[var(--color-on-surface)]'>
           🎖️ Badges
         </h2>
@@ -48,7 +48,7 @@ export const AchievementBadges = () => {
         ) : (
           [0, 3].map((start) => (
             <div key={start} className='relative'>
-              <div className='grid grid-cols-3 gap-4 mb-2'>
+              <div className='grid grid-cols-3 gap-4'>
                 {BADGE_DEFINITIONS.slice(start, start + 3).map((def) => (
                   <BadgeTile
                     key={def.id}
@@ -57,7 +57,6 @@ export const AchievementBadges = () => {
                   />
                 ))}
               </div>
-              <div className='badge-shelf h-4 w-full rounded-full' />
             </div>
           ))
         )}

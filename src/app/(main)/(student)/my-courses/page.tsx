@@ -141,7 +141,7 @@ export default function MyCoursesPage() {
       </div>
 
       {/* Content */}
-      <div className='max-w-7xl mx-auto p-6 lg:p-8 space-y-6'>
+      <div className='max-w-7xl mx-auto py-6 lg:py-8 px-4 sm:px-6 lg:px-8 space-y-6'>
         {loading ? (
           <div className='grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4'>
             {Array.from({ length: 4 }).map((_, index) => (

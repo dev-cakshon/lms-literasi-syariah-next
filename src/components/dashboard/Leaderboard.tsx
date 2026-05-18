@@ -129,12 +129,12 @@ export const Leaderboard = () => {
   if (loading) {
     return (
       <div className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden'>
-        <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] bg-[var(--color-surface-soft)]'>
+        <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] bg-white'>
           <h2 className='text-xl font-bold text-[var(--color-on-surface)]'>
             🏆 Leaderboard
           </h2>
         </div>
-        <div className='p-5 lg:p-6 space-y-3 bg-[var(--color-surface-soft)]'>
+        <div className='p-5 lg:p-6 space-y-3 bg-white'>
           {[1, 2, 3, 4, 5].map((i) => (
             <Skeleton key={i} className='h-14 rounded-2xl' />
           ))}
@@ -146,12 +146,12 @@ export const Leaderboard = () => {
   if (leaderboardData.length === 0) {
     return (
       <div className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden'>
-        <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] bg-[var(--color-surface-soft)]'>
+        <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] bg-white'>
           <h2 className='text-xl font-bold text-[var(--color-on-surface)]'>
             🏆 Leaderboard
           </h2>
         </div>
-        <div className='p-5 lg:p-6 text-center py-8 text-gray-500 bg-[var(--color-surface-soft)]'>
+        <div className='p-5 lg:p-6 text-center py-8 text-gray-500 bg-white'>
           <p>Belum ada data leaderboard.</p>
         </div>
       </div>
@@ -168,13 +168,13 @@ export const Leaderboard = () => {
 
   return (
     <section className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden @container'>
-      <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] bg-[var(--color-surface-soft)]'>
+      <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] bg-white'>
         <h2 className='text-xl font-bold text-[var(--color-on-surface)] flex items-center gap-2'>
           🏆 Leaderboard
         </h2>
       </div>
 
-      <div className='p-5 lg:p-6 flex flex-col gap-3 bg-[var(--color-surface-soft)]'>
+      <div className='p-5 lg:p-6 flex flex-col gap-3 bg-white'>
         {podiumRows.map((entry) => (
           <LeaderboardRow
             key={entry.uid}
