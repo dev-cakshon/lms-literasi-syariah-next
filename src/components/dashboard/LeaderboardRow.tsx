@@ -1,3 +1,6 @@
+import type { LucideIcon } from 'lucide-react';
+import { Award, Star, User } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
 import type { LeaderboardUser } from '@/types';
@@ -16,7 +19,16 @@ interface LeaderboardRowProps {
   isCurrentUser?: boolean;
 }
 
-const PODIUM = {
+const PODIUM: Record<
+  'podium-gold' | 'podium-silver' | 'podium-bronze',
+  {
+    outer: string;
+    rankBadge: string;
+    avatar: string;
+    icon: LucideIcon;
+    iconColor: string;
+  }
+> = {
   'podium-gold': {
     outer:
       'flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-[#FFF9C4] to-white border-2 border-[#FBC02D] shadow-[0_0_20px_rgba(251,192,45,0.2)]',
@@ -24,7 +36,7 @@ const PODIUM = {
       'w-10 h-10 flex items-center justify-center rounded-full bg-[#FBC02D] text-white font-bold text-lg shadow-md shrink-0',
     avatar:
       'w-12 h-12 rounded-full border-2 border-[#FBC02D] shrink-0 bg-[var(--color-surface-container-high)] flex items-center justify-center',
-    icon: 'workspace_premium' as const,
+    icon: Award,
     iconColor: 'text-[#FBC02D]',
   },
   'podium-silver': {
@@ -34,7 +46,7 @@ const PODIUM = {
       'w-10 h-10 flex items-center justify-center rounded-full bg-[#bdbdbd] text-white font-bold text-lg shrink-0',
     avatar:
       'w-12 h-12 rounded-full border-2 border-[#bdbdbd] shrink-0 bg-[var(--color-surface-container-high)] flex items-center justify-center',
-    icon: 'workspace_premium' as const,
+    icon: Award,
     iconColor: 'text-[#9e9e9e]',
   },
   'podium-bronze': {
@@ -44,10 +56,10 @@ const PODIUM = {
       'w-10 h-10 flex items-center justify-center rounded-full bg-[#d2691e] text-white font-bold text-lg shrink-0',
     avatar:
       'w-12 h-12 rounded-full border-2 border-[#d2691e] shrink-0 bg-[var(--color-surface-container-high)] flex items-center justify-center',
-    icon: 'workspace_premium' as const,
+    icon: Award,
     iconColor: 'text-[#8b4513]',
   },
-} as const;
+};
 
 function AvatarCircle({
   user,
@@ -66,9 +78,7 @@ function AvatarCircle({
           className='w-full h-full rounded-full object-cover'
         />
       ) : (
-        <span className='material-symbols-outlined text-[var(--color-outline-variant)] text-2xl'>
-          person
-        </span>
+        <User className='w-6 h-6 text-[var(--color-outline-variant)]' />
       )}
     </div>
   );
@@ -102,15 +112,14 @@ export const LeaderboardRow = ({
             {user.totalPoints.toLocaleString()} pts
           </p>
         </div>
-        <span className='material-symbols-outlined icon-fill text-[var(--color-emerald-deep)] text-3xl'>
-          stars
-        </span>
+        <Star className='w-7 h-7 fill-current text-[var(--color-emerald-deep)]' />
       </div>
     );
   }
 
   if (variant in PODIUM) {
     const cfg = PODIUM[variant as keyof typeof PODIUM];
+    const PodiumIcon = cfg.icon;
     return (
       <div className={cfg.outer}>
         <div className={cfg.rankBadge}>{rank}</div>
@@ -134,25 +143,15 @@ export const LeaderboardRow = ({
         {variant === 'podium-gold' && (
           <div className='relative shrink-0'>
             <div className='absolute inset-0 bg-[#FBC02D] blur-md opacity-40 rounded-full' />
-            <span
-              className={cn(
-                'material-symbols-outlined icon-fill text-3xl relative',
-                cfg.iconColor,
-              )}
-            >
-              {cfg.icon}
-            </span>
+            <PodiumIcon
+              className={cn('w-7 h-7 fill-current relative', cfg.iconColor)}
+            />
           </div>
         )}
         {variant !== 'podium-gold' && (
-          <span
-            className={cn(
-              'material-symbols-outlined icon-fill text-3xl shrink-0',
-              cfg.iconColor,
-            )}
-          >
-            {cfg.icon}
-          </span>
+          <PodiumIcon
+            className={cn('w-7 h-7 fill-current shrink-0', cfg.iconColor)}
+          />
         )}
       </div>
     );

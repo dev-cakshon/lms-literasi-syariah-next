@@ -1,6 +1,13 @@
 'use client';
 
-import { User } from 'lucide-react';
+import {
+  type LucideIcon,
+  Award,
+  Medal,
+  Star,
+  Trophy,
+  User,
+} from 'lucide-react';
 import { useMemo } from 'react';
 
 import { useMyCertificates } from '@/hooks/use-certificates';
@@ -44,22 +51,18 @@ function getBadgeProgressPct(totalPoints: number): number {
 interface StatTileProps {
   label: string;
   value: string | number;
-  icon: string;
+  icon: LucideIcon;
   iconColor: string;
 }
 
-function StatTile({ label, value, icon, iconColor }: StatTileProps) {
+function StatTile({ label, value, icon: Icon, iconColor }: StatTileProps) {
   return (
     <div className='bg-white/10 backdrop-blur-md rounded-xl p-2.5 md:p-3 flex flex-col items-center md:items-start border border-white/20'>
       <span className='text-[10px] uppercase tracking-wider font-bold opacity-70 text-white'>
         {label}
       </span>
       <div className='flex items-center gap-1.5 mt-0.5'>
-        <span
-          className={`material-symbols-outlined icon-fill text-xl ${iconColor}`}
-        >
-          {icon}
-        </span>
+        <Icon className={`w-5 h-5 ${iconColor}`} />
         <span className='text-white font-bold text-lg leading-none'>
           {value}
         </span>
@@ -155,25 +158,25 @@ export const ProfileInfo = () => {
         <StatTile
           label='Total Poin'
           value={userProfile.totalPoints?.toLocaleString() ?? 0}
-          icon='stars'
+          icon={Star}
           iconColor='text-amber-300'
         />
         <StatTile
           label='Lencana'
           value={userProfile.badges?.length ?? 0}
-          icon='military_tech'
+          icon={Medal}
           iconColor='text-[var(--color-accent-lime)]'
         />
         <StatTile
           label='Rank'
           value={rankDisplay}
-          icon='emoji_events'
+          icon={Trophy}
           iconColor='text-white'
         />
         <StatTile
           label='Sertifikat'
           value={certCount}
-          icon='workspace_premium'
+          icon={Award}
           iconColor='text-[var(--color-tertiary-fixed-dim)]'
         />
       </div>

@@ -74,10 +74,10 @@ export const NavbarRoutes = ({ onNavigate }: NavbarRoutesProps) => {
             }}
             type='button'
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer',
+              'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all cursor-pointer',
               'text-slate-600 hover:text-slate-900 hover:bg-slate-100',
               isActive &&
-                'text-primary-800 bg-primary-100/50 hover:bg-primary-100 hover:text-primary-700',
+                'text-primary-800 bg-primary-100 hover:bg-primary-200 hover:text-primary-800',
             )}
           >
             <Icon
