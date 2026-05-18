@@ -36,6 +36,12 @@
   --color-mint: #d9edbf;
   --color-forest-bg: #f5f7f2;
 
+  /* Surface / outline tokens matching reference design */
+  --color-surface-container-low: #f2f4ef;
+  --color-surface-container-high: #e7e9e4;
+  --color-outline-variant: #bec9c4;
+  --color-on-surface: #191c1a;
+
   /* Reference (Eduloca/Material You) — landing-page tokens */
   --color-emerald-deep: #055f4d;
   --color-accent-lime: #b0f58b;
@@ -351,6 +357,45 @@
   .watermark-star {
     font-variation-settings: 'FILL' 1;
     transform: rotate(22.5deg);
+  }
+
+  .badge-shelf {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.1) 70%,
+      rgba(0, 0, 0, 0.05) 100%
+    );
+    border-bottom: 8px solid #dcdcdc;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .confetti-dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .cert-stripe-r {
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.1) 10px,
+      rgba(255, 255, 255, 0.1) 20px
+    );
+  }
+
+  .cert-stripe-l {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.1) 10px,
+      rgba(255, 255, 255, 0.1) 20px
+    );
   }
 }
 

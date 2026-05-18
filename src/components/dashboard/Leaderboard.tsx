@@ -1,3 +1,5 @@
+'use client';
+
 import {
   collection,
   doc,
@@ -16,15 +18,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 import { useAuth } from '@/contexts/AuthContext';
 
+import type { LeaderboardRowVariant } from './LeaderboardRow';
 import { LeaderboardRow } from './LeaderboardRow';
 
 import type { Badge, LeaderboardUser } from '@/types';
 import { BADGE_IDS } from '@/types';
-
-interface LeaderboardProps {
-  users?: unknown;
-  loading?: unknown;
-}
 
 interface RankedLeaderboardUser extends LeaderboardUser {
   rank: number;
@@ -37,14 +35,11 @@ interface CurrentUserRankState {
 
 const VALID_BADGES = new Set<string>(BADGE_IDS);
 
-const isBadge = (value: unknown): value is Badge => {
-  return typeof value === 'string' && VALID_BADGES.has(value);
-};
+const isBadge = (value: unknown): value is Badge =>
+  typeof value === 'string' && VALID_BADGES.has(value);
 
 const getSafeBadgeArray = (value: unknown): Badge[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+  if (!Array.isArray(value)) return [];
   return value.filter((item): item is Badge => isBadge(item));
 };
 
@@ -56,21 +51,22 @@ const mapUserDocToLeaderboardUser = (
     typeof raw === 'object' && raw !== null
       ? (raw as Record<string, unknown>)
       : {};
-
-  const uidValue = parsed.uid;
-  const nameValue = parsed.name;
-  const pointsValue = parsed.totalPoints;
-  const badgesValue = parsed.badges;
-
   return {
-    uid: typeof uidValue === 'string' ? uidValue : fallbackUid,
-    name: typeof nameValue === 'string' ? nameValue : '',
-    totalPoints: typeof pointsValue === 'number' ? pointsValue : 0,
-    badges: getSafeBadgeArray(badgesValue),
+    uid: typeof parsed.uid === 'string' ? parsed.uid : fallbackUid,
+    name: typeof parsed.name === 'string' ? parsed.name : '',
+    totalPoints:
+      typeof parsed.totalPoints === 'number' ? parsed.totalPoints : 0,
+    badges: getSafeBadgeArray(parsed.badges),
   };
 };
 
-export const Leaderboard = (_props: LeaderboardProps) => {
+const PODIUM_VARIANTS: LeaderboardRowVariant[] = [
+  'podium-gold',
+  'podium-silver',
+  'podium-bronze',
+];
+
+export const Leaderboard = () => {
   const { data, loading } = useLeaderboard();
   const { user } = useAuth();
   const currentUserUid = user?.uid ?? null;
@@ -78,88 +74,70 @@ export const Leaderboard = (_props: LeaderboardProps) => {
     useState<CurrentUserRankState | null>(null);
 
   const leaderboardData = useMemo<RankedLeaderboardUser[]>(
-    () =>
-      data.map((leaderboardUser, index) => ({
-        ...leaderboardUser,
-        rank: index + 1,
-      })),
+    () => data.map((u, i) => ({ ...u, rank: i + 1 })),
     [data],
   );
 
-  const currentUserTopTenEntry = useMemo(
+  const currentUserTopEntry = useMemo(
     () =>
       currentUserUid
-        ? (leaderboardData.find(
-            (leaderboardUser) => leaderboardUser.uid === currentUserUid,
-          ) ?? null)
+        ? (leaderboardData.find((u) => u.uid === currentUserUid) ?? null)
         : null,
     [currentUserUid, leaderboardData],
   );
 
   useEffect(() => {
-    if (!currentUserUid || loading || currentUserTopTenEntry) {
+    if (!currentUserUid || loading || currentUserTopEntry) {
       setCurrentUserRankState(null);
       return;
     }
 
     let active = true;
 
-    const fetchCurrentUserRank = async () => {
+    const fetchRank = async () => {
       try {
         const db = getFirestoreInstance();
-        const userRef = doc(db, 'users', currentUserUid);
-        const userSnap = await getDoc(userRef);
-
-        if (!userSnap.exists()) {
-          if (active) {
-            setCurrentUserRankState(null);
-          }
-          return;
-        }
+        const userSnap = await getDoc(doc(db, 'users', currentUserUid));
+        if (!userSnap.exists()) return;
 
         const userData = mapUserDocToLeaderboardUser(
           userSnap.data(),
           userSnap.id,
         );
-
-        const higherScoreQuery = query(
+        const higherQuery = query(
           collection(db, 'users'),
           where('totalPoints', '>', userData.totalPoints),
         );
-        const higherScoreSnapshot = await getDocs(higherScoreQuery);
-        const rank = higherScoreSnapshot.size + 1;
-
+        const higherSnap = await getDocs(higherQuery);
         if (active) {
           setCurrentUserRankState({
             user: userData,
-            rank,
+            rank: higherSnap.size + 1,
           });
         }
       } catch (err) {
-        console.error('Leaderboard current user rank error:', err);
-        if (active) {
-          setCurrentUserRankState(null);
-        }
+        console.error('Leaderboard rank fetch error:', err);
       }
     };
 
-    void fetchCurrentUserRank();
-
+    void fetchRank();
     return () => {
       active = false;
     };
-  }, [currentUserUid, loading, currentUserTopTenEntry]);
+  }, [currentUserUid, loading, currentUserTopEntry]);
 
   if (loading) {
     return (
-      <div className='bg-white rounded-2xl p-5 border border-primary-100 shadow-elevated-1'>
-        <h2 className='text-xl font-bold text-gray-800 mb-6'>🏆 Leaderboard</h2>
-        <div className='space-y-3'>
-          <Skeleton className='h-12 rounded-lg' />
-          <Skeleton className='h-12 rounded-lg' />
-          <Skeleton className='h-12 rounded-lg' />
-          <Skeleton className='h-12 rounded-lg' />
-          <Skeleton className='h-12 rounded-lg' />
+      <div className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden'>
+        <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] bg-[var(--color-surface-soft)]'>
+          <h2 className='text-xl font-bold text-[var(--color-on-surface)]'>
+            🏆 Leaderboard
+          </h2>
+        </div>
+        <div className='p-5 lg:p-6 space-y-3 bg-[var(--color-surface-soft)]'>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className='h-14 rounded-2xl' />
+          ))}
         </div>
       </div>
     );
@@ -167,52 +145,101 @@ export const Leaderboard = (_props: LeaderboardProps) => {
 
   if (leaderboardData.length === 0) {
     return (
-      <div className='bg-white rounded-2xl p-5 border border-primary-100 shadow-elevated-1'>
-        <h2 className='text-xl font-bold text-gray-800 mb-6'>🏆 Leaderboard</h2>
-        <div className='text-center py-8 text-gray-500'>
+      <div className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden'>
+        <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] bg-[var(--color-surface-soft)]'>
+          <h2 className='text-xl font-bold text-[var(--color-on-surface)]'>
+            🏆 Leaderboard
+          </h2>
+        </div>
+        <div className='p-5 lg:p-6 text-center py-8 text-gray-500 bg-[var(--color-surface-soft)]'>
           <p>Belum ada data leaderboard.</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className='bg-white rounded-2xl p-5 border border-primary-100 shadow-elevated-1'>
-      <h2 className='text-xl font-bold text-gray-800 mb-6'>🏆 Leaderboard</h2>
+  const podiumRows = leaderboardData.slice(0, 3);
+  const alwaysRows = leaderboardData.slice(3, 6);
+  const extraRows = leaderboardData.slice(6, 10);
 
-      <div className='space-y-2'>
-        {leaderboardData.map((leaderboardUser, index) => (
-          <motion.div
-            key={leaderboardUser.uid}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05, duration: 0.25 }}
-          >
-            <LeaderboardRow
-              user={leaderboardUser}
-              rank={leaderboardUser.rank}
-              isCurrentUser={
-                currentUserUid !== null &&
-                leaderboardUser.uid === currentUserUid
-              }
-            />
-          </motion.div>
-        ))}
+  const rankState = currentUserTopEntry
+    ? { user: currentUserTopEntry, rank: currentUserTopEntry.rank }
+    : currentUserRankState;
+
+  return (
+    <section className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden @container'>
+      <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] bg-[var(--color-surface-soft)]'>
+        <h2 className='text-xl font-bold text-[var(--color-on-surface)] flex items-center gap-2'>
+          🏆 Leaderboard
+        </h2>
       </div>
 
-      {currentUserUid && !currentUserTopTenEntry && currentUserRankState ? (
-        <div className='mt-4'>
-          <div className='border-t border-dashed border-primary-300 mb-3' />
-          <p className='text-xs text-primary-700 font-semibold mb-2'>
-            Peringkatmu
-          </p>
+      <div className='p-5 lg:p-6 flex flex-col gap-3 bg-[var(--color-surface-soft)]'>
+        {podiumRows.map((entry) => (
           <LeaderboardRow
-            user={currentUserRankState.user}
-            rank={currentUserRankState.rank}
-            isCurrentUser={true}
+            key={entry.uid}
+            user={entry}
+            rank={entry.rank}
+            variant={PODIUM_VARIANTS[(entry.rank - 1) as 0 | 1 | 2]}
+            isCurrentUser={entry.uid === currentUserUid}
           />
-        </div>
-      ) : null}
-    </div>
+        ))}
+
+        {(alwaysRows.length > 0 || extraRows.length > 0) && (
+          <div className='mt-1 space-y-1'>
+            {alwaysRows.map((entry, idx) => (
+              <motion.div
+                key={entry.uid}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05, duration: 0.2 }}
+              >
+                <LeaderboardRow
+                  user={entry}
+                  rank={entry.rank}
+                  variant='simplified'
+                  isCurrentUser={entry.uid === currentUserUid}
+                />
+              </motion.div>
+            ))}
+
+            {extraRows.map((entry, idx) => (
+              <motion.div
+                key={entry.uid}
+                className='hidden @[40rem]:block'
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: (idx + alwaysRows.length) * 0.05,
+                  duration: 0.2,
+                }}
+              >
+                <LeaderboardRow
+                  user={entry}
+                  rank={entry.rank}
+                  variant='simplified'
+                  isCurrentUser={entry.uid === currentUserUid}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {rankState && rankState.user.uid !== currentUserTopEntry?.uid && (
+          <>
+            <div className='border-t border-dashed border-[var(--color-outline-variant)] my-1' />
+            <p className='text-[10px] font-bold uppercase tracking-widest px-3 text-[var(--color-on-surface-soft)]'>
+              Peringkatmu
+            </p>
+            <LeaderboardRow
+              user={rankState.user}
+              rank={rankState.rank}
+              variant='me'
+              isCurrentUser={true}
+            />
+          </>
+        )}
+      </div>
+    </section>
   );
 };

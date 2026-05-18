@@ -3,30 +3,23 @@
 import { AchievementBadges } from '@/components/dashboard/AchievementBadges';
 import { DashboardCertificates } from '@/components/dashboard/DashboardCertificates';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
-import {
-  ProfileInfo,
-  ProfilePicture,
-} from '@/components/dashboard/ProfileOverview';
-
-const heroStyle = {
-  background:
-    'linear-gradient(135deg, #1e5548 0%, #2C7865 40%, #3a9478 70%, #90D26D 100%)',
-  backgroundSize: '300% 300%',
-  animation: 'gradShift 8s ease infinite',
-};
+import { ProfileOverview } from '@/components/dashboard/ProfileOverview';
 
 export default function DashboardPage() {
   return (
-    <main className='bg-[#f5f7f2] min-h-screen p-4 lg:px-24'>
-      <div className='hero-card' style={heroStyle}>
-        <ProfilePicture />
-        <ProfileInfo />
-        <AchievementBadges />
-      </div>
+    <main className='bg-[var(--color-surface-soft)] min-h-screen'>
+      <div className='max-w-[80rem] mx-auto px-5 md:px-12 lg:px-20 py-8 flex flex-col gap-6 lg:gap-8'>
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8'>
+          <div className='lg:col-span-2'>
+            <ProfileOverview />
+          </div>
+          <AchievementBadges />
+        </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4'>
-        <Leaderboard />
-        <DashboardCertificates />
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8'>
+          <Leaderboard />
+          <DashboardCertificates />
+        </div>
       </div>
     </main>
   );

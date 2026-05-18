@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Award, BookOpen, Calendar } from 'lucide-react';
+import { useState } from 'react';
 
-import { getMyAllCertificates } from '@/lib/api';
+import { useMyCertificates } from '@/hooks/use-certificates';
 
 import CertificateViewModal from './CertificateViewModal';
 
@@ -15,28 +16,46 @@ interface CertificateTileProps {
 }
 
 function CertificateTile({ cert, index, onClick }: CertificateTileProps) {
-  const gradient =
-    index % 2 === 0
-      ? 'bg-gradient-to-r from-[#1e5548] to-[#3a9478]'
-      : 'bg-gradient-to-r from-[#b35e00] to-[#FF9800]';
+  const isEven = index % 2 === 0;
+
+  const headerGradient = isEven
+    ? 'bg-gradient-to-r from-[var(--color-emerald-deep)] to-[var(--color-primary-500)]'
+    : 'bg-gradient-to-r from-[#F57F17] to-[#FFB74D]';
+
+  const stripeClass = isEven ? 'cert-stripe-r' : 'cert-stripe-l';
+
+  const iconColor = isEven
+    ? 'text-[var(--color-emerald-deep)]'
+    : 'text-[#F57F17]';
+
+  const formattedDate = new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(cert.completionDate));
 
   return (
-    <button onClick={onClick} className='text-left w-full'>
-      <div className={`relative h-20 w-full rounded-lg ${gradient}`}>
-        <span className='absolute bottom-1.5 right-2 bg-white/20 text-white text-[9px] font-bold px-1.5 py-0.5 rounded'>
-          SERTIFIKAT
-        </span>
+    <button
+      onClick={onClick}
+      className='bg-[var(--color-surface-container-low)] rounded-2xl border border-[var(--color-outline-variant)]/30 overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative cursor-pointer text-left w-full'
+    >
+      <div className={`h-20 relative ${headerGradient}`}>
+        <div className={`absolute inset-0 opacity-20 ${stripeClass}`} />
+        <Award className='absolute right-3 top-3 text-white/40 size-12' />
       </div>
-      <div className='mt-1.5'>
-        <p className='text-sm font-bold text-ink line-clamp-2'>
+
+      <div className='p-5 pt-8 relative bg-white'>
+        <div className='absolute -top-7 left-5 w-14 h-14 bg-white rounded-2xl p-1 border border-[var(--color-outline-variant)] shadow-lg flex items-center justify-center transform group-hover:rotate-6 transition-transform'>
+          <BookOpen className={`size-7 ${iconColor}`} />
+        </div>
+
+        <h3 className='font-bold text-[var(--color-on-surface)] text-base mb-1 line-clamp-2'>
           {cert.courseName}
-        </p>
-        <p className='text-xs text-muted'>
-          {new Intl.DateTimeFormat('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          }).format(new Date(cert.completionDate))}
+        </h3>
+
+        <p className='text-xs text-[var(--color-on-surface-soft)] flex items-center gap-1.5 mt-2 font-semibold'>
+          <Calendar className='size-4 shrink-0' />
+          {formattedDate}
         </p>
       </div>
     </button>
@@ -44,59 +63,57 @@ function CertificateTile({ cert, index, onClick }: CertificateTileProps) {
 }
 
 export function DashboardCertificates() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const { certificates, loading, error } = useMyCertificates();
   const [selectedCertificate, setSelectedCertificate] =
     useState<Certificate | null>(null);
-
-  useEffect(() => {
-    getMyAllCertificates()
-      .then(setCertificates)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
 
   const openModal = (cert: Certificate) => setSelectedCertificate(cert);
 
   return (
-    <div className='bg-white rounded-2xl p-5 border border-primary-100 shadow-elevated-1'>
-      <div className='flex items-center justify-between mb-3'>
-        <h2 className='text-xl font-bold text-gray-800'>🎓 Sertifikat Saya</h2>
+    <section className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden flex flex-col'>
+      <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] flex items-center justify-between bg-[var(--color-surface-soft)]'>
+        <h2 className='text-xl font-bold text-[var(--color-on-surface)]'>
+          🎓 Sertifikat Saya
+        </h2>
         {certificates.length > 0 && (
           <button
             onClick={() => openModal(certificates[0])}
-            className='text-xs font-semibold text-primary-500 bg-[#D9EDBF] px-3 py-1 rounded-full'
+            className='text-xs font-bold uppercase tracking-wider text-[var(--color-emerald-deep)] hover:underline decoration-[var(--color-accent-lime-ink)] decoration-2 underline-offset-4 transition-all'
           >
-            Lihat semua →
+            Lihat Semua →
           </button>
         )}
       </div>
 
-      {loading && <p className='text-gray-500 text-sm'>Memuat sertifikat...</p>}
+      <div className='p-5 lg:p-6 bg-[var(--color-surface-soft)] flex-grow'>
+        {loading && (
+          <p className='text-gray-500 text-sm'>Memuat sertifikat...</p>
+        )}
 
-      {!loading && error && (
-        <p className='text-red-500 text-sm'>Gagal memuat sertifikat.</p>
-      )}
+        {!loading && error && (
+          <p className='text-red-500 text-sm'>Gagal memuat sertifikat.</p>
+        )}
 
-      {!loading && !error && certificates.length === 0 && (
-        <p className='text-gray-500 text-sm'>
-          Belum ada sertifikat — selesaikan kursus untuk mendapatkan sertifikat.
-        </p>
-      )}
+        {!loading && !error && certificates.length === 0 && (
+          <p className='text-gray-500 text-sm'>
+            Belum ada sertifikat — selesaikan kursus untuk mendapatkan
+            sertifikat.
+          </p>
+        )}
 
-      {!loading && !error && certificates.length > 0 && (
-        <div className='grid grid-cols-2 gap-3'>
-          {certificates.slice(0, 4).map((cert, index) => (
-            <CertificateTile
-              key={cert.id}
-              cert={cert}
-              index={index}
-              onClick={() => openModal(cert)}
-            />
-          ))}
-        </div>
-      )}
+        {!loading && !error && certificates.length > 0 && (
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
+            {certificates.slice(0, 4).map((cert, index) => (
+              <CertificateTile
+                key={cert.id}
+                cert={cert}
+                index={index}
+                onClick={() => openModal(cert)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {selectedCertificate && (
         <CertificateViewModal
@@ -104,6 +121,6 @@ export function DashboardCertificates() {
           onClose={() => setSelectedCertificate(null)}
         />
       )}
-    </div>
+    </section>
   );
 }
