@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useContext, useEffect, useRef, useState } from 'react';
 
@@ -20,18 +20,12 @@ interface MarkCompleteButtonProps {
   courseId: string;
   chapterId: string;
   onComplete: (points: number) => void;
-  className?: string;
-  label?: string;
-  style?: React.CSSProperties;
 }
 
 export const MarkCompleteButton = ({
   courseId,
   chapterId,
   onComplete,
-  className,
-  label,
-  style,
 }: MarkCompleteButtonProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -155,16 +149,18 @@ export const MarkCompleteButton = ({
       <Button
         onClick={handleMarkComplete}
         disabled={isLoading}
-        className={className}
-        style={style}
+        className='bg-[#306b11] text-white text-sm font-bold tracking-[0.05em] rounded-xl px-8 py-4 shadow-[0_4px_0_0_#1d5200] hover:-translate-y-1 hover:shadow-[0_6px_0_0_#1d5200] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 h-auto'
       >
         {isLoading ? (
           <>
-            <Loader2 className='animate-spin h-4 w-4 mr-2' />
-            Loading...
+            <Loader2 className='animate-spin h-4 w-4' />
+            Memuat...
           </>
         ) : (
-          (label ?? 'Mark as Complete')
+          <>
+            <CheckCircle className='h-4 w-4' />
+            Tandai Bab Selesai
+          </>
         )}
       </Button>
     </>
