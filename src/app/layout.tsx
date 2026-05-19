@@ -3,6 +3,8 @@ import * as React from 'react';
 
 import '@/styles/globals.css';
 
+import { MobileGate } from '@/components/MobileGate';
+
 import { fontDisplay, fontPrimary } from '@/app/fonts';
 import { siteConfig } from '@/constant/config';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -63,7 +65,9 @@ export default function RootLayout({
       />
       {/* eslint-enable @next/next/no-page-custom-font */}
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <MobileGate>
+          <AuthProvider>{children}</AuthProvider>
+        </MobileGate>
       </body>
     </html>
   );
