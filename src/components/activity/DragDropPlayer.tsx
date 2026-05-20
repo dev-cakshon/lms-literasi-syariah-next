@@ -232,7 +232,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
   }
 
   return (
-    <div className='mx-auto w-full max-w-5xl p-4 md:p-8 pb-8 space-y-6'>
+    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 pb-8 space-y-6'>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -352,10 +352,10 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
             })}
           </div>
 
-          {/* Pool tray — sticky bottom */}
+          {/* Pool tray — card under the buckets */}
           <div
-            className='sticky bottom-0 z-10 bg-surface-container-lowest rounded-t-3xl border-t-2 border-surface-variant p-6'
-            style={{ boxShadow: '0 -4px 20px rgba(5,95,77,0.05)' }}
+            className='bg-surface-container-lowest rounded-2xl border-2 border-surface-variant p-6'
+            style={{ boxShadow: '0 4px 20px rgba(5,95,77,0.05)' }}
           >
             <div className='flex items-center gap-4 mb-4'>
               <span className='shrink-0 text-xs font-bold uppercase tracking-[0.05em] text-on-surface-variant'>
