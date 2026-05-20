@@ -106,7 +106,7 @@ export function CourseActionBar({ prev, next }: CourseActionBarProps) {
         <button
           type='button'
           onClick={next.onClick}
-          className='flex items-center gap-2 rounded-xl px-6 md:px-8 py-3 text-sm font-bold tracking-wide text-white bg-[#306b11] squishy-shadow [--tw-shadow-color:#1d5200] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none transition-transform'
+          className='flex items-center gap-2 rounded-xl px-6 md:px-8 py-3 text-sm font-bold tracking-wide text-white bg-action-green squishy-shadow [--tw-shadow-color:#1d5200] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none transition-transform'
         >
           <span className='hidden md:inline'>{nextLabel}</span>
           <ArrowRight className='w-4 h-4' />

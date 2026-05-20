@@ -121,21 +121,21 @@ export default function CourseContentItemRow({
     return (
       <Link
         href={href}
-        className='bg-white border-2 border-primary-500 rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-[0_8px_24px_rgba(44,120,101,0.12)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated-2)] transition-all duration-300'
+        className='bg-white border-2 border-amber-500 rounded-2xl p-5 flex items-center gap-4 relative overflow-hidden shadow-[0_8px_24px_rgba(245,158,11,0.12)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated-2)] transition-all duration-300'
       >
-        <div className='absolute top-0 inset-x-0 h-1 bg-primary-500' />
-        <div className='w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center shrink-0 shadow-md'>
+        <div className='absolute top-0 inset-x-0 h-1 bg-amber-500' />
+        <div className='w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center shrink-0 shadow-md'>
           <Play size={22} className='text-white' />
         </div>
         <div className='flex flex-col gap-0.5 min-w-0 flex-1'>
-          <span className='text-xs font-bold uppercase tracking-wider text-primary-600'>
+          <span className='text-xs font-bold uppercase tracking-wider text-amber-700'>
             {labelPrefix}
           </span>
-          <span className='font-semibold text-primary-700 truncate'>
+          <span className='font-semibold text-amber-700 truncate'>
             {item.title}
           </span>
         </div>
-        <span className='shrink-0 bg-primary-500 text-white rounded-full px-3 py-1 text-xs font-bold animate-pulse'>
+        <span className='shrink-0 bg-amber-500 text-amber-ink rounded-full px-3 py-1 text-xs font-bold animate-pulse'>
           ▶ Kamu di sini
         </span>
       </Link>

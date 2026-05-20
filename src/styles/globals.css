@@ -28,19 +28,31 @@
   --color-primary-700: #174339;
   --color-primary-800: #10302a;
   --color-primary-900: #091d19;
-  --color-primary-950: #050f0d;
 
   /* Accent tokens */
   --color-lime: #90d26d;
-  --color-orange: #ff9800;
-  --color-mint: #d9edbf;
-  --color-forest-bg: #f5f7f2;
+
+  /* Amber accent — honey/marigold; meaning: active / in-progress / reward */
+  --color-amber-50: #fff7e6;
+  --color-amber-100: #fdecc4;
+  --color-amber-300: #f5c95a;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-ink: #7a4a02;
+
+  /* Semantic state tokens */
+  --color-action-green: #306b11;
+  --color-warning: #e8730c;
+  --color-warning-bg: #fdebd3;
+  --color-danger: #ba1a1a;
+  --color-danger-bg: #fdecec;
 
   /* Surface / outline tokens matching reference design */
-  --color-surface-container-low: #f2f4ef;
-  --color-surface-container-high: #e7e9e4;
-  --color-outline-variant: #bec9c4;
-  --color-on-surface: #191c1a;
+  --color-surface-container-low: #f3eee3;
+  --color-surface-container-high: #e9e1d0;
+  --color-outline-variant: #d4cab6;
+  --color-on-surface: #1f1c16;
 
   /* Reference (Eduloca/Material You) — landing-page tokens */
   --color-emerald-deep: #055f4d;
@@ -49,27 +61,20 @@
   --color-accent-lime-ink: #1d5200;
   --color-primary-fixed: #a6f1da;
   --color-tertiary-fixed-dim: #a3d0c2;
-  --color-surface-soft: #f8faf5;
-  --color-surface-container: #ecefea;
-  --color-surface-variant: #e1e3de;
-  --color-on-surface-soft: #3f4945;
-  --color-error-pop: #ba1a1a;
+  --color-surface-soft: #faf6ef;
+  --color-surface-container: #efe8da;
+  --color-surface-variant: #e7e0d0;
+  --color-on-surface-soft: #4a443a;
 
   /* Material-3 course shell tokens */
   --color-primary-container: #2c7865;
   --color-on-primary-container: #b2fde5;
-  --color-secondary: #306b11;
-  --color-on-secondary: #ffffff;
   --color-secondary-container: #b0f58b;
   --color-on-secondary-container: #367218;
-  --color-on-secondary-fixed-variant: #1d5200;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-highest: #e1e3de;
-  --color-outline: #6f7975;
-  --color-on-surface-variant: #3f4945;
-  --color-inverse-surface: #2e312e;
-  --color-inverse-on-surface: #eff1ec;
-  --color-tertiary: #315b50;
+  --color-surface-container-highest: #e7e0d0;
+  --color-outline: #80786a;
+  --color-on-surface-variant: #4a443a;
   --color-primary-fixed-dim: #8bd5be;
   --color-on-primary-fixed-variant: #005141;
   --color-secondary-fixed: #b0f58b;
@@ -77,19 +82,6 @@
 
   /* Dark color */
   --color-dark: #222222;
-
-  /* Sky color palette */
-  --color-sky-50: #f0f9ff;
-  --color-sky-100: #e0f2fe;
-  --color-sky-200: #bae6fd;
-  --color-sky-300: #7dd3fc;
-  --color-sky-400: #38bdf8;
-  --color-sky-500: #0ea5e9;
-  --color-sky-600: #0284c7;
-  --color-sky-700: #0369a1;
-  --color-sky-800: #075985;
-  --color-sky-900: #0c4a6e;
-  --color-sky-950: #082f49;
 
   /* Slate color palette */
   --color-slate-50: #f8fafc;

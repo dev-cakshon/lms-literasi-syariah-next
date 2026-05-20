@@ -54,7 +54,13 @@ export default function CourseOverviewHero({
 
       <div className='relative z-10 max-w-2xl flex flex-col gap-6'>
         {/* Status chip */}
-        <div className='inline-flex items-center gap-2 bg-white/20 text-on-primary-container px-4 py-1.5 rounded-full text-sm font-bold w-max backdrop-blur-sm'>
+        <div
+          className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold w-max backdrop-blur-sm ${
+            chipState === 'inprogress'
+              ? 'bg-amber-500 text-amber-ink'
+              : 'bg-white/20 text-on-primary-container'
+          }`}
+        >
           <ChipIcon size={16} className='shrink-0' />
           {chipLabel}
         </div>

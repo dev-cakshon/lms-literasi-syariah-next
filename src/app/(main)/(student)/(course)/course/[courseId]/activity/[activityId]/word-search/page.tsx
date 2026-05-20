@@ -334,7 +334,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
           <h1 className='font-display text-on-surface text-2xl md:text-[32px] font-semibold leading-tight'>
             {activity.title}
           </h1>
-          <div className='shrink-0 bg-secondary-container text-on-secondary-container text-xs font-bold tracking-[0.05em] px-3 py-1 rounded-full inline-flex items-center gap-1 shadow-[0_2px_0_0_#95d872]'>
+          <div className='shrink-0 bg-amber-50 text-amber-700 text-xs font-bold tracking-[0.05em] px-3 py-1 rounded-full inline-flex items-center gap-1 border border-amber-300 shadow-[0_2px_0_0_var(--color-amber-300)]'>
             <Zap className='w-3 h-3' />
             Hingga {activity.maxPoints} XP
           </div>
@@ -424,7 +424,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
                     'aspect-square w-full flex items-center justify-center rounded-[6px] text-sm font-bold uppercase bg-surface-container border border-outline-variant text-on-surface transition-colors',
                     foundColor,
                     inCurrentSelection &&
-                      'bg-primary-container text-on-primary-container border-2 border-primary ring-2 ring-primary/30',
+                      'bg-primary-container text-on-primary-container border-2 border-primary-500 ring-2 ring-primary-500/30',
                   )}
                 >
                   {char}

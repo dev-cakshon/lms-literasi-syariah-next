@@ -46,7 +46,7 @@ export const ChapterContent = ({
     <div className='max-w-[960px] mt-4 mx-auto px-4 md:px-6 pt-4 pb-16 flex flex-col gap-8'>
       {/* ① Header row */}
       <div className='flex flex-wrap items-center justify-between gap-4'>
-        <h1 className='h2 text-primary'>
+        <h1 className='h2 text-primary-700'>
           BAB {chapterOrdinal} · {title}
         </h1>
         {mediaType === 'youtube' ? (
@@ -74,7 +74,7 @@ export const ChapterContent = ({
             <YoutubePlayer url={mediaUrl} title={title} />
           )}
           {isCompleted && (
-            <div className='absolute top-3 left-3 bg-surface-container-lowest text-[#306b11] text-sm font-bold tracking-[0.05em] rounded-full px-4 py-1.5 flex items-center gap-1.5 shadow-sm border border-[#306b11]/20 pointer-events-none'>
+            <div className='absolute top-3 left-3 bg-surface-container-lowest text-action-green text-sm font-bold tracking-[0.05em] rounded-full px-4 py-1.5 flex items-center gap-1.5 shadow-sm border border-action-green/20 pointer-events-none'>
               <CheckCircle2 className='h-4 w-4' />
               Sudah Ditonton
             </div>
@@ -98,7 +98,7 @@ export const ChapterContent = ({
               backgroundSize: '150px',
             }}
           />
-          <h2 className='h3 text-primary mb-4 flex items-center gap-2'>
+          <h2 className='h3 text-primary-700 mb-4 flex items-center gap-2'>
             <BookOpen className='h-5 w-5' />
             Catatan Materi
           </h2>
@@ -126,7 +126,7 @@ export const ChapterContent = ({
               backgroundPosition: 'center right',
             }}
           />
-          <h3 className='h3 text-primary'>Sudah paham materinya?</h3>
+          <h3 className='h3 text-primary-700'>Sudah paham materinya?</h3>
           <MarkCompleteButton
             courseId={courseId}
             chapterId={chapterId}
@@ -134,13 +134,13 @@ export const ChapterContent = ({
           />
         </div>
       ) : (
-        <div className='bg-secondary-container/20 border-2 border-[#306b11]/30 rounded-2xl p-6 flex items-center gap-4'>
+        <div className='bg-secondary-container/20 border-2 border-action-green/30 rounded-2xl p-6 flex items-center gap-4'>
           <div className='bg-secondary-container text-on-secondary-container p-3 rounded-full shrink-0'>
             <Award className='h-8 w-8' />
           </div>
           <div>
-            <h3 className='h3 text-primary'>Bab Selesai</h3>
-            <p className='text-on-surface-variant'>+10 XP diperoleh</p>
+            <h3 className='h3 text-primary-700'>Bab Selesai</h3>
+            <p className='text-amber-700'>+10 XP diperoleh</p>
           </div>
         </div>
       )}

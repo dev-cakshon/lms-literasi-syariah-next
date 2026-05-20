@@ -243,7 +243,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
           <p className='text-xs font-bold uppercase tracking-[0.05em] text-on-surface-variant'>
             AKTIVITAS · DRAG &amp; DROP · <span>{activity.title}</span>
           </p>
-          <div className='shrink-0 bg-secondary-container text-on-secondary-container text-xs font-bold tracking-[0.05em] px-3 py-1 rounded-full inline-flex items-center gap-1'>
+          <div className='shrink-0 bg-amber-50 text-amber-700 text-xs font-bold tracking-[0.05em] px-3 py-1 rounded-full inline-flex items-center gap-1 border border-amber-300'>
             <Zap className='w-3 h-3' />
             Hingga {activity.maxPoints} XP
           </div>
@@ -279,12 +279,12 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
                         transition={{ duration: 0.3 }}
                         className={`bg-surface-container-lowest rounded-2xl p-6 border-2 transition-transform ${
                           isDragOver
-                            ? 'border-primary -translate-y-1'
+                            ? 'border-primary-500 -translate-y-1'
                             : 'border-surface-variant'
                         }`}
                         style={{ boxShadow: '0 4px 20px rgba(5,95,77,0.05)' }}
                       >
-                        <h3 className='font-display text-xl font-semibold text-primary text-center mb-4'>
+                        <h3 className='font-display text-xl font-semibold text-primary-700 text-center mb-4'>
                           {category}
                         </h3>
                         <div
@@ -293,7 +293,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
                           data-testid={`category-zone-${category}`}
                           className={`min-h-[200px] rounded-xl border-2 p-4 flex flex-col gap-3 transition-colors duration-150 ${
                             isDragOver
-                              ? 'border-primary bg-primary-fixed/30'
+                              ? 'border-primary-500 bg-primary-fixed/30'
                               : isAllAnswered
                                 ? 'border-primary-fixed bg-primary-container/5'
                                 : 'border-dashed border-outline-variant bg-surface-container-low'
@@ -373,7 +373,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
                   type='button'
                   onClick={onSubmit}
                   disabled={submitting}
-                  className='shrink-0 bg-[#306b11] text-white text-xs font-bold tracking-[0.05em] rounded-xl px-8 py-4 inline-flex items-center gap-2 squishy-shadow [--tw-shadow-color:#1d5200] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none transition-transform disabled:opacity-70 disabled:cursor-not-allowed'
+                  className='shrink-0 bg-action-green text-white text-xs font-bold tracking-[0.05em] rounded-xl px-8 py-4 inline-flex items-center gap-2 squishy-shadow [--tw-shadow-color:#1d5200] hover:-translate-y-0.5 active:translate-y-1 active:shadow-none transition-transform disabled:opacity-70 disabled:cursor-not-allowed'
                 >
                   {submitting ? 'Mengirim...' : 'Kirim Jawaban'}
                   <ArrowRight className='w-4 h-4' />
@@ -381,7 +381,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
               )}
             </div>
             {isAllAnswered && (
-              <p className='text-sm text-primary mb-4'>
+              <p className='text-sm text-primary-700 mb-4'>
                 ✨ Semua kartu sudah dipilih!
               </p>
             )}

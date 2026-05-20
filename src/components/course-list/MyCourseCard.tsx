@@ -72,7 +72,7 @@ export function MyCourseCard({
           )}
 
           {status === 'running' && (
-            <span className='absolute top-4 left-4 bg-primary-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md'>
+            <span className='absolute top-4 left-4 bg-amber-500 text-amber-ink text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md'>
               Sedang Berjalan
             </span>
           )}
@@ -144,7 +144,7 @@ export function MyCourseCard({
                 status === 'completed'
                   ? 'text-primary-700'
                   : status === 'running'
-                    ? 'text-primary-600'
+                    ? 'text-amber-700'
                     : 'text-slate-500'
               }`}
             >
@@ -157,7 +157,7 @@ export function MyCourseCard({
                 status === 'completed'
                   ? 'bg-primary-600'
                   : status === 'running'
-                    ? 'bg-primary-500'
+                    ? 'bg-amber-500'
                     : 'bg-slate-300'
               }`}
               style={{ width: `${progress}%` }}
@@ -168,7 +168,7 @@ export function MyCourseCard({
           {status === 'running' && (
             <Link
               href={`/course/${id}`}
-              className={`${ctaClass} bg-primary-500 text-white hover:bg-primary-600`}
+              className={`${ctaClass} bg-amber-500 text-amber-ink hover:bg-amber-600`}
             >
               Lanjutkan <ArrowRight className='w-4 h-4' />
             </Link>

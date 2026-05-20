@@ -135,14 +135,7 @@ export const ActivityResultScreen = ({
                 transition={{ delay: 0.4 }}
                 className='flex justify-center'
               >
-                <span
-                  className='rounded-full px-4 py-1.5 text-sm font-bold'
-                  style={{
-                    background: 'rgba(144,210,109,0.2)',
-                    border: '1px solid rgba(144,210,109,0.35)',
-                    color: '#174339',
-                  }}
-                >
+                <span className='rounded-full px-4 py-1.5 text-sm font-bold bg-amber-50 border border-amber-300 text-amber-ink'>
                   ⚡ +{result.pointsEarned} XP
                 </span>
               </motion.div>

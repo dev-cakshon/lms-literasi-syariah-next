@@ -126,7 +126,7 @@ export function CourseOverlay({
           {/* Stats badges */}
           <div className='flex gap-3'>
             <div className='bg-primary-container text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-[0_4px_0_0_#005141]'>
-              <Zap className='w-4 h-4 text-yellow-300 fill-yellow-300' />
+              <Zap className='w-4 h-4 text-amber-300 fill-amber-300' />
               <span className='text-sm font-bold tracking-wide'>{xp} XP</span>
             </div>
             <div className='bg-secondary-container text-on-secondary-container px-4 py-2 rounded-full flex items-center gap-2 shadow-[0_4px_0_0_#367218]'>

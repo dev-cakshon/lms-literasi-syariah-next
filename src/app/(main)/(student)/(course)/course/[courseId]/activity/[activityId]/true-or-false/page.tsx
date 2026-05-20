@@ -175,14 +175,14 @@ export default function TrueOrFalseActivityPage({
       >
         <div className='flex items-start justify-between gap-4'>
           <div className='min-w-0'>
-            <p className='text-xs font-bold uppercase tracking-[0.05em] text-primary mb-1'>
+            <p className='text-xs font-bold uppercase tracking-[0.05em] text-primary-700 mb-1'>
               Aktivitas · Benar / Salah
             </p>
             <h1 className='font-display text-on-surface text-2xl md:text-[32px] font-semibold leading-tight'>
               {activity.title}
             </h1>
           </div>
-          <div className='shrink-0 bg-secondary-container text-on-secondary-container text-xs font-bold tracking-[0.05em] px-3 py-1 rounded-full inline-flex items-center gap-1 shadow-[0_2px_0_0_#95d872]'>
+          <div className='shrink-0 bg-amber-50 text-amber-700 text-xs font-bold tracking-[0.05em] px-3 py-1 rounded-full inline-flex items-center gap-1 border border-amber-300 shadow-[0_2px_0_0_var(--color-amber-300)]'>
             <Zap className='w-3 h-3' />
             Hingga {activity.maxPoints} XP
           </div>
@@ -260,7 +260,7 @@ export default function TrueOrFalseActivityPage({
                       'bg-surface-container-low text-on-surface-variant border-2 border-outline-variant shadow-[0_2px_0_0_#bec9c4]',
                     isLocked &&
                       chosen === false &&
-                      'bg-[#c43d2e] text-white border-2 border-[#c43d2e] shadow-[0_2px_0_0_#9c3024]',
+                      'bg-danger text-white border-2 border-danger shadow-[0_2px_0_0_#9c3024]',
                     isLocked &&
                       chosen !== false &&
                       'bg-surface-container-high text-on-surface-variant border-2 border-outline-variant opacity-35 cursor-not-allowed',

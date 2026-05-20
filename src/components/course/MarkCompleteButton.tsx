@@ -149,7 +149,7 @@ export const MarkCompleteButton = ({
       <Button
         onClick={handleMarkComplete}
         disabled={isLoading}
-        className='bg-[#306b11] text-white text-sm font-bold tracking-[0.05em] rounded-xl px-8 py-4 shadow-[0_4px_0_0_#1d5200] hover:-translate-y-1 hover:shadow-[0_6px_0_0_#1d5200] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 h-auto'
+        className='bg-action-green text-white text-sm font-bold tracking-[0.05em] rounded-xl px-8 py-4 shadow-[0_4px_0_0_#1d5200] hover:-translate-y-1 hover:shadow-[0_6px_0_0_#1d5200] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 h-auto'
       >
         {isLoading ? (
           <>
