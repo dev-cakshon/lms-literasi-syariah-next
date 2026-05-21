@@ -56,20 +56,20 @@ export const ChatSidebar = ({
 
   return (
     <div
-      className={`h-full bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
+      className={`h-full bg-surface-container-lowest border-r border-outline-variant flex flex-col transition-all duration-300 ${
         isCollapsed ? 'w-16' : 'w-72'
       }`}
     >
       {/* Header */}
-      <div className='p-3 border-b border-gray-200 flex items-center justify-between gap-2'>
+      <div className='p-3 border-b border-outline-variant flex items-center justify-between gap-2'>
         {!isCollapsed && (
-          <h2 className='font-semibold text-gray-800 text-sm pl-1'>
+          <h2 className='font-semibold text-on-surface text-sm pl-1'>
             Riwayat Chat
           </h2>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className='p-2 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors cursor-pointer'
+          className='p-2 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors cursor-pointer'
           title={isCollapsed ? 'Perluas sidebar' : 'Kecilkan sidebar'}
         >
           {isCollapsed ? (
@@ -84,7 +84,7 @@ export const ChatSidebar = ({
       <div className='p-3'>
         <button
           onClick={onNewChat}
-          className={`w-full flex items-center gap-2 px-3 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 active:bg-primary-800 transition-colors font-medium text-sm cursor-pointer ${
+          className={`w-full flex items-center gap-2 px-3 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium text-sm cursor-pointer squishy-shadow shadow-primary-800 squishy-active ${
             isCollapsed ? 'justify-center' : ''
           }`}
         >
@@ -97,8 +97,8 @@ export const ChatSidebar = ({
       <div className='flex-1 overflow-y-auto'>
         {chats.length === 0 && !isCollapsed ? (
           <div className='px-4 py-8 text-center'>
-            <MessageSquare className='w-8 h-8 text-gray-300 mx-auto mb-2' />
-            <p className='text-sm text-gray-400'>
+            <MessageSquare className='w-8 h-8 text-outline-variant mx-auto mb-2' />
+            <p className='text-sm text-on-surface-variant'>
               Belum ada chat. Mulai percakapan baru!
             </p>
           </div>
@@ -110,7 +110,7 @@ export const ChatSidebar = ({
                 className={`group relative flex items-center w-full p-2.5 rounded-xl text-left transition-colors cursor-pointer ${
                   activeChatId === chat.id
                     ? 'bg-primary-50 text-primary-700 border border-primary-200'
-                    : 'hover:bg-gray-50 text-gray-700 border border-transparent'
+                    : 'hover:bg-surface-container-low text-on-surface border border-transparent'
                 } ${isCollapsed ? 'justify-center' : ''}`}
                 onClick={() => onSelectChat(chat.id)}
               >
@@ -119,7 +119,7 @@ export const ChatSidebar = ({
                     className={`w-5 h-5 ${
                       activeChatId === chat.id
                         ? 'text-primary-600'
-                        : 'text-gray-400'
+                        : 'text-on-surface-variant'
                     }`}
                   />
                 ) : (
@@ -135,16 +135,15 @@ export const ChatSidebar = ({
                             e.key === 'Enter' && handleSaveEdit(chat.id)
                           }
                           onClick={(e) => e.stopPropagation()}
-                          className='w-full bg-white border border-primary-300 rounded px-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500'
+                          className='w-full bg-surface-container-lowest border border-primary-300 rounded px-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500'
                         />
                       ) : chat.title === 'Sesi Baru...' ? (
-                        /* Skeleton shimmer for title being generated */
                         <div className='pr-6 space-y-1.5'>
                           <div
                             className='h-3 rounded-full w-4/5'
                             style={{
                               background:
-                                'linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%)',
+                                'linear-gradient(90deg, var(--color-surface-container-low) 25%, var(--color-surface-container-high) 50%, var(--color-surface-container-low) 75%)',
                               backgroundSize: '200% 100%',
                               animation: 'shimmer 1.4s infinite linear',
                             }}
@@ -153,7 +152,7 @@ export const ChatSidebar = ({
                             className='h-2.5 rounded-full w-3/5'
                             style={{
                               background:
-                                'linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%)',
+                                'linear-gradient(90deg, var(--color-surface-container-low) 25%, var(--color-surface-container-high) 50%, var(--color-surface-container-low) 75%)',
                               backgroundSize: '200% 100%',
                               animation: 'shimmer 1.4s infinite linear 0.2s',
                             }}
@@ -165,32 +164,32 @@ export const ChatSidebar = ({
                         </div>
                       )}
                       {chat.title !== 'Sesi Baru...' && chat.lastMessage && (
-                        <div className='text-xs text-gray-400 truncate pr-6'>
+                        <div className='text-xs text-on-surface-variant truncate pr-6'>
                           {chat.lastMessage}
                         </div>
                       )}
                     </div>
 
-                    {/* Actions Menu (Three Dots) */}
+                    {/* Actions Menu */}
                     <div
                       className='absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity'
                       onClick={(e) => e.stopPropagation()}
                     >
                       <DropdownMenu.Root>
                         <DropdownMenu.Trigger asChild>
-                          <button className='p-1 hover:bg-gray-200 rounded-md text-gray-500'>
+                          <button className='p-1 hover:bg-surface-container-high rounded-md text-on-surface-variant'>
                             <MoreVertical className='w-4 h-4' />
                           </button>
                         </DropdownMenu.Trigger>
 
                         <DropdownMenu.Portal>
                           <DropdownMenu.Content
-                            className='min-w-[140px] bg-white rounded-lg shadow-xl border border-gray-100 p-1 z-50 animate-in fade-in zoom-in-95'
+                            className='min-w-[140px] bg-surface-container-lowest rounded-lg shadow-xl border border-outline-variant p-1 z-50 animate-in fade-in zoom-in-95'
                             sideOffset={5}
                             align='end'
                           >
                             <DropdownMenu.Item
-                              className='flex items-center gap-2 px-2 py-1.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 rounded-md cursor-pointer outline-none'
+                              className='flex items-center gap-2 px-2 py-1.5 text-sm text-on-surface hover:bg-primary-50 hover:text-primary-700 rounded-md cursor-pointer outline-none'
                               onSelect={() => handleStartEdit(chat)}
                             >
                               <Edit2 className='w-4 h-4' />

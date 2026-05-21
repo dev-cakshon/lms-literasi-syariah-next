@@ -1,60 +1,52 @@
 'use client';
 
-import { Award, BookOpen, GraduationCap, MonitorPlay } from 'lucide-react';
 import * as React from 'react';
 
 import { FeatureCard } from './FeatureCard';
 
-// Feature data type - using the same interface from FeatureCard
-interface Feature {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}
+const features = [
+  {
+    icon: 'sports_esports',
+    title: 'Belajar dengan Bermain',
+    description:
+      'Sistem gamifikasi membuat belajar ekonomi syariah terasa seperti bermain game. XP, level, dan tantangan menanti!',
+  },
+  {
+    icon: 'menu_book',
+    title: 'Kurikulum Syariah Lengkap',
+    description:
+      'Dari dasar fiqih muamalah hingga aplikasi praktis di perbankan dan investasi syariah modern.',
+  },
+  {
+    icon: 'emoji_events',
+    title: 'Naik Level, Kumpulkan Badge',
+    description:
+      'Setiap pencapaian dihargai. Kumpulkan badge eksklusif dan tunjukkan keahlianmu kepada dunia.',
+  },
+  {
+    icon: 'workspace_premium',
+    title: 'Sertifikat Sebagai Bukti',
+    description:
+      'Raih sertifikat profesional yang diakui industri sebagai bukti kompetensi ekonomi syariahmu.',
+  },
+];
 
 export const FeatureSection = () => {
-  // Feature data array - easy to manage and update
-  const features: Feature[] = [
-    {
-      icon: (
-        <GraduationCap className='h-8 w-8 text-primary-600' strokeWidth={1.5} />
-      ),
-      title: 'Pakar Ekonomi Syariah Berpengalaman',
-      description:
-        'Belajar langsung dari praktisi dan akademisi yang ahli di bidang ekonomi dan keuangan syariah dengan pengalaman puluhan tahun.',
-    },
-    {
-      icon: <BookOpen className='h-8 w-8 text-primary-600' strokeWidth={1.5} />,
-      title: 'Materi Komprehensif Berbasis Syariah',
-      description:
-        'Kurikulum lengkap dari dasar fiqih muamalah hingga aplikasi praktis dalam perbankan, investasi, dan manajemen keuangan syariah modern.',
-    },
-    {
-      icon: <Award className='h-8 w-8 text-primary-600' strokeWidth={1.5} />,
-      title: 'Sertifikat Profesional Terakreditasi',
-      description:
-        'Dapatkan sertifikat yang diakui industri untuk meningkatkan kredibilitas profesional Anda di bidang keuangan dan ekonomi syariah.',
-    },
-    {
-      icon: (
-        <MonitorPlay className='h-8 w-8 text-primary-600' strokeWidth={1.5} />
-      ),
-      title: 'Pembelajaran Fleksibel & Interaktif',
-      description:
-        'Akses materi kapan saja, di mana saja dengan video berkualitas HD, studi kasus nyata, dan forum diskusi dengan sesama praktisi syariah.',
-    },
-  ];
-
   return (
-    <section id='feature' className='bg-gray-50 py-20'>
+    <section id='feature' className='scroll-mt-20 py-24 bg-surface-soft'>
       <div className='layout'>
-        {/* Section Title */}
-        <h2 className='mb-12 text-center text-3xl font-bold text-dark md:text-4xl'>
-          Mengapa Memilih Platform Kami?
-        </h2>
+        {/* Section Header */}
+        <div className='text-center mb-14'>
+          <p className='text-primary-700 tracking-widest uppercase text-sm font-bold mb-4'>
+            Mengapa Memilih Platform Kami?
+          </p>
+          <h2 className='font-display text-3xl md:text-4xl font-bold text-dark'>
+            Apa yang Bikin Belajar di Sini Beda?
+          </h2>
+        </div>
 
         {/* Features Grid */}
-        <div className='grid gap-6 md:grid-cols-2 lg:gap-8'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
           {features.map((feature, index) => (
             <FeatureCard
               key={index}

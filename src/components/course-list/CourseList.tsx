@@ -24,7 +24,7 @@ export const CourseList = ({ items }: CourseListProps) => {
   return (
     <>
       <div className='grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4'>
-        {items.map((item, index) => (
+        {items.map((item) => (
           <CourseCard
             key={item.id}
             id={item.id}
@@ -40,7 +40,6 @@ export const CourseList = ({ items }: CourseListProps) => {
             originalPoints={item.originalPoints}
             progress={item.progress}
             editUrl={item.editUrl}
-            accent={index % 2 === 1 ? 'orange' : 'green'}
           />
         ))}
       </div>

@@ -2,6 +2,8 @@
 
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
+import { Sparkles, Zap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import {
   useCallback,
   useContext,
@@ -12,6 +14,7 @@ import {
 } from 'react';
 
 import { getStudentActivity, submitActivity } from '@/lib/api';
+import { getNeighborPaths } from '@/lib/courseUtils';
 import { cn } from '@/lib/utils';
 import {
   type GridCell,
@@ -22,7 +25,7 @@ import {
 } from '@/lib/wordSearch';
 
 import { ActivityResultScreen } from '@/components/activity/ActivityResultScreen';
-import { Button } from '@/components/ui/button';
+import { CourseActionBar } from '@/components/course/CourseActionBar';
 
 import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
 
@@ -61,15 +64,13 @@ function buildLineCells(start: GridCell, end: GridCell): GridCell[] {
 }
 
 const highlightPalette = [
-  'bg-emerald-200 text-emerald-900',
-  'bg-amber-200 text-amber-900',
-  'bg-cyan-200 text-cyan-900',
-  'bg-fuchsia-200 text-fuchsia-900',
-  'bg-lime-200 text-lime-900',
-  'bg-rose-200 text-rose-900',
+  'bg-secondary-container border-2 border-[#95d872] text-on-secondary-container',
+  'bg-tertiary-fixed border-2 border-tertiary-fixed-dim text-on-surface',
+  'bg-primary-fixed border-2 border-primary-fixed-dim text-on-surface',
 ];
 
 export default function WordSearchActivityPage({ params }: { params: Params }) {
+  const router = useRouter();
   const [courseId, setCourseId] = useState<string | null>(null);
   const [activityId, setActivityId] = useState<string | null>(null);
   const [activity, setActivity] = useState<StudentWordSearchActivity | null>(
@@ -85,10 +86,8 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   >([]);
   const [result, setResult] = useState<SubmitActivityResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [autoSubmitting, setAutoSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { refreshContentItems } = useContext(CourseLayoutContext);
+  const { contentItems, refreshContentItems } = useContext(CourseLayoutContext);
   const autoSubmitFiredRef = useRef(false);
 
   useEffect(() => {
@@ -185,7 +184,6 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
 
   const onSubmit = useCallback(async () => {
     if (!courseId || !activityId) return;
-    setSubmitting(true);
     setError(null);
     try {
       const foundWordsPayload = foundWords.map(
@@ -200,8 +198,6 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     } catch (err) {
       console.error('Failed to submit word-search activity:', err);
       setError('Gagal mengirim jawaban.');
-    } finally {
-      setSubmitting(false);
     }
   }, [
     courseId,
@@ -219,7 +215,6 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     ) {
       autoSubmitFiredRef.current = true;
       void confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-      setAutoSubmitting(true);
       const timeout = setTimeout(() => void onSubmit(), 1500);
       return () => clearTimeout(timeout);
     }
@@ -276,7 +271,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   if (loading) {
     return (
       <div className='h-full flex items-center justify-center'>
-        <p className='text-muted-foreground'>Memuat aktivitas...</p>
+        <p className='text-on-surface-variant'>Memuat aktivitas...</p>
       </div>
     );
   }
@@ -284,7 +279,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   if (error) {
     return (
       <div className='h-full flex items-center justify-center'>
-        <p className='text-red-500'>{error}</p>
+        <p className='text-error'>{error}</p>
       </div>
     );
   }
@@ -292,7 +287,7 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   if (!courseId || !activityId || !activity || !puzzle) {
     return (
       <div className='h-full flex items-center justify-center'>
-        <p className='text-muted-foreground'>Aktivitas tidak ditemukan.</p>
+        <p className='text-on-surface-variant'>Aktivitas tidak ditemukan.</p>
       </div>
     );
   }
@@ -309,7 +304,6 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
           setDragStart(null);
           setDragCurrent(null);
           setIsDragging(false);
-          setAutoSubmitting(false);
           autoSubmitFiredRef.current = false;
 
           const seed = createSeedFromActivityId(activityId);
@@ -324,74 +318,72 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     );
   }
 
-  const progressPct =
-    targetSet.size > 0 ? (foundWords.length / targetSet.size) * 100 : 0;
+  const allFound = targetSet.size > 0 && foundWords.length === targetSet.size;
+  const neighbors = getNeighborPaths(contentItems, activityId ?? '', courseId);
+  const prevPath = neighbors.prev;
 
   return (
-    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 pb-24 space-y-6'>
-      {/* Header card */}
+    <div className='mx-auto w-full max-w-4xl p-4 md:p-8 pb-8 space-y-6'>
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className='relative overflow-hidden rounded-2xl px-5 py-5'
-        style={{
-          background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)',
-        }}
+        className='space-y-2'
       >
-        <div
-          aria-hidden
-          className='absolute -top-6 -right-6 w-28 h-28 rounded-full pointer-events-none'
-          style={{ background: 'rgba(144,210,109,0.08)' }}
-        />
-        <div
-          aria-hidden
-          className='absolute -bottom-8 -left-4 w-20 h-20 rounded-full pointer-events-none'
-          style={{ background: 'rgba(144,210,109,0.08)' }}
-        />
-
-        <div className='relative z-10 flex items-start gap-3'>
-          <span className='rounded-xl bg-white/10 p-2 text-2xl leading-none select-none'>
-            🔍
-          </span>
-          <div className='flex-1 min-w-0'>
-            <p className='text-xs font-bold uppercase tracking-wide text-white/60 mb-0.5'>
-              Word Search
-            </p>
-            <h1 className='font-bold text-white text-xl leading-snug mb-2'>
-              {activity.title}
-            </h1>
-            <div
-              className='inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-bold'
-              style={{
-                background: 'rgba(144,210,109,0.2)',
-                border: '1px solid rgba(144,210,109,0.35)',
-                color: '#d9edbf',
-              }}
-            >
-              ⚡ Hingga {activity.maxPoints} XP
-            </div>
+        <div className='flex items-start justify-between gap-4'>
+          <h1 className='font-display text-on-surface text-2xl md:text-[32px] font-semibold leading-tight'>
+            {activity.title}
+          </h1>
+          <div className='shrink-0 bg-amber-50 text-amber-700 text-xs font-bold tracking-[0.05em] px-3 py-1 rounded-full inline-flex items-center gap-1 border border-amber-300 shadow-[0_2px_0_0_var(--color-amber-300)]'>
+            <Zap className='w-3 h-3' />
+            Hingga {activity.maxPoints} XP
           </div>
         </div>
+        <p className='text-xs font-bold uppercase tracking-[0.05em] text-on-surface-variant'>
+          {foundWords.length}/{targetSet.size} KATA
+        </p>
       </motion.div>
 
-      {/* Grid + word list */}
-      <div className='relative rounded-lg border bg-white p-4 md:p-6 space-y-4'>
-        {/* Auto-submit overlay */}
-        {autoSubmitting && (
+      {/* Word chips / all-found banner */}
+      <div>
+        {allFound && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className='absolute inset-0 z-20 flex items-center justify-center rounded-lg'
-            style={{ background: 'rgba(0,0,0,0.4)' }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className='bg-secondary-container border-2 border-[#95d872] text-on-secondary-container rounded-2xl shadow-[0_4px_0_0_#95d872] px-4 py-3 flex items-center justify-center gap-2 text-sm font-bold mb-3'
           >
-            <p className='text-xl font-bold text-white drop-shadow'>
-              Semua kata ditemukan! 🎉
-            </p>
+            <Sparkles className='w-5 h-5' />
+            Semua kata ditemukan!
           </motion.div>
         )}
+        {/* Chips stay mounted (display:none when allFound) so e2e data-testid locators remain stable */}
+        <div className={cn('flex flex-wrap gap-3', allFound && 'hidden')}>
+          {activity.wordList.map((word, index) => {
+            const normalized = normalizeWord(word);
+            const found = foundWords.includes(normalized);
+            return (
+              <span
+                key={`${normalized || 'empty'}-${index}`}
+                data-testid={`word-item-${index}`}
+                data-found={found ? 'true' : 'false'}
+                className={cn(
+                  'px-4 py-2 rounded-full text-sm font-bold uppercase tracking-[0.05em]',
+                  found
+                    ? 'bg-secondary-container border-2 border-[#95d872] text-on-secondary-container shadow-[0_2px_0_0_#95d872]'
+                    : 'bg-surface border-2 border-outline-variant text-on-surface shadow-[0_2px_0_0_#bec9c4]',
+                )}
+              >
+                {word}
+              </span>
+            );
+          })}
+        </div>
+      </div>
 
+      {/* Grid board */}
+      <div className='mx-auto w-full max-w-md bg-surface border-2 border-outline-variant rounded-2xl shadow-[0_6px_0_0_#bec9c4] p-3'>
         <div
-          className='inline-grid gap-1 select-none touch-none'
+          className='grid gap-1 w-full select-none touch-none'
           style={{
             gridTemplateColumns: `repeat(${activity.gridSize.cols}, minmax(0, 1fr))`,
           }}
@@ -429,10 +421,10 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
                     finalizeDragSelection();
                   }}
                   className={cn(
-                    'h-9 w-9 rounded-md border text-sm font-semibold transition-colors md:h-10 md:w-10',
-                    foundColor ?? 'bg-slate-50 text-slate-900 border-slate-200',
+                    'aspect-square w-full flex items-center justify-center rounded-[6px] text-sm font-bold uppercase bg-surface-container border border-outline-variant text-on-surface transition-colors',
+                    foundColor,
                     inCurrentSelection &&
-                      'ring-2 ring-primary-400 bg-primary-100 border-primary-300',
+                      'bg-primary-container text-on-primary-container border-2 border-primary-500 ring-2 ring-primary-500/30',
                   )}
                 >
                   {char}
@@ -441,80 +433,15 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
             }),
           )}
         </div>
-
-        <div className='rounded-md border bg-slate-50 p-3'>
-          <p className='text-xs font-semibold tracking-wide text-slate-600 uppercase'>
-            Daftar Kata
-          </p>
-          <div className='mt-2 flex flex-wrap gap-2'>
-            {activity.wordList.map((word, index) => {
-              const normalized = normalizeWord(word);
-              const found = foundWords.includes(normalized);
-              return (
-                <span
-                  key={`${normalized || 'empty'}-${index}`}
-                  data-testid={`word-item-${index}`}
-                  data-found={found ? 'true' : 'false'}
-                  className={cn(
-                    'rounded-full px-2.5 py-1 text-xs font-medium border inline-flex items-center gap-0.5',
-                    found
-                      ? 'bg-emerald-100 text-emerald-700 border-emerald-200 line-through'
-                      : 'bg-white text-slate-700 border-slate-200',
-                  )}
-                >
-                  {found && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -4 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className='inline-block'
-                    >
-                      ✓{' '}
-                    </motion.span>
-                  )}
-                  {word}
-                </span>
-              );
-            })}
-          </div>
-        </div>
       </div>
 
-      {/* Sticky bottom bar */}
-      <div
-        className='sticky bottom-3 z-10 flex items-center justify-between rounded-xl p-3'
-        style={{ background: 'linear-gradient(160deg, #174339, #1e5548)' }}
-      >
-        <div className='flex items-center gap-2'>
-          <div className='h-1.5 rounded-full bg-white/20 w-32 overflow-hidden'>
-            <motion.div
-              className='h-full rounded-full'
-              animate={{ width: `${progressPct}%` }}
-              transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-              style={{ background: 'linear-gradient(90deg, #3a9478, #90d26d)' }}
-            />
-          </div>
-          <span className='text-xs text-white/80 font-medium'>
-            {foundWords.length}/{targetSet.size} kata
-          </span>
-        </div>
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={() => {
-            setFoundWords([]);
-            setFoundWordCells([]);
-            setDragStart(null);
-            setDragCurrent(null);
-            setIsDragging(false);
-            setAutoSubmitting(false);
-            autoSubmitFiredRef.current = false;
-          }}
-          disabled={submitting}
-          className='border-white/60 text-white hover:bg-white/10 hover:text-white'
-        >
-          Reset Pilihan
-        </Button>
-      </div>
+      <CourseActionBar
+        prev={prevPath ? { onClick: () => router.push(prevPath) } : null}
+        next={{
+          state: 'disabled',
+          tooltipText: 'Temukan semua kata untuk lanjut',
+        }}
+      />
     </div>
   );
 }

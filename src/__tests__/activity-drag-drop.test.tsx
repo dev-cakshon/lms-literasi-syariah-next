@@ -72,7 +72,7 @@ describe('F8 — Aktivitas: Drag & Drop', () => {
     expect(screen.getByText('Murabahah')).toBeInTheDocument();
     expect(screen.getByText('Riba')).toBeInTheDocument();
 
-    // Progress: "0/2 terpetakan" (no items assigned yet)
-    expect(screen.getByText(/0\/2 terpetakan/i)).toBeInTheDocument();
+    // Progress: "PILIH KARTU (2/2)" — all items unplaced, counting down
+    expect(screen.getByText(/PILIH KARTU.*\(2\/2\)/i)).toBeInTheDocument();
   });
 });

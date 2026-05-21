@@ -139,13 +139,12 @@ describe('F4 — Gamifikasi', () => {
         courseId='c1'
         chapterId='ch-1'
         onComplete={mockOnComplete}
-        label='Tandai Selesai'
       />,
       { courseLayout: { contentItems, refreshContentItems: jest.fn() } },
     );
 
     await userEvent.click(
-      screen.getByRole('button', { name: /tandai selesai/i }),
+      screen.getByRole('button', { name: /tandai bab selesai/i }),
     );
 
     await waitFor(() => {
@@ -169,14 +168,13 @@ describe('F4 — Gamifikasi', () => {
         courseId='c1'
         chapterId='ch-1'
         onComplete={jest.fn()}
-        label='Tandai Selesai'
       />,
       { courseLayout: { contentItems, refreshContentItems: jest.fn() } },
     );
 
     // Button is absent → no second API call possible from the UI
     expect(
-      screen.queryByRole('button', { name: /tandai selesai/i }),
+      screen.queryByRole('button', { name: /tandai bab selesai/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -198,13 +196,12 @@ describe('F4 — Gamifikasi', () => {
         courseId='c1'
         chapterId='ch-1'
         onComplete={jest.fn()}
-        label='Tandai Selesai'
       />,
       { courseLayout: { contentItems, refreshContentItems: jest.fn() } },
     );
 
     await userEvent.click(
-      screen.getByRole('button', { name: /tandai selesai/i }),
+      screen.getByRole('button', { name: /tandai bab selesai/i }),
     );
 
     await waitFor(() => {

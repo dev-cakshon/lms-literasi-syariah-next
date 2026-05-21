@@ -21,7 +21,6 @@ interface CourseCardProps {
   points?: number;
   originalPoints?: number;
   progress?: number;
-  accent?: 'green' | 'orange';
   editUrl?: string;
   actions?: React.ReactNode;
 }
@@ -38,7 +37,6 @@ export const CourseCard = ({
   points,
   originalPoints,
   progress,
-  accent = 'green',
   editUrl,
   actions,
 }: CourseCardProps) => {
@@ -55,15 +53,8 @@ export const CourseCard = ({
           'absolute top-2 right-2 text-[10px] font-bold px-2 py-1 rounded-full',
           progress === 100
             ? 'bg-primary-600 text-white'
-            : accent === 'orange'
-              ? ''
-              : 'bg-primary-100 text-primary-700',
+            : 'bg-amber-50 text-amber-ink',
         )}
-        style={
-          progress !== 100 && accent === 'orange'
-            ? { background: 'rgba(255,152,0,0.15)', color: '#e67e00' }
-            : undefined
-        }
       >
         {progress === 100 ? '✅ Selesai' : 'Sedang Berjalan'}
       </span>
@@ -114,8 +105,8 @@ export const CourseCard = ({
                 className={cn(
                   'rounded-full px-2 py-0.5 text-[11px] font-semibold',
                   isPublished
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-amber-100 text-amber-700',
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'bg-warning-bg text-warning',
                 )}
               >
                 {isPublished ? 'Diterbitkan' : 'Draft'}
@@ -150,7 +141,7 @@ export const CourseCard = ({
                     {originalPoints} pts
                   </span>
                 )}
-                <span className='text-sm font-bold text-primary-600'>
+                <span className='text-sm font-bold text-amber-700'>
                   +{points} pts
                 </span>
               </div>
@@ -172,21 +163,15 @@ export const CourseCard = ({
             </span>
             <span>{progress}%</span>
           </div>
-          <div className='h-1.5 bg-primary-100 rounded-full overflow-hidden'>
+          <div className='h-1.5 bg-surface-container-high rounded-full overflow-hidden'>
             <div
               className={cn(
-                'h-full',
-                accent !== 'orange' &&
-                  'bg-gradient-to-r from-primary-600 to-lime',
+                'h-full rounded-full',
+                progress === 100
+                  ? 'bg-gradient-to-r from-primary-600 to-primary-500'
+                  : 'bg-gradient-to-r from-amber-300 to-amber-500',
               )}
-              style={
-                accent === 'orange'
-                  ? {
-                      background: 'linear-gradient(90deg, #e67e00, #FF9800)',
-                      width: `${progress}%`,
-                    }
-                  : { width: `${progress}%` }
-              }
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>

@@ -17,6 +17,7 @@ export interface BadgeDefinition {
   Icon: LucideIcon;
   rarity: BadgeRarity;
   pointsToUnlock: number;
+  tierGradient: [string, string];
 }
 
 export const BADGE_DEFINITIONS: BadgeDefinition[] = [
@@ -27,6 +28,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     Icon: PartyPopper,
     rarity: 'common',
     pointsToUnlock: 0,
+    tierGradient: ['#FFD700', '#B8860B'],
   },
   {
     id: 'first_step',
@@ -35,6 +37,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     Icon: BookOpenCheck,
     rarity: 'common',
     pointsToUnlock: 10,
+    tierGradient: ['#E0E0E0', '#757575'],
   },
   {
     id: 'active_learner',
@@ -43,6 +46,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     Icon: Medal,
     rarity: 'rare',
     pointsToUnlock: 50,
+    tierGradient: ['#CD7F32', '#8B4513'],
   },
   {
     id: 'perfect_score',
@@ -51,6 +55,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     Icon: ShieldCheck,
     rarity: 'rare',
     pointsToUnlock: 100,
+    tierGradient: ['#9C27B0', '#4A148C'],
   },
   {
     id: 'top_3',
@@ -59,6 +64,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     Icon: Trophy,
     rarity: 'legendary',
     pointsToUnlock: 200,
+    tierGradient: ['#00BCD4', '#006064'],
   },
   {
     id: 'number_1',
@@ -67,5 +73,6 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     Icon: Star,
     rarity: 'legendary',
     pointsToUnlock: 500,
+    tierGradient: ['#F44336', '#B71C1C'],
   },
 ];

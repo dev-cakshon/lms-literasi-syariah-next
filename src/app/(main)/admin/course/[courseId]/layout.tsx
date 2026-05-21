@@ -44,7 +44,7 @@ function AdminCourseLayoutClient({
   }, [courseId, router]);
 
   const refreshContentItems = useCallback(() => {
-    void fetchData();
+    return fetchData();
   }, [fetchData]);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ function AdminCourseLayoutClient({
         <div className='h-15 md:pl-85 fixed inset-x-0 top-0 z-40 bg-white border-b flex items-center px-4 shadow-sm float-end'>
           <UnstyledLink
             href='/admin/course'
-            className='text-sm font-medium text-primary hover:underline'
+            className='text-sm font-medium text-primary-700 hover:underline'
           >
             Kembali ke Daftar Kursus
           </UnstyledLink>

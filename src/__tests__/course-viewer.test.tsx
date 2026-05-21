@@ -194,7 +194,6 @@ describe('F3 — Course Viewer', () => {
         courseId='course-1'
         chapterId='ch-1'
         onComplete={jest.fn()}
-        label='Tandai Bab Ini Selesai'
       />,
       {
         courseLayout: {

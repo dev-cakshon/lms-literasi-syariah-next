@@ -1,9 +1,15 @@
 'use client';
 
+import {
+  Award,
+  BookOpen,
+  CheckCircle2,
+  PlayCircle,
+  Presentation,
+} from 'lucide-react';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-import { getChapterEmoji } from '@/lib/courseUtils';
 import { useCourseProgress } from '@/hooks/use-realtime';
 
 import { PointsToast } from '@/components/gamification';
@@ -20,7 +26,7 @@ interface ChapterContentProps {
   mediaType: 'youtube' | 'slides';
   content: string;
   chapterOrdinal: number;
-  courseTitle: string;
+  courseTitle?: string;
 }
 
 export const ChapterContent = ({
@@ -31,139 +37,111 @@ export const ChapterContent = ({
   mediaType,
   content,
   chapterOrdinal,
-  courseTitle,
 }: ChapterContentProps) => {
-  const emoji = getChapterEmoji(chapterOrdinal);
   const { completedChapters } = useCourseProgress(courseId);
   const isCompleted = completedChapters.includes(chapterId);
   const [toastPoints, setToastPoints] = useState(0);
 
   return (
-    <div className='max-w-3/4 mx-auto pb-16 px-4 md:px-6 space-y-4 pt-4'>
-      {/* ① Chapter header card */}
-      <div
-        className='rounded-[14px] px-6 py-5 relative overflow-hidden'
-        style={{
-          background: 'linear-gradient(135deg, #174339 0%, #1e5548 100%)',
-        }}
-      >
-        <div
-          aria-hidden
-          className='absolute -top-5 -right-5 w-25 h-25 rounded-full pointer-events-none'
-          style={{ background: 'rgba(144,210,109,0.07)' }}
-        />
-        <div
-          aria-hidden
-          className='absolute right-8 -bottom-8 w-17.5 h-17.5 rounded-full pointer-events-none'
-          style={{ background: 'rgba(255,255,255,0.04)' }}
-        />
-
-        <p className='text-[10px] font-semibold tracking-[0.8px] uppercase text-white/45 mb-2.5'>
-          {courseTitle} · Bab {chapterOrdinal}
-        </p>
-
-        <div className='flex items-start gap-3.5'>
-          <div
-            className='w-12 h-12 rounded-xl shrink-0 flex items-center justify-center text-[26px]'
-            style={{
-              background: 'rgba(255,255,255,0.1)',
-              border: '1px solid rgba(255,255,255,0.15)',
-            }}
-          >
-            {emoji}
-          </div>
-          <div>
-            <h2
-              className='font-bold text-white leading-snug mb-2'
-              style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}
-            >
-              {title}
-            </h2>
-            <div className='flex items-center gap-2.5'>
-              <div
-                className='w-7 h-0.5 rounded-full'
-                style={{ background: '#90d26d' }}
-              />
-              <span className='text-[10px] text-white/40'>
-                Materi · {mediaType === 'slides' ? 'Slides' : 'Video'}
-              </span>
-            </div>
-          </div>
-        </div>
+    <div className='max-w-[960px] mt-4 mx-auto px-4 md:px-6 pt-4 pb-16 flex flex-col gap-8'>
+      {/* ① Header row */}
+      <div className='flex flex-wrap items-center justify-between gap-4'>
+        <h1 className='h2 text-primary-700'>
+          BAB {chapterOrdinal} · {title}
+        </h1>
+        {mediaType === 'youtube' ? (
+          <span className='bg-secondary-container text-on-secondary-container text-sm font-bold tracking-[0.05em] px-4 py-1.5 rounded-full flex items-center gap-2'>
+            <PlayCircle className='h-4 w-4' />
+            Video YouTube
+          </span>
+        ) : (
+          <span className='bg-surface-container-high text-on-surface-variant text-sm font-bold tracking-[0.05em] px-4 py-1.5 rounded-full flex items-center gap-2 border border-outline-variant'>
+            <Presentation className='h-4 w-4' />
+            Slides
+          </span>
+        )}
       </div>
 
-      {/* ② Video / Slides block */}
+      {/* ② Player frame */}
       {mediaUrl && (
         <div
-          className='relative rounded-xl overflow-hidden w-full'
-          style={{ background: '#1a1a2e' }}
+          className='relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-surface-variant'
+          style={{ boxShadow: '0 4px 20px rgba(5,95,77,0.05)' }}
         >
-          <div
-            aria-hidden
-            className='absolute inset-0 pointer-events-none z-10'
-            style={{
-              background:
-                'linear-gradient(135deg, rgba(23,67,57,0.3) 0%, transparent 60%)',
-            }}
-          />
-          <p className='absolute bottom-2.5 left-3.5 text-[10px] text-white/50 z-10 pointer-events-none select-none'>
-            {mediaType === 'slides' ? '📊 Slides' : '▶ Video'} · {title}
-          </p>
           {mediaType === 'slides' ? (
             <SlidesPlayer url={mediaUrl} title={title} />
           ) : (
             <YoutubePlayer url={mediaUrl} title={title} />
           )}
+          {isCompleted && (
+            <div className='absolute top-3 left-3 bg-surface-container-lowest text-action-green text-sm font-bold tracking-[0.05em] rounded-full px-4 py-1.5 flex items-center gap-1.5 shadow-sm border border-action-green/20 pointer-events-none'>
+              <CheckCircle2 className='h-4 w-4' />
+              Sudah Ditonton
+            </div>
+          )}
         </div>
       )}
 
-      {/* ③ Prose section */}
+      {/* ③ Notes card */}
       {content && (
-        <div className='bg-white rounded-xl border border-slate-200/80 px-6 py-5'>
-          <div className='flex items-center gap-2 mb-4'>
-            <span className='text-[9px] font-bold tracking-[1.2px] uppercase text-slate-400'>
-              📖 Penjelasan Materi
-            </span>
-            <div className='flex-1 h-px bg-slate-100' />
-          </div>
-          <div className='prose prose-slate max-w-none prose-blockquote:border-l-[#90d26d] prose-blockquote:bg-primary-50 prose-blockquote:rounded-r-lg prose-blockquote:not-italic'>
+        <div
+          className='bg-surface-container-lowest rounded-2xl p-6 md:p-8 border-2 border-surface-variant relative overflow-hidden'
+          style={{ boxShadow: '0 4px 20px rgba(5,95,77,0.05)' }}
+        >
+          <div
+            aria-hidden
+            className='absolute top-0 right-0 w-[150px] h-[150px] pointer-events-none'
+            style={{
+              backgroundImage: `url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 0L61.2257 38.7743L100 50L61.2257 61.2257L50 100L38.7743 61.2257L0 50L38.7743 38.7743L50 0Z" fill="%23a6f1da" fill-opacity="0.1"/></svg>')`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'top right',
+              backgroundSize: '150px',
+            }}
+          />
+          <h2 className='h3 text-primary-700 mb-4 flex items-center gap-2'>
+            <BookOpen className='h-5 w-5' />
+            Catatan Materi
+          </h2>
+          <div className='prose prose-slate max-w-none text-on-surface-variant prose-blockquote:border-l-primary prose-blockquote:bg-primary-50 prose-blockquote:rounded-r-lg prose-blockquote:not-italic'>
             <ReactMarkdown>{content}</ReactMarkdown>
           </div>
         </div>
       )}
 
-      {/* ④ XP toast — rendered outside the completion guard so it survives unmount */}
+      {/* ④ XP toast */}
       <PointsToast points={toastPoints} isOpen={toastPoints > 0} />
 
-      {/* ⑤ Completion block */}
-      {!isCompleted && (
-        <div className='rounded-[14px] border border-slate-200 bg-white px-6 py-5'>
-          <div className='flex items-start gap-3 mb-4'>
-            <div className='w-9 h-9 rounded-[10px] bg-primary-50 flex items-center justify-center text-[18px] flex-shrink-0'>
-              📚
-            </div>
-            <div>
-              <p className='text-[13px] font-bold text-slate-800 leading-snug'>
-                Sudah paham materinya?
-              </p>
-              <p className='text-[12px] text-slate-500 mt-0.5 leading-relaxed'>
-                Tandai bab ini selesai untuk membuka konten berikutnya dan
-                mendapatkan poin.
-              </p>
-            </div>
-          </div>
+      {/* ⑤ Completion footer */}
+      {!isCompleted ? (
+        <div
+          className='bg-surface-container-lowest rounded-2xl p-6 md:p-8 border-2 border-surface-variant relative overflow-hidden flex flex-col items-center justify-center text-center gap-6'
+          style={{ boxShadow: '0 4px 20px rgba(5,95,77,0.05)' }}
+        >
+          <div
+            aria-hidden
+            className='absolute inset-0 pointer-events-none'
+            style={{
+              backgroundImage: `url('data:image/svg+xml;utf8,<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M166.5 63.5C188.1 82.3 197.9 113.6 189.9 140.7C182 167.9 156.4 190.8 128.5 197.2C100.6 203.6 70.4 193.4 47.9 174.5C25.4 155.5 10.6 127.8 4.2 98.4C-2.3 68.9 2.1 37.6 20.3 17.5C38.6 -2.7 70.8 -11.6 100.6 8.5C130.4 28.5 144.9 44.7 166.5 63.5Z" fill="%23b0f58b" fill-opacity="0.3"/></svg>')`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center right',
+            }}
+          />
+          <h3 className='h3 text-primary-700'>Sudah paham materinya?</h3>
           <MarkCompleteButton
             courseId={courseId}
             chapterId={chapterId}
             onComplete={setToastPoints}
-            label='✅ Tandai Bab Ini Selesai'
-            className='w-full justify-center rounded-[10px] py-3 text-[14px] font-bold text-white border-0'
-            style={
-              {
-                background: 'linear-gradient(135deg, #174339, #2c7865)',
-              } as React.CSSProperties
-            }
           />
+        </div>
+      ) : (
+        <div className='bg-secondary-container/20 border-2 border-action-green/30 rounded-2xl p-6 flex items-center gap-4'>
+          <div className='bg-secondary-container text-on-secondary-container p-3 rounded-full shrink-0'>
+            <Award className='h-8 w-8' />
+          </div>
+          <div>
+            <h3 className='h3 text-primary-700'>Bab Selesai</h3>
+            <p className='text-amber-700'>+10 XP diperoleh</p>
+          </div>
         </div>
       )}
     </div>

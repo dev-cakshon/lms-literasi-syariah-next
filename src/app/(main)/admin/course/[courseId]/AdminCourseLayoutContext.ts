@@ -3,14 +3,14 @@ import { createContext } from 'react';
 import type { CourseContentItem } from '@/types';
 
 export type AdminCourseLayoutContextType = {
-  refreshContentItems: () => void;
+  refreshContentItems: () => Promise<void>;
   contentItems: CourseContentItem[];
   loading: boolean;
 };
 
 export const AdminCourseLayoutContext =
   createContext<AdminCourseLayoutContextType>({
-    refreshContentItems: () => undefined,
+    refreshContentItems: () => Promise.resolve(),
     contentItems: [],
     loading: true,
   });

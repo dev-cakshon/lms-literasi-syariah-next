@@ -198,7 +198,7 @@ describe('F5 — Chatbot AI', () => {
       ).toBeInTheDocument();
     });
 
-    // Multiple "Chat Baru" buttons exist (sidebar + chat area). Click the first.
+    // Click the "Chat Baru" button in the sidebar.
     const newChatButtons = screen.getAllByRole('button', {
       name: /chat baru/i,
     });

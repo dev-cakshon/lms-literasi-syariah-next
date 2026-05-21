@@ -1,6 +1,7 @@
 'use client';
 
 import { FirebaseError } from 'firebase/app';
+import { AlertCircle, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -30,6 +31,7 @@ function mapFirebaseLoginErrorToIndonesian(code: string): string {
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
@@ -56,92 +58,151 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-linear-to-br from-primary-50 to-teal-50 px-4'>
-      <div className='max-w-md w-full bg-ivory rounded-[var(--radius-card)] shadow-[var(--shadow-elevated-2)] p-8'>
-        {/* Logotype */}
-        <div className='flex justify-center mb-4'>
-          <Logo logotype='text' theme='light' size='lg' />
-        </div>
+    <div className='min-h-screen flex bg-surface-soft'>
+      {/* Left: form panel */}
+      <div className='flex-1 flex items-center justify-center px-5 py-10 md:px-14'>
+        <div className='w-full max-w-md'>
+          <Logo logotype='text' theme='light' size='md' />
 
-        <div className='text-center mb-8'>
-          <h1 className='font-display text-4xl font-bold text-slate-800 tracking-tight'>
-            Masuk
+          <h1 className='font-display text-4xl md:text-5xl font-bold tracking-tight text-emerald-deep mt-10 leading-tight'>
+            Selamat Datang
+            <br />
+            Kembali!
           </h1>
-          <p className='text-slate-600 mt-2'>
-            Selamat datang kembali di Eduloca
+          <p className='text-on-surface-soft mt-3 text-base'>
+            Lanjutkan petualangan belajarmu di Eduloca.
+          </p>
+
+          {error && (
+            <div className='mt-6 flex items-start gap-3 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm'>
+              <AlertCircle
+                className='h-5 w-5 flex-shrink-0 mt-0.5'
+                aria-hidden
+              />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className='mt-8 space-y-5'>
+            {/* Email */}
+            <div>
+              <label
+                htmlFor='email'
+                className='block text-sm font-semibold text-slate-700 mb-2'
+              >
+                Email
+              </label>
+              <div className='relative'>
+                <Mail
+                  className='absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none'
+                  aria-hidden
+                />
+                <input
+                  id='email'
+                  type='email'
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder='nama@email.com'
+                  className='w-full h-14 pl-12 pr-4 rounded-2xl border-2 border-surface-variant bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-accent-lime transition-colors'
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label
+                htmlFor='password'
+                className='block text-sm font-semibold text-slate-700 mb-2'
+              >
+                Password
+              </label>
+              <div className='relative'>
+                <Lock
+                  className='absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none'
+                  aria-hidden
+                />
+                <input
+                  id='password'
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder='••••••••'
+                  className='w-full h-14 pl-12 pr-12 rounded-2xl border-2 border-surface-variant bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-accent-lime transition-colors'
+                />
+                <button
+                  type='button'
+                  onClick={() => setShowPassword((v) => !v)}
+                  className='absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors'
+                  aria-label={
+                    showPassword ? 'Sembunyikan password' : 'Tampilkan password'
+                  }
+                >
+                  {showPassword ? (
+                    <EyeOff className='h-5 w-5' />
+                  ) : (
+                    <Eye className='h-5 w-5' />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <button
+              type='submit'
+              disabled={loading}
+              className='w-full h-14 mt-2 rounded-2xl font-semibold text-base bg-accent-lime text-accent-lime-ink shadow-[0_4px_0_0_var(--color-accent-lime-dim)] hover:translate-y-px hover:shadow-[0_3px_0_0_var(--color-accent-lime-dim)] active:translate-y-0.5 active:shadow-[0_2px_0_0_var(--color-accent-lime-dim)] disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none transition-all'
+            >
+              {loading ? 'Memproses...' : 'Masuk Sekarang'}
+            </button>
+          </form>
+
+          <p className='mt-8 text-center text-sm text-slate-600'>
+            Belum punya akun?{' '}
+            <Link
+              href='/signup'
+              className='font-semibold text-emerald-deep hover:underline'
+            >
+              Daftar di sini
+            </Link>
+          </p>
+          <p className='mt-3 text-center text-sm'>
+            <Link
+              href='/'
+              className='text-slate-400 hover:text-slate-600 transition-colors'
+            >
+              ← Kembali ke Beranda
+            </Link>
           </p>
         </div>
+      </div>
 
-        {error && (
-          <div className='mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm'>
-            {error}
-          </div>
-        )}
+      {/* Right: emerald panel — hidden on mobile */}
+      <div className='hidden md:flex md:flex-1 bg-emerald-deep relative items-center justify-center overflow-hidden px-12'>
+        {/* Decorative blobs */}
+        <div className='absolute -top-32 -right-32 w-96 h-96 rounded-full bg-accent-lime opacity-10 blur-3xl pointer-events-none' />
+        <div className='absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-primary-fixed opacity-10 blur-3xl pointer-events-none' />
 
-        <form onSubmit={handleSubmit} className='space-y-4'>
-          <div>
-            <label
-              htmlFor='email'
-              className='block text-sm font-medium text-slate-700 mb-1'
-            >
-              Email
-            </label>
-            <input
-              id='email'
-              type='email'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className='w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent'
-              placeholder='nama@email.com'
-            />
+        <div className='relative z-10 text-center'>
+          {/* Mascot placeholder — swap for <Image> once final asset is ready */}
+          <div className='w-72 h-72 mx-auto mb-10 rounded-3xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center gap-2 text-white/40'>
+            <span className='text-5xl'>🎓</span>
+            <span className='text-xs tracking-widest uppercase'>
+              Mascot illustration
+            </span>
+            <span className='text-xs opacity-60'>coming soon</span>
           </div>
 
-          <div>
-            <label
-              htmlFor='password'
-              className='block text-sm font-medium text-slate-700 mb-1'
-            >
-              Password
-            </label>
-            <input
-              id='password'
-              type='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className='w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent'
-              placeholder='••••••••'
-            />
-          </div>
-
-          <button
-            type='submit'
-            disabled={loading}
-            className='w-full bg-primary-600 text-white py-2 rounded-md hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium'
-          >
-            {loading ? 'Memproses...' : 'Masuk'}
-          </button>
-        </form>
-
-        <p className='mt-6 text-center text-sm text-slate-600'>
-          Belum punya akun?{' '}
-          <Link
-            href='/signup'
-            className='text-primary-600 hover:text-primary-700 font-medium'
-          >
-            Daftar sekarang
-          </Link>
-        </p>
-
-        <p className='mt-4 text-center text-sm text-slate-600'>
-          <Link
-            href='/'
-            className='text-primary-600 hover:text-primary-700 font-medium'
-          >
-            ← Kembali ke Beranda
-          </Link>
-        </p>
+          <p className='font-display text-3xl font-semibold text-white leading-snug'>
+            Sudah sampai mana
+            <br />
+            belajarmu?
+          </p>
+          <p className='mt-4 text-white/60 text-sm leading-relaxed'>
+            Teruskan semangat belajar ekonomi syariah-mu.
+          </p>
+        </div>
       </div>
     </div>
   );

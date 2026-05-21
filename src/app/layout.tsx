@@ -3,6 +3,8 @@ import * as React from 'react';
 
 import '@/styles/globals.css';
 
+import { MobileGate } from '@/components/MobileGate';
+
 import { fontDisplay, fontPrimary } from '@/app/fonts';
 import { siteConfig } from '@/constant/config';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -14,6 +16,16 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.title}`,
   },
   description: siteConfig.description,
+  keywords: [
+    'literasi syariah',
+    'ekonomi syariah',
+    'belajar syariah online',
+    'platform belajar gamifikasi',
+    'lms syariah',
+    'pendidikan syariah',
+    'materi ekonomi syariah',
+    'eduloca',
+  ],
   robots: { index: true, follow: true },
   icons: {
     icon: [
@@ -32,7 +44,7 @@ export const metadata: Metadata = {
     siteName: siteConfig.title,
     images: [`${siteConfig.url}/images/og.jpg`],
     type: 'website',
-    locale: 'en_US',
+    locale: 'id_ID',
   },
   twitter: {
     card: 'summary_large_image',
@@ -53,8 +65,19 @@ export default function RootLayout({
       lang='id'
       className={`${fontDisplay.variable} ${fontPrimary.variable}`}
     >
+      {/* eslint-disable @next/next/no-page-custom-font */}
+      <link rel='preconnect' href='https://fonts.googleapis.com' />
+      <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='' />
+      <link
+        rel='stylesheet'
+        href='https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap'
+        precedence='default'
+      />
+      {/* eslint-enable @next/next/no-page-custom-font */}
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <MobileGate>
+          <AuthProvider>{children}</AuthProvider>
+        </MobileGate>
       </body>
     </html>
   );

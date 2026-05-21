@@ -1,8 +1,16 @@
 'use client';
 
-import { User } from 'lucide-react';
+import {
+  type LucideIcon,
+  Award,
+  Medal,
+  Star,
+  Trophy,
+  User,
+} from 'lucide-react';
 import { useMemo } from 'react';
 
+import { useMyCertificates } from '@/hooks/use-certificates';
 import { useLeaderboard } from '@/hooks/use-realtime';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,22 +23,8 @@ import type { UserProfile } from '@/types';
 const isProfileLoading = (
   loading: boolean,
   profile: UserProfile | null,
-): profile is null => {
-  return loading || profile === null;
-};
+): profile is null => loading || profile === null;
 
-/**
- * Returns 0–100 representing progress toward the next badge tier.
- *
- * Thresholds come from BADGE_DEFINITIONS sorted by pointsToUnlock.
- * The ring shows how far the user has travelled between the last
- * unlocked threshold and the next one — not raw points capped at 100.
- *
- * Example: points=60, thresholds=[0,10,50,100,200,500]
- *   → bracket is [50, 100], progress = (60-50)/(100-50) = 20%
- *
- * Once all badges are unlocked (points ≥ max threshold), returns 100.
- */
 function getBadgeProgressPct(totalPoints: number): number {
   const thresholds = BADGE_DEFINITIONS.map((b) => b.pointsToUnlock).sort(
     (a, b) => a - b,
@@ -39,7 +33,6 @@ function getBadgeProgressPct(totalPoints: number): number {
   const maxThreshold = thresholds[thresholds.length - 1] ?? 0;
   if (totalPoints >= maxThreshold) return 100;
 
-  // Find the bracket: last threshold ≤ points, first threshold > points
   let lower = 0;
   let upper = maxThreshold;
   for (let i = 0; i < thresholds.length; i++) {
@@ -55,13 +48,36 @@ function getBadgeProgressPct(totalPoints: number): number {
   return Math.round(((totalPoints - lower) / (upper - lower)) * 100);
 }
 
+interface StatTileProps {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  iconColor: string;
+}
+
+function StatTile({ label, value, icon: Icon, iconColor }: StatTileProps) {
+  return (
+    <div className='bg-white/10 backdrop-blur-md rounded-xl p-2.5 md:p-3 flex flex-col items-center md:items-start border border-white/20'>
+      <span className='text-[10px] uppercase tracking-wider font-bold opacity-70 text-white'>
+        {label}
+      </span>
+      <div className='flex items-center gap-1.5 mt-0.5'>
+        <Icon className={`w-5 h-5 ${iconColor}`} />
+        <span className='text-white font-bold text-lg leading-none'>
+          {value}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export const ProfilePicture = () => {
   const { userProfile, loading } = useAuth();
 
   if (isProfileLoading(loading, userProfile)) {
     return (
-      <div className='flex items-center justify-center h-full'>
-        <div className='w-40 h-40 rounded-full bg-gray-200 animate-pulse border-4 border-white' />
+      <div className='flex items-center justify-center'>
+        <div className='w-48 h-48 rounded-full bg-white/20 animate-pulse' />
       </div>
     );
   }
@@ -69,9 +85,14 @@ export const ProfilePicture = () => {
   const ringPct = getBadgeProgressPct(userProfile.totalPoints ?? 0);
 
   return (
-    <div className='flex items-center justify-center h-full'>
-      <ProgressRing percentage={ringPct} size={160} strokeWidth={6}>
-        <div className='w-36 h-36 rounded-full bg-linear-to-br from-primary-400 via-cyan-500 to-blue-500 flex items-center justify-center text-white shadow-lg border-4 border-white overflow-hidden'>
+    <div className='relative z-10 shrink-0 rounded-full shadow-[0_4px_25px_rgba(48,107,17,0.4)]'>
+      <ProgressRing
+        percentage={ringPct}
+        size={192}
+        strokeWidth={8}
+        trackClassName='text-[#b0f58b]/60'
+      >
+        <div className='w-44 h-44 rounded-full border-4 border-white overflow-hidden bg-gradient-to-br from-primary-400 via-cyan-500 to-blue-500 flex items-center justify-center text-white'>
           {userProfile.photoURL ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -92,6 +113,7 @@ export const ProfileInfo = () => {
   const { userProfile, loading } = useAuth();
   const { data: leaderboardData, loading: leaderboardLoading } =
     useLeaderboard();
+  const { certificates, loading: certsLoading } = useMyCertificates();
 
   const userRank = useMemo(() => {
     if (!userProfile) return null;
@@ -101,15 +123,15 @@ export const ProfileInfo = () => {
 
   if (isProfileLoading(loading, userProfile)) {
     return (
-      <div className='flex flex-col justify-center h-full space-y-4 animate-pulse bg-white/12 backdrop-blur-md border border-[#D9EDBF]/25 rounded-2xl p-4'>
+      <div className='flex flex-col justify-center h-full space-y-4 animate-pulse flex-grow z-10'>
         <div className='space-y-2'>
-          <div className='h-7 w-44 rounded bg-gray-300' />
-          <div className='h-4 w-56 rounded bg-gray-200' />
+          <div className='h-7 w-44 rounded bg-white/30' />
+          <div className='h-4 w-32 rounded bg-white/20' />
         </div>
-        <div className='grid grid-cols-3 gap-3'>
-          <div className='h-14 rounded-lg bg-gray-200' />
-          <div className='h-14 rounded-lg bg-gray-200' />
-          <div className='h-14 rounded-lg bg-gray-200' />
+        <div className='grid grid-cols-2 gap-3'>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className='h-16 rounded-xl bg-white/20' />
+          ))}
         </div>
       </div>
     );
@@ -121,38 +143,42 @@ export const ProfileInfo = () => {
       ? `#${userRank}`
       : '>10';
 
+  const certCount = certsLoading ? '—' : certificates.length;
+
   return (
-    <div className='flex flex-col justify-center h-full space-y-4 bg-white/12 backdrop-blur-md border border-[#D9EDBF]/25 rounded-2xl p-4'>
+    <div className='flex flex-col justify-center space-y-3 md:space-y-4 flex-grow z-10 text-white text-center md:text-left'>
       <div>
-        <h3 className='font-display text-2xl text-white'>{userProfile.name}</h3>
-        <p className='text-[#D9EDBF]/75 text-sm mt-0.5'>{userProfile.email}</p>
+        <h1 className='text-2xl md:text-3xl font-bold font-display text-white leading-tight'>
+          {userProfile.name}
+        </h1>
+        <p className='text-sm md:text-base opacity-80 mt-0.5'>Santri Digital</p>
       </div>
 
-      <div className='grid grid-cols-3 gap-3'>
-        <div className='bg-white/12 border border-[#D9EDBF]/18 rounded-xl px-3 py-3 text-center'>
-          <p className='text-white text-[10px] uppercase tracking-wide mb-1'>
-            Total Poin
-          </p>
-          <p className='font-bold text-[#FF9800] text-lg leading-none'>
-            {userProfile.totalPoints}
-          </p>
-        </div>
-        <div className='bg-white/12 border border-[#D9EDBF]/18 rounded-xl px-3 py-3 text-center'>
-          <p className='text-white text-[10px] uppercase tracking-wide mb-1'>
-            Lencana
-          </p>
-          <p className='font-bold text-[#90D26D] text-lg leading-none'>
-            {userProfile.badges?.length ?? 0}
-          </p>
-        </div>
-        <div className='bg-white/12 border border-[#D9EDBF]/18 rounded-xl px-3 py-3 text-center'>
-          <p className='text-white text-[10px] uppercase tracking-wide mb-1'>
-            Rank
-          </p>
-          <p className='font-bold text-white text-lg leading-none'>
-            {rankDisplay}
-          </p>
-        </div>
+      <div className='grid grid-cols-2 gap-3 justify-center md:justify-start'>
+        <StatTile
+          label='Total Poin'
+          value={userProfile.totalPoints?.toLocaleString() ?? 0}
+          icon={Star}
+          iconColor='text-amber-300'
+        />
+        <StatTile
+          label='Lencana'
+          value={userProfile.badges?.length ?? 0}
+          icon={Medal}
+          iconColor='text-[var(--color-accent-lime)]'
+        />
+        <StatTile
+          label='Rank'
+          value={rankDisplay}
+          icon={Trophy}
+          iconColor='text-white'
+        />
+        <StatTile
+          label='Sertifikat'
+          value={certCount}
+          icon={Award}
+          iconColor='text-[var(--color-tertiary-fixed-dim)]'
+        />
       </div>
     </div>
   );
@@ -160,9 +186,11 @@ export const ProfileInfo = () => {
 
 export const ProfileOverview = () => {
   return (
-    <div className='flex items-center gap-6'>
+    <section className='hero-gradient-animated rounded-3xl shadow-md relative overflow-hidden flex flex-col md:flex-row gap-6 items-center p-5 md:p-7 md:gap-8 h-full'>
+      <div className='hero-blob pointer-events-none absolute -top-16 -right-12 h-56 w-56 rounded-full bg-lime/20' />
+      <div className='hero-blob--slow pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-accent-lime/10' />
       <ProfilePicture />
       <ProfileInfo />
-    </div>
+    </section>
   );
 };

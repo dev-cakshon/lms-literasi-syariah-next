@@ -146,6 +146,7 @@ describe('F1 — Autentikasi', () => {
     };
 
     mockUseAuth.mockReturnValue({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       user: mockUser as any,
       userProfile: null,
       loading: false,
@@ -182,6 +183,7 @@ describe('F1 — Autentikasi', () => {
     };
 
     mockUseAuth.mockReturnValue({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       user: mockAdminUser as any,
       userProfile: null,
       loading: false,

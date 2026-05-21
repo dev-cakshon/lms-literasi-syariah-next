@@ -207,15 +207,22 @@ export async function streamChat(
 
     const processChunk = (chunk: string) => {
       const parts = (accumulatedBuffer + chunk).split('\n\n');
-      accumulatedBuffer = parts.pop() || '';
+      accumulatedBuffer = parts.pop() ?? '';
 
       for (const part of parts) {
-        if (part.startsWith('data: ')) {
-          const content = part.substring(6);
-          if (content === '[DONE]') return 'done';
-          if (content.startsWith('Error: ')) return content.substring(7);
-          onToken(content);
+        const dataLines: string[] = [];
+        for (const line of part.split('\n')) {
+          if (line.startsWith('data: ')) {
+            dataLines.push(line.slice(6));
+          } else if (line === 'data:') {
+            dataLines.push('');
+          }
         }
+        if (dataLines.length === 0) continue;
+        const content = dataLines.join('\n');
+        if (content === '[DONE]') return 'done';
+        if (content.startsWith('Error: ')) return content.slice(7);
+        onToken(content);
       }
       return null;
     };
@@ -230,10 +237,20 @@ export async function streamChat(
         if (remaining) processChunk(remaining);
 
         // Process any remaining SSE lines in the buffer
-        if (accumulatedBuffer.startsWith('data: ')) {
-          const content = accumulatedBuffer.substring(6);
-          if (content !== '[DONE]' && !content.startsWith('Error: ')) {
-            onToken(content);
+        if (accumulatedBuffer) {
+          const dataLines: string[] = [];
+          for (const line of accumulatedBuffer.split('\n')) {
+            if (line.startsWith('data: ')) {
+              dataLines.push(line.slice(6));
+            } else if (line === 'data:') {
+              dataLines.push('');
+            }
+          }
+          if (dataLines.length > 0) {
+            const content = dataLines.join('\n');
+            if (content !== '[DONE]' && !content.startsWith('Error: ')) {
+              onToken(content);
+            }
           }
         }
 

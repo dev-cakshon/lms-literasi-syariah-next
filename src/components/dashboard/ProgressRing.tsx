@@ -6,6 +6,7 @@ interface ProgressRingProps {
   percentage: number;
   size?: number;
   strokeWidth?: number;
+  trackClassName?: string;
   children?: React.ReactNode;
 }
 
@@ -13,6 +14,7 @@ export const ProgressRing = ({
   percentage,
   size = 160,
   strokeWidth = 6,
+  trackClassName = 'text-gray-200',
   children,
 }: ProgressRingProps) => {
   const radius = (size - strokeWidth) / 2;
@@ -47,7 +49,7 @@ export const ProgressRing = ({
           fill='none'
           stroke='currentColor'
           strokeWidth={strokeWidth}
-          className='text-gray-200'
+          className={trackClassName}
         />
         <circle
           cx={size / 2}
