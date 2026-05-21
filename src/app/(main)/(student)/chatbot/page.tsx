@@ -2,10 +2,9 @@
 
 import {
   AlertCircle,
+  ArrowDown,
   Bot,
   Loader2,
-  MessageSquarePlus,
-  PanelLeftOpen,
   RefreshCw,
   Trash2,
 } from 'lucide-react';
@@ -23,6 +22,17 @@ import {
 import { ChatInput } from '@/components/chatbot/ChatInput';
 import { ChatMessage } from '@/components/chatbot/ChatMessage';
 import { ChatSidebar } from '@/components/chatbot/ChatSidebar';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { buttonVariants } from '@/components/ui/button';
 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -48,6 +58,9 @@ export default function ChatbotPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [chatPendingDelete, setChatPendingDelete] = useState<string | null>(
+    null,
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAutoScroll, setIsAutoScroll] = useState(true);
 
@@ -64,7 +77,6 @@ export default function ChatbotPage() {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Load sessions on mount
   const loadSessions = useCallback(async () => {
     if (!idToken) return [];
     try {
@@ -121,19 +133,27 @@ export default function ChatbotPage() {
     [idToken, isStreaming],
   );
 
-  const handleDeleteChat = useCallback(
-    async (chatId: string) => {
-      if (!idToken || !confirm('Hapus chat ini permanen?')) return;
-      try {
-        await deleteSession(chatId, idToken);
-        if (activeChatId === chatId) handleNewChat();
-        void loadSessions();
-      } catch (err) {
-        alert('Gagal menghapus chat');
+  const handleDeleteChat = useCallback((chatId: string) => {
+    setChatPendingDelete(chatId);
+  }, []);
+
+  const confirmDeleteChat = useCallback(async () => {
+    if (!idToken || !chatPendingDelete) return;
+    const chatId = chatPendingDelete;
+    setChatPendingDelete(null);
+    try {
+      await deleteSession(chatId, idToken);
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setMessages([]);
+        setError(null);
+        setIsAutoScroll(true);
       }
-    },
-    [idToken, activeChatId, loadSessions],
-  );
+      void loadSessions();
+    } catch {
+      setError('Gagal menghapus chat');
+    }
+  }, [idToken, chatPendingDelete, activeChatId, loadSessions]);
 
   const handleRenameChat = useCallback(
     async (chatId: string, newTitle: string) => {
@@ -141,8 +161,8 @@ export default function ChatbotPage() {
       try {
         await renameSession(chatId, newTitle, idToken);
         void loadSessions();
-      } catch (err) {
-        alert('Gagal mengubah nama chat');
+      } catch {
+        setError('Gagal mengubah nama chat');
       }
     },
     [idToken, loadSessions],
@@ -156,7 +176,6 @@ export default function ChatbotPage() {
     let currentSessionId = activeChatId;
 
     try {
-      // 1. Create session if it doesn't exist
       if (!currentSessionId) {
         setIsLoading(true);
         const session = await createSession(idToken);
@@ -173,7 +192,6 @@ export default function ChatbotPage() {
         setIsLoading(false);
       }
 
-      // 2. Add user message to UI
       const userMessage: Message = {
         id: `user-${Date.now()}`,
         role: 'user',
@@ -182,11 +200,9 @@ export default function ChatbotPage() {
       };
       setMessages((prev) => [...prev, userMessage]);
 
-      // 3. Prepare bot message placeholder (Hanya SATU bubble)
       const botMessageId = `bot-${Date.now()}`;
       setIsStreaming(true);
 
-      // 4. Start streaming
       let fullContent = '';
       let isFirstToken = true;
 
@@ -196,7 +212,6 @@ export default function ChatbotPage() {
         idToken,
         (token) => {
           if (isFirstToken) {
-            // Tambahkan bubble bot saat token pertama masuk
             setMessages((prev) => [
               ...prev,
               {
@@ -210,7 +225,6 @@ export default function ChatbotPage() {
             fullContent = token;
           } else {
             fullContent += token;
-            // Update bubble yang sama
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === botMessageId
@@ -221,10 +235,32 @@ export default function ChatbotPage() {
           }
         },
         () => {
-          // On Done - mark streaming as complete
           setIsStreaming(false);
-          // Poll for title update using FRESH data returned from loadSessions
-          // This avoids the stale closure bug where chats state is outdated
+          // Re-fetch the persisted bot message so newlines (and thus block-level
+          // markdown) are intact, identical to what a page reload would show.
+          if (currentSessionId && idToken) {
+            getMessages(currentSessionId, idToken)
+              .then((history) => {
+                const lastAssistant = [...history]
+                  .reverse()
+                  .find((m) => m.role === 'assistant');
+                if (
+                  lastAssistant &&
+                  lastAssistant.content.length >= fullContent.length
+                ) {
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === botMessageId
+                        ? { ...msg, content: lastAssistant.content }
+                        : msg,
+                    ),
+                  );
+                }
+              })
+              .catch(() => {
+                // keep the streamed fullContent on error
+              });
+          }
           let attempts = 0;
           const sessionIdToCheck = currentSessionId;
           const pollTitle = async () => {
@@ -237,7 +273,6 @@ export default function ChatbotPage() {
               setTimeout(pollTitle, 2000);
             }
           };
-          // Start first poll after 2s (backend needs time to run background task)
           setTimeout(pollTitle, 2000);
         },
         (err) => {
@@ -254,8 +289,8 @@ export default function ChatbotPage() {
   };
 
   return (
-    <div className='flex h-[calc(100vh-4rem)] bg-white'>
-      {/* Improved Chat Sidebar */}
+    <div className='flex h-[calc(100vh-4rem)]'>
+      {/* Sidebar */}
       <div className='hidden md:block'>
         <ChatSidebar
           chats={chats}
@@ -268,27 +303,26 @@ export default function ChatbotPage() {
       </div>
 
       {/* Main Chat Area */}
-      <div className='flex flex-col flex-1 min-w-0 bg-gray-50'>
-        {/* Header UI */}
-        <div className='bg-white border-b border-gray-200 p-4 flex items-center justify-between'>
+      <div className='flex flex-col flex-1 min-w-0'>
+        {/* Header */}
+        <div className='bg-surface-container-lowest border-b border-outline-variant p-4 flex items-center justify-between'>
           <div className='flex items-center gap-3'>
             <div className='w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white'>
               <Bot className='w-6 h-6' />
             </div>
             <div>
-              <h1 className='font-bold text-gray-800'>
+              <h1 className='text-base font-bold text-on-surface'>
                 Asisten AI Ekonomi Syariah
               </h1>
-              <p className='text-xs text-green-600 flex items-center gap-1'>
-                <span className='w-2 h-2 bg-green-500 rounded-full animate-pulse' />
-                Sistem Aktif & Terlindungi
+              <p className='text-xs text-on-surface-variant'>
+                Tanya apa saja soal ekonomi syariah
               </p>
             </div>
           </div>
           <div className='flex gap-2'>
             <button
               onClick={loadSessions}
-              className='p-2 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors'
+              className='p-2 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors'
               title='Refresh Riwayat'
             >
               <RefreshCw
@@ -297,7 +331,7 @@ export default function ChatbotPage() {
             </button>
             {activeChatId && (
               <button
-                onClick={() => handleDeleteChat(activeChatId)}
+                onClick={() => setChatPendingDelete(activeChatId)}
                 className='p-2 hover:bg-red-50 rounded-lg text-red-500 transition-colors'
                 title='Hapus Sesi Ini'
               >
@@ -307,9 +341,11 @@ export default function ChatbotPage() {
           </div>
         </div>
 
-        {/* Chat Messages */}
+        {/* Messages */}
         <div
-          className='flex-1 overflow-y-auto p-6 scroll-smooth'
+          className={`flex-1 overflow-y-auto p-6 scroll-smooth ${
+            messages.length === 0 ? 'bg-pattern-organic' : 'bg-surface-soft'
+          }`}
           onWheel={() => setIsAutoScroll(false)}
           onTouchMove={() => setIsAutoScroll(false)}
         >
@@ -330,15 +366,14 @@ export default function ChatbotPage() {
             )}
 
             {messages.length === 0 ? (
-              // Enhanced Empty State
-              <div className='flex flex-col items-center justify-center h-full text-center py-12'>
-                <div className='w-24 h-24 rounded-3xl bg-primary-100 flex items-center justify-center mb-6 shadow-sm'>
+              <div className='flex flex-col items-center justify-center text-center py-12'>
+                <div className='w-24 h-24 rounded-xl bg-primary-100 flex items-center justify-center mb-6 shadow-sm'>
                   <Bot className='w-12 h-12 text-primary-600' />
                 </div>
-                <h2 className='text-3xl font-extrabold text-gray-900 mb-3'>
+                <h2 className='text-2xl font-bold text-on-surface mb-3'>
                   Halo! Saya Asisten Syariah
                 </h2>
-                <p className='text-gray-500 max-w-md mb-10 leading-relaxed'>
+                <p className='text-on-surface-variant max-w-md mb-10 leading-relaxed'>
                   Mari berdiskusi tentang ekonomi Islam, perbankan syariah, atau
                   materi zakat dan wakaf. Pilih topik di bawah untuk memulai:
                 </p>
@@ -352,7 +387,7 @@ export default function ChatbotPage() {
                     <button
                       key={suggestion}
                       onClick={() => handleSendMessage(suggestion)}
-                      className='p-4 text-left text-sm bg-white border border-gray-200 text-gray-700 rounded-2xl hover:border-primary-500 hover:bg-primary-50 transition-all shadow-sm'
+                      className='p-4 text-left text-sm bg-surface-container-lowest border border-outline-variant text-on-surface-variant rounded-control hover:bg-surface-container-low hover:text-on-surface transition-all shadow-sm'
                     >
                       {suggestion}
                     </button>
@@ -360,7 +395,6 @@ export default function ChatbotPage() {
                 </div>
               </div>
             ) : (
-              // Messages List
               <>
                 {messages.map((message) => {
                   const isLastBotMsg =
@@ -377,14 +411,13 @@ export default function ChatbotPage() {
                   );
                 })}
 
-                {/* Streaming/Loading Indicator */}
                 {(isStreaming || isLoading) &&
                   !messages.find((m) => m.role === 'bot' && m.content) && (
                     <div className='flex gap-4 animate-in fade-in slide-in-from-bottom-2'>
                       <div className='shrink-0 w-10 h-10 rounded-xl bg-primary-100 text-primary-600 flex items-center justify-center shadow-sm'>
                         <Bot className='w-6 h-6' />
                       </div>
-                      <div className='flex-1 max-w-[85%] rounded-2xl p-5 bg-white border border-gray-100 shadow-sm'>
+                      <div className='flex-1 max-w-[85%] rounded-2xl p-5 bg-surface-container-lowest border border-outline-variant shadow-sm'>
                         <div className='flex items-center gap-2 text-primary-600 font-medium text-sm mb-1'>
                           <Loader2 className='w-4 h-4 animate-spin' />
                           Memproses jawaban...
@@ -402,38 +435,54 @@ export default function ChatbotPage() {
             )}
           </div>
 
-          {/* Scroll to Bottom Button if user scrolled up */}
           {!isAutoScroll && (isStreaming || messages.length > 5) && (
             <button
               onClick={() => {
                 setIsAutoScroll(true);
                 scrollToBottom(true);
               }}
-              className='fixed bottom-24 right-10 bg-white shadow-xl border border-gray-200 rounded-full p-2 text-primary-600 hover:bg-gray-50 transition-all animate-bounce'
+              className='fixed bottom-24 right-10 bg-surface-container-lowest shadow-elevated-2 border border-outline-variant rounded-full p-2 text-primary-600 hover:bg-surface-container-low transition-all'
             >
-              <PanelLeftOpen className='w-5 h-5 rotate-90' />
+              <ArrowDown className='w-5 h-5' />
             </button>
           )}
         </div>
 
-        {/* Chat Input Container */}
-        <div className='border-t border-gray-200 bg-white p-2'>
-          <div className='max-w-4xl mx-auto flex items-center justify-end px-4 py-1'>
-            {activeChatId && !isStreaming && (
-              <button
-                onClick={handleNewChat}
-                className='text-xs text-primary-600 hover:underline flex items-center gap-1'
-              >
-                <MessageSquarePlus className='w-3 h-3' /> Chat Baru
-              </button>
-            )}
-          </div>
+        {/* Input */}
+        <div className='border-t border-outline-variant bg-surface-container-lowest p-2'>
           <ChatInput
             onSend={handleSendMessage}
             disabled={isStreaming || isLoading}
           />
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={chatPendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setChatPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus chat ini?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Percakapan ini akan dihapus secara permanen dan tidak dapat
+              dikembalikan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              className={buttonVariants({ variant: 'destructive' })}
+              onClick={confirmDeleteChat}
+            >
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
