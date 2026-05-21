@@ -80,7 +80,7 @@ export const CourseNavbar = ({ courseId }: CourseNavbarProps) => {
               href='/my-courses'
               className='text-primary-fixed/80 hover:text-white transition-colors shrink-0'
             >
-              Kelas Saya
+              Kursus Saya
             </Link>
             {courseTitle && (
               <>

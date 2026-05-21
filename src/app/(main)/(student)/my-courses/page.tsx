@@ -97,17 +97,11 @@ export default function MyCoursesPage() {
   return (
     <div className='min-h-full bg-surface-soft'>
       {/* Hero */}
-      <section className='relative h-[280px] w-full bg-primary-500 overflow-hidden flex items-center px-4 sm:px-6 lg:px-8'>
-        <div
-          className='absolute top-[-100px] left-[-50px] w-[300px] h-[300px] bg-white/10 rounded-full blur-[100px] opacity-30'
-          style={{ animation: 'floatBlob 7s ease-in-out infinite' }}
-        />
-        <div
-          className='absolute bottom-[-150px] right-[-50px] w-[400px] h-[400px] bg-white/10 rounded-full blur-[100px] opacity-20'
-          style={{ animation: 'floatBlob 10s ease-in-out infinite reverse' }}
-        />
+      <section className='relative h-70 w-full hero-gradient-animated overflow-hidden flex items-center px-4 sm:px-6 lg:px-8'>
+        <div className='hero-blob absolute -top-25 -left-12.5 w-75 h-75 bg-white/10 rounded-full blur-[100px] opacity-30' />
+        <div className='hero-blob--slow absolute -bottom-37.5 -right-12.5 w-100 h-100 bg-white/10 rounded-full blur-[100px] opacity-20' />
 
-        <div className='relative z-10 w-full max-w-[80rem] mx-auto flex flex-col md:flex-row justify-between items-center gap-6'>
+        <div className='relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6'>
           <div>
             <h1 className='font-display text-3xl md:text-5xl font-bold text-white mb-2'>
               Kursus Saya

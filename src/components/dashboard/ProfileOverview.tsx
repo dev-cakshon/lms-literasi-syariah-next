@@ -186,15 +186,9 @@ export const ProfileInfo = () => {
 
 export const ProfileOverview = () => {
   return (
-    <section className='bg-linear-to-br from-[#2c7865] to-emerald-deep rounded-3xl shadow-md relative overflow-hidden flex flex-col md:flex-row gap-6 items-center p-5 md:p-7 md:gap-8 h-full'>
-      <div
-        className='absolute inset-0 opacity-10 pointer-events-none'
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 20px 20px, white 2%, transparent 0%), radial-gradient(circle at 60px 60px, white 2%, transparent 0%)',
-          backgroundSize: '80px 80px',
-        }}
-      />
+    <section className='hero-gradient-animated rounded-3xl shadow-md relative overflow-hidden flex flex-col md:flex-row gap-6 items-center p-5 md:p-7 md:gap-8 h-full'>
+      <div className='hero-blob pointer-events-none absolute -top-16 -right-12 h-56 w-56 rounded-full bg-lime/20' />
+      <div className='hero-blob--slow pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-accent-lime/10' />
       <ProfilePicture />
       <ProfileInfo />
     </section>
