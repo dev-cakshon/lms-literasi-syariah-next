@@ -34,7 +34,7 @@ export default function CourseContentItemRow({
   if (item.itemType === 'chapter') {
     href = `/course/${courseId}/chapter/${item.id}`;
   } else if (item.type === 'drag_drop') {
-    href = `/course/${courseId}/drag-drop/${item.id}`;
+    href = `/course/${courseId}/activity/${item.id}/drag-drop`;
   } else if (item.type === 'word_search') {
     href = `/course/${courseId}/activity/${item.id}/word-search`;
   } else {

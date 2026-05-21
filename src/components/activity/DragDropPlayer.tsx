@@ -11,6 +11,7 @@ import { ArrowRight, GripVertical, Zap } from 'lucide-react';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { getStudentActivity, submitActivity } from '@/lib/api';
+import { getNeighborPaths } from '@/lib/courseUtils';
 
 import { ActivityResultScreen } from '@/components/activity/ActivityResultScreen';
 
@@ -54,7 +55,7 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { refreshContentItems } = useContext(CourseLayoutContext);
+  const { refreshContentItems, contentItems } = useContext(CourseLayoutContext);
   const prevItemCountsRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
@@ -86,8 +87,13 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
         }
 
         const typedActivity = data as StudentDragDropActivity;
-        setActivity(typedActivity);
-        setUnassignedItemIds(typedActivity.items.map((item) => item.id));
+        const normalizedItems = typedActivity.items.map((item, index) => ({
+          ...item,
+          id: item.id || `__item_${index}`,
+        }));
+        const normalizedActivity = { ...typedActivity, items: normalizedItems };
+        setActivity(normalizedActivity);
+        setUnassignedItemIds(normalizedItems.map((item) => item.id));
 
         const initialBuckets = typedActivity.categories.reduce<
           Record<string, string[]>
@@ -222,10 +228,12 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
   }
 
   if (result) {
+    const nextPath = getNeighborPaths(contentItems, activityId, courseId).next;
     return (
       <ActivityResultScreen
         result={result}
         courseId={courseId}
+        nextPath={nextPath}
         onRetry={resetRound}
       />
     );

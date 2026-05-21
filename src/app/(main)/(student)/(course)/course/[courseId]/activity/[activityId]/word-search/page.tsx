@@ -293,10 +293,16 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   }
 
   if (result) {
+    const nextPath = getNeighborPaths(
+      contentItems,
+      activityId ?? '',
+      courseId,
+    ).next;
     return (
       <ActivityResultScreen
         result={result}
         courseId={courseId}
+        nextPath={nextPath}
         onRetry={() => {
           setResult(null);
           setFoundWords([]);

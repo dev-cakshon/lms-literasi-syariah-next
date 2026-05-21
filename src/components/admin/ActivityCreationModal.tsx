@@ -118,8 +118,8 @@ export const ActivityCreationModal = ({
           position: 0,
           maxPoints: data.maxPoints,
           categories: data.categories.map((category) => category.name),
-          items: data.items.map((item) => ({
-            id: '',
+          items: data.items.map((item, index) => ({
+            id: `dd_${Date.now()}_${index}`,
             label: item.label,
             correctCategory: data.categories[item.categoryIndex]?.name ?? '',
           })),
