@@ -1,14 +1,16 @@
 'use client';
 
+import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
+import { Award, Frown, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ApiError, issueCertificate } from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 import CourseCertificateModal from '@/components/course/CourseCertificateModal';
-import { BadgeAwardModal } from '@/components/gamification';
-import { Button } from '@/components/ui/button';
+import { BADGE_COPY, getBadgeIcon } from '@/components/gamification';
 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -33,65 +35,85 @@ function useCountUp(target: number, duration = 800): number {
 interface ActivityResultScreenProps {
   result: SubmitActivityResponse;
   courseId: string;
+  nextPath: string | null;
   onRetry: () => void;
 }
 
 export const ActivityResultScreen = ({
   result,
   courseId,
+  nextPath,
   onRetry,
 }: ActivityResultScreenProps) => {
   const router = useRouter();
-  const { refreshProfile } = useAuth();
-  const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const { refreshProfile, userProfile } = useAuth();
   const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [showCertModal, setShowCertModal] = useState(false);
+  const confettiFiredRef = useRef(false);
 
-  const displayCount = useCountUp(result.score);
+  const isPerfect = result.score === result.totalItems;
+  const passed = result.scorePercent >= 70;
+
+  const frame = certificate
+    ? 'course-complete'
+    : passed
+      ? 'celebration'
+      : 'retry';
+
+  const goldStarCount =
+    result.scorePercent === 100
+      ? 3
+      : result.scorePercent >= 85
+        ? 2
+        : result.scorePercent >= 70
+          ? 1
+          : 0;
 
   const awardedBadges = useMemo<Badge[]>(() => {
     const validBadges = new Set<string>(BADGE_IDS);
     return (result.earnedBadges ?? [])
-      .map((badge) => badge.id)
+      .map((b) => b.id)
       .filter(
-        (badgeId): badgeId is Badge =>
-          typeof badgeId === 'string' && validBadges.has(badgeId),
+        (id): id is Badge => typeof id === 'string' && validBadges.has(id),
       );
   }, [result.earnedBadges]);
 
+  const animatedXP = useCountUp(result.pointsEarned);
+  const animatedTotalXP = useCountUp(userProfile?.totalPoints ?? 0);
+
   useEffect(() => {
     void refreshProfile();
-    // Intentionally run once on mount for result sync.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    setShowBadgeModal(awardedBadges.length > 0);
-  }, [awardedBadges]);
-
-  const isPerfectScore = result.score === result.totalItems;
-
-  useEffect(() => {
-    if (!isPerfectScore) return;
+    if (!isPerfect) return;
     issueCertificate(courseId)
       .then((cert) => {
         setCertificate(cert);
-        setShowCertModal(true);
       })
       .catch((err: unknown) => {
         if (err instanceof ApiError && err.code === 'CERTIFICATE_NOT_ELIGIBLE')
           return;
         console.error('Certificate issuance failed:', err);
       });
-  }, [isPerfectScore, courseId]);
+  }, [isPerfect, courseId]);
+
+  useEffect(() => {
+    if (confettiFiredRef.current) return;
+    if (frame === 'celebration' || frame === 'course-complete') {
+      confettiFiredRef.current = true;
+      void confetti({
+        particleCount: 120,
+        spread: 70,
+        origin: { y: 0.5 },
+        colors: ['#10b981', '#f59e0b', '#b0f58b', '#2c7865', '#ffffff'],
+      });
+    }
+  }, [frame]);
 
   return (
     <>
-      <BadgeAwardModal
-        isOpen={showBadgeModal}
-        badges={awardedBadges}
-        onClose={() => setShowBadgeModal(false)}
-      />
       {showCertModal && certificate && (
         <CourseCertificateModal
           certificate={certificate}
@@ -99,77 +121,219 @@ export const ActivityResultScreen = ({
         />
       )}
 
-      <div className='min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-8'>
-        <div className='w-full max-w-xl shadow-sm'>
-          {/* Header zone */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className='rounded-t-2xl px-8 py-10 text-center'
-            style={{
-              background: 'linear-gradient(160deg, #174339 0%, #1e5548 100%)',
-            }}
-          >
-            <p className='text-xs font-bold uppercase tracking-[1.2px] text-white/50'>
-              Hasil Aktivitas
-            </p>
-            <h1 className='mt-3 text-6xl font-bold text-white'>
-              {displayCount} / {result.totalItems}
-            </h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.9 }}
-              className='mt-2 text-lg font-semibold text-white/70'
-            >
-              {result.scorePercent}%
-            </motion.p>
-          </motion.div>
-
-          {/* Body zone */}
-          <div className='rounded-b-2xl border border-t-0 bg-white px-8 py-6 space-y-4'>
-            {result.pointsEarned > 0 && (
-              <motion.div
-                initial={{ y: 12, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className='flex justify-center'
-              >
-                <span className='rounded-full px-4 py-1.5 text-sm font-bold bg-amber-50 border border-amber-300 text-amber-ink'>
-                  ⚡ +{result.pointsEarned} XP
-                </span>
-              </motion.div>
-            )}
-
-            {isPerfectScore && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 1, type: 'spring', stiffness: 300 }}
-                className='flex justify-center'
-              >
-                <span className='rounded-full bg-yellow-100 px-3 py-1 text-sm font-semibold text-yellow-800'>
-                  Sempurna! ⭐
-                </span>
-              </motion.div>
-            )}
-
-            <div className='flex flex-col gap-3 sm:flex-row sm:justify-center pt-2'>
-              <Button variant='outline' onClick={onRetry}>
-                Coba Lagi
-              </Button>
-              <Button
-                onClick={() => router.push(`/course/${courseId}`)}
+      <div
+        className='flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8'
+        style={{
+          backgroundImage:
+            'radial-gradient(circle, #e7e9e4 2px, transparent 2px)',
+          backgroundSize: '24px 24px',
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className='w-full max-w-md'
+        >
+          {/* ── COURSE-COMPLETE FRAME ── */}
+          {frame === 'course-complete' && (
+            <div className='overflow-hidden rounded-3xl bg-surface-container-lowest shadow-[0_8px_0_0_rgba(5,95,77,0.1)]'>
+              {/* Cert-stripes header */}
+              <div
+                className='relative p-8 text-center'
                 style={{
-                  background: 'linear-gradient(160deg, #174339, #1e5548)',
+                  background:
+                    'repeating-linear-gradient(45deg, #b0f58b, #b0f58b 10px, #95d872 10px, #95d872 20px)',
                 }}
-                className='text-white hover:opacity-90'
+              >
+                <div className='absolute inset-0 bg-white/20' />
+                <Award
+                  fill='currentColor'
+                  className='relative z-10 mx-auto mb-3 h-14 w-14'
+                  style={{ color: '#1d5200' }}
+                />
+                <h2
+                  className='relative z-10 font-display text-3xl font-bold'
+                  style={{ color: '#1d5200' }}
+                >
+                  Luar Biasa!
+                </h2>
+                <p
+                  className='relative z-10 mt-1 text-sm font-semibold'
+                  style={{ color: '#367218' }}
+                >
+                  Materi Selesai
+                </p>
+              </div>
+
+              <div className='flex flex-col items-center gap-5 p-8'>
+                {/* Stars — always 3 gold */}
+                <div className='flex items-center justify-center gap-1'>
+                  {[0, 1, 2].map((i) => (
+                    <Star
+                      key={i}
+                      fill='currentColor'
+                      className={cn(
+                        i === 1 ? '-mt-4 h-12 w-12' : 'h-8 w-8',
+                        'text-amber-500',
+                      )}
+                    />
+                  ))}
+                </div>
+
+                {/* Cumulative XP chip */}
+                <div className='rounded-full border border-amber-300 bg-amber-50 px-4 py-1.5 text-sm font-bold text-amber-ink'>
+                  Total XP: {animatedTotalXP}
+                </div>
+
+                {/* Primary button */}
+                <button
+                  type='button'
+                  onClick={() => setShowCertModal(true)}
+                  className='w-full rounded-xl bg-primary-700 py-4 text-sm font-bold uppercase tracking-[0.05em] text-white shadow-[0_4px_0_0_#2c7865] transition-all active:translate-y-1 active:shadow-none'
+                >
+                  Lihat Sertifikat
+                </button>
+
+                {/* Quiet escape */}
+                <button
+                  type='button'
+                  onClick={() => router.push(`/course/${courseId}`)}
+                  className='text-sm text-on-surface-variant transition-colors hover:text-on-surface'
+                >
+                  Kembali ke Kursus
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── CELEBRATION FRAME ── */}
+          {frame === 'celebration' && (
+            <div className='relative overflow-hidden rounded-3xl bg-surface-container-lowest p-8 text-center shadow-[0_8px_0_0_rgba(5,95,77,0.1)]'>
+              {/* Subtle top tint */}
+              <div className='pointer-events-none absolute left-0 top-0 h-32 w-full rounded-t-3xl bg-primary-700/5' />
+
+              {/* Stars — graded */}
+              <div className='mb-5 flex items-center justify-center gap-1'>
+                {[0, 1, 2].map((i) => (
+                  <Star
+                    key={i}
+                    fill={i < goldStarCount ? 'currentColor' : 'none'}
+                    className={cn(
+                      i === 1 ? '-mt-4 h-12 w-12' : 'h-8 w-8',
+                      i < goldStarCount
+                        ? 'text-amber-500'
+                        : 'text-outline-variant',
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Headline */}
+              <h2 className='mb-1 font-display text-3xl font-bold text-primary-700'>
+                {result.scorePercent === 100 ? 'Sempurna!' : 'Kerja Bagus!'}
+              </h2>
+              <p className='mb-6 text-base text-on-surface-variant'>
+                {result.score} dari {result.totalItems} benar
+              </p>
+
+              {/* Hadiah Anda panel */}
+              <div className='relative mb-6 w-full rounded-2xl border-2 border-outline-variant bg-surface-container-low p-5'>
+                <div className='absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-0.5 text-xs font-bold uppercase tracking-[0.05em] text-on-surface-variant'>
+                  Hadiah Anda
+                </div>
+
+                <div className='mt-1 flex flex-col items-center gap-4'>
+                  {/* XP badge */}
+                  <div className='rounded-xl border border-amber-300 bg-amber-100 px-6 py-2 text-xl font-bold text-amber-ink'>
+                    +{animatedXP} XP
+                  </div>
+
+                  {/* Inline earned badges */}
+                  {awardedBadges.length > 0 && (
+                    <div className='flex flex-wrap justify-center gap-4'>
+                      {awardedBadges.map((badge) => (
+                        <div
+                          key={badge}
+                          className='flex flex-col items-center gap-1'
+                        >
+                          <div className='flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary-700 bg-primary-100'>
+                            {getBadgeIcon(badge)}
+                          </div>
+                          <span className='max-w-[72px] text-center text-xs font-bold text-on-surface-variant'>
+                            {BADGE_COPY[badge].labelId}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Primary button */}
+              <button
+                type='button'
+                onClick={() => router.push(nextPath ?? `/course/${courseId}`)}
+                className='w-full rounded-xl bg-primary-700 py-4 text-sm font-bold uppercase tracking-[0.05em] text-white shadow-[0_4px_0_0_#2c7865] transition-all active:translate-y-1 active:shadow-none'
+              >
+                {nextPath ? 'Lanjut' : 'Selesai'}
+              </button>
+            </div>
+          )}
+
+          {/* ── RETRY FRAME ── */}
+          {frame === 'retry' && (
+            <div className='rounded-3xl bg-surface-container-lowest p-8 text-center opacity-90 shadow-[0_8px_0_0_rgba(5,95,77,0.1)]'>
+              {/* Stars — all grey */}
+              <div className='mb-5 flex items-center justify-center gap-1'>
+                {[0, 1, 2].map((i) => (
+                  <Star
+                    key={i}
+                    className={cn(
+                      i === 1 ? '-mt-4 h-12 w-12' : 'h-8 w-8',
+                      'text-outline-variant',
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Headline */}
+              <h2 className='mb-1 font-display text-3xl font-bold text-on-surface'>
+                Coba Sekali Lagi
+              </h2>
+              <p className='mb-6 text-base text-on-surface-variant'>
+                {result.score} dari {result.totalItems} benar
+              </p>
+
+              {/* Retry panel */}
+              <div className='mb-6 flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-outline-variant/40 bg-surface-container py-8'>
+                <Frown className='h-14 w-14 text-outline-variant' />
+                {result.pointsEarned > 0 && (
+                  <span className='rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-ink'>
+                    +{result.pointsEarned} XP
+                  </span>
+                )}
+              </div>
+
+              {/* Primary button */}
+              <button
+                type='button'
+                onClick={onRetry}
+                className='mb-3 w-full rounded-xl border-2 border-outline-variant bg-surface-container-high py-4 text-sm font-bold uppercase tracking-[0.05em] text-on-surface transition-transform active:translate-y-1'
+              >
+                Coba Lagi
+              </button>
+
+              {/* Quiet escape */}
+              <button
+                type='button'
+                onClick={() => router.push(`/course/${courseId}`)}
+                className='text-sm text-on-surface-variant transition-colors hover:text-on-surface'
               >
                 Kembali ke Kursus
-              </Button>
+              </button>
             </div>
-          </div>
-        </div>
+          )}
+        </motion.div>
       </div>
     </>
   );
