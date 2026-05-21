@@ -12,14 +12,14 @@ export const AchievementBadges = () => {
     profile?.badges?.some((b) => b === id) ?? false;
 
   return (
-    <section className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-surface-container-low)] overflow-hidden flex flex-col relative'>
-      <div className='p-5 lg:p-6 border-b border-[var(--color-surface-container-low)] flex items-center bg-white'>
-        <h2 className='text-xl font-bold text-[var(--color-on-surface)]'>
+    <section className='bg-white rounded-[2rem] shadow-xl border border-[var(--color-amber-100)] overflow-hidden flex flex-col relative'>
+      <div className='p-5 lg:p-6 border-b border-[var(--color-amber-300)] flex items-center bg-gradient-to-r from-[var(--color-amber-300)] to-[var(--color-amber-100)]'>
+        <h2 className='text-xl font-bold text-[var(--color-amber-ink)]'>
           🎖️ Badges
         </h2>
       </div>
 
-      <div className='p-5 lg:p-6 flex-grow bg-[#fcfcfc] flex flex-col gap-6 lg:gap-8'>
+      <div className='p-5 lg:p-6 flex-grow bg-[var(--color-amber-50)] flex flex-col gap-6 lg:gap-8'>
         {loading ? (
           <>
             <div className='grid grid-cols-3 gap-4'>
@@ -63,7 +63,7 @@ export const AchievementBadges = () => {
       </div>
 
       <div className='confetti-dot bg-blue-400 top-20 right-10 opacity-30' />
-      <div className='confetti-dot bg-yellow-400 bottom-32 left-8 opacity-30' />
+      <div className='confetti-dot bg-[var(--color-primary-400)] bottom-32 left-8 opacity-30' />
       <div className='confetti-dot bg-pink-400 top-1/2 right-4 opacity-30' />
     </section>
   );

@@ -70,7 +70,7 @@ export const CourseNavbar = ({ courseId }: CourseNavbarProps) => {
               shadow-[0_2px_0_0_#005141] hover:-translate-y-0.5 active:translate-y-0 transition-all text-sm font-bold'
         >
           <Map className='w-4 h-4' />
-          Peta
+          Roadmap
         </button>
 
         {/* Frosted breadcrumb pill (desktop) */}
