@@ -113,9 +113,9 @@ export const HeroSection = () => {
                   </span>
                   <span className='text-white font-bold text-sm'>HALAL</span>
                 </div>
-                <div className='border-2 border-dashed border-error-pop/50 bg-error-pop/5 rounded-xl p-4 flex flex-col items-center gap-2'>
+                <div className='border-2 border-dashed border-danger/50 bg-danger/5 rounded-xl p-4 flex flex-col items-center gap-2'>
                   <span
-                    className='material-symbols-outlined text-error-pop text-3xl'
+                    className='material-symbols-outlined text-danger text-3xl'
                     style={{ fontVariationSettings: "'FILL' 1" }}
                   >
                     cancel
