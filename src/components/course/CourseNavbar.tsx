@@ -75,25 +75,34 @@ export const CourseNavbar = ({ courseId }: CourseNavbarProps) => {
 
         {/* Frosted breadcrumb pill (desktop) */}
         <div className='hidden md:flex items-center bg-primary-container/30 backdrop-blur-sm p-1.5 rounded-full border border-primary-fixed/20'>
-          {courseTitle && (
-            <div className='flex items-center gap-2 px-3 text-sm'>
-              <Link
-                href={`/course/${courseId}`}
-                className={`transition-colors truncate max-w-40 ${currentItemLabel ? 'text-primary-fixed/80 hover:text-white' : 'text-white font-bold'}`}
-                title={courseTitle}
-              >
-                {courseTitle}
-              </Link>
-              {currentItemLabel && (
-                <>
-                  <span className='text-primary-fixed/40 shrink-0'>/</span>
-                  <span className='text-white font-bold truncate max-w-48'>
-                    {currentItemLabel}
-                  </span>
-                </>
-              )}
-            </div>
-          )}
+          <div className='flex items-center gap-2 px-3 text-sm'>
+            <Link
+              href='/my-courses'
+              className='text-primary-fixed/80 hover:text-white transition-colors shrink-0'
+            >
+              Kelas Saya
+            </Link>
+            {courseTitle && (
+              <>
+                <span className='text-primary-fixed/40 shrink-0'>/</span>
+                <Link
+                  href={`/course/${courseId}`}
+                  className={`transition-colors truncate max-w-40 ${currentItemLabel ? 'text-primary-fixed/80 hover:text-white' : 'text-white font-bold'}`}
+                  title={courseTitle}
+                >
+                  {courseTitle}
+                </Link>
+                {currentItemLabel && (
+                  <>
+                    <span className='text-primary-fixed/40 shrink-0'>/</span>
+                    <span className='text-white font-bold truncate max-w-48'>
+                      {currentItemLabel}
+                    </span>
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 
