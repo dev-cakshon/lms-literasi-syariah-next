@@ -8,7 +8,6 @@
 import {
   collection,
   doc,
-  limit,
   onSnapshot,
   orderBy,
   query,
@@ -98,34 +97,34 @@ export function useLeaderboard(): LeaderboardRealtimeData {
     const usersRef = query(
       collection(db, 'users'),
       orderBy('totalPoints', 'desc'),
-      limit(10),
     );
 
     const unsubscribe = onSnapshot(
       usersRef,
       (snapshot) => {
-        const entries: LeaderboardUser[] = snapshot.docs.map((userDoc) => {
-          const raw = userDoc.data();
+        const entries: LeaderboardUser[] = snapshot.docs
+          .filter((userDoc) => {
+            const raw = userDoc.data();
+            return raw.role === 'student' && raw.isActive !== false;
+          })
+          .map((userDoc) => {
+            const raw = userDoc.data();
 
-          const uidValue = raw.uid;
-          const nameValue = raw.name;
-          const pointsValue = raw.totalPoints;
-          const badgesValue = raw.badges;
+            const uidValue = raw.uid;
+            const nameValue = raw.name;
+            const pointsValue = raw.totalPoints;
+            const badgesValue = raw.badges;
 
-          const uid = typeof uidValue === 'string' ? uidValue : userDoc.id;
-          const name = typeof nameValue === 'string' ? nameValue : '';
-          const totalPoints = typeof pointsValue === 'number' ? pointsValue : 0;
-          const badges = Array.isArray(badgesValue)
-            ? badgesValue.filter((badge): badge is Badge => isBadge(badge))
-            : [];
+            const uid = typeof uidValue === 'string' ? uidValue : userDoc.id;
+            const name = typeof nameValue === 'string' ? nameValue : '';
+            const totalPoints =
+              typeof pointsValue === 'number' ? pointsValue : 0;
+            const badges = Array.isArray(badgesValue)
+              ? badgesValue.filter((badge): badge is Badge => isBadge(badge))
+              : [];
 
-          return {
-            uid,
-            name,
-            totalPoints,
-            badges,
-          };
-        });
+            return { uid, name, totalPoints, badges };
+          });
 
         setData(entries);
         setLoading(false);

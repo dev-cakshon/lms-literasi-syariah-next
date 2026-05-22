@@ -1,17 +1,8 @@
 'use client';
 
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from 'firebase/firestore';
 import { motion } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
-import { getFirestoreInstance } from '@/lib/firebase';
 import { useLeaderboard } from '@/hooks/use-realtime';
 
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,44 +12,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import type { LeaderboardRowVariant } from './LeaderboardRow';
 import { LeaderboardRow } from './LeaderboardRow';
 
-import type { Badge, LeaderboardUser } from '@/types';
-import { BADGE_IDS } from '@/types';
+import type { LeaderboardUser } from '@/types';
 
 interface RankedLeaderboardUser extends LeaderboardUser {
   rank: number;
 }
-
-interface CurrentUserRankState {
-  user: LeaderboardUser;
-  rank: number;
-}
-
-const VALID_BADGES = new Set<string>(BADGE_IDS);
-
-const isBadge = (value: unknown): value is Badge =>
-  typeof value === 'string' && VALID_BADGES.has(value);
-
-const getSafeBadgeArray = (value: unknown): Badge[] => {
-  if (!Array.isArray(value)) return [];
-  return value.filter((item): item is Badge => isBadge(item));
-};
-
-const mapUserDocToLeaderboardUser = (
-  raw: unknown,
-  fallbackUid: string,
-): LeaderboardUser => {
-  const parsed =
-    typeof raw === 'object' && raw !== null
-      ? (raw as Record<string, unknown>)
-      : {};
-  return {
-    uid: typeof parsed.uid === 'string' ? parsed.uid : fallbackUid,
-    name: typeof parsed.name === 'string' ? parsed.name : '',
-    totalPoints:
-      typeof parsed.totalPoints === 'number' ? parsed.totalPoints : 0,
-    badges: getSafeBadgeArray(parsed.badges),
-  };
-};
 
 const PODIUM_VARIANTS: LeaderboardRowVariant[] = [
   'podium-gold',
@@ -70,15 +28,13 @@ export const Leaderboard = () => {
   const { data, loading } = useLeaderboard();
   const { user } = useAuth();
   const currentUserUid = user?.uid ?? null;
-  const [currentUserRankState, setCurrentUserRankState] =
-    useState<CurrentUserRankState | null>(null);
 
   const leaderboardData = useMemo<RankedLeaderboardUser[]>(
     () => data.map((u, i) => ({ ...u, rank: i + 1 })),
     [data],
   );
 
-  const currentUserTopEntry = useMemo(
+  const currentUserEntry = useMemo(
     () =>
       currentUserUid
         ? (leaderboardData.find((u) => u.uid === currentUserUid) ?? null)
@@ -86,45 +42,7 @@ export const Leaderboard = () => {
     [currentUserUid, leaderboardData],
   );
 
-  useEffect(() => {
-    if (!currentUserUid || loading || currentUserTopEntry) {
-      setCurrentUserRankState(null);
-      return;
-    }
-
-    let active = true;
-
-    const fetchRank = async () => {
-      try {
-        const db = getFirestoreInstance();
-        const userSnap = await getDoc(doc(db, 'users', currentUserUid));
-        if (!userSnap.exists()) return;
-
-        const userData = mapUserDocToLeaderboardUser(
-          userSnap.data(),
-          userSnap.id,
-        );
-        const higherQuery = query(
-          collection(db, 'users'),
-          where('totalPoints', '>', userData.totalPoints),
-        );
-        const higherSnap = await getDocs(higherQuery);
-        if (active) {
-          setCurrentUserRankState({
-            user: userData,
-            rank: higherSnap.size + 1,
-          });
-        }
-      } catch (err) {
-        console.error('Leaderboard rank fetch error:', err);
-      }
-    };
-
-    void fetchRank();
-    return () => {
-      active = false;
-    };
-  }, [currentUserUid, loading, currentUserTopEntry]);
+  const showMyRank = currentUserEntry !== null && currentUserEntry.rank > 10;
 
   if (loading) {
     return (
@@ -161,10 +79,6 @@ export const Leaderboard = () => {
   const podiumRows = leaderboardData.slice(0, 3);
   const alwaysRows = leaderboardData.slice(3, 6);
   const extraRows = leaderboardData.slice(6, 10);
-
-  const rankState = currentUserTopEntry
-    ? { user: currentUserTopEntry, rank: currentUserTopEntry.rank }
-    : currentUserRankState;
 
   return (
     <section className='bg-[var(--color-tertiary-fixed)] rounded-[2rem] shadow-xl border border-[var(--color-tertiary-fixed)] overflow-hidden @container'>
@@ -225,15 +139,15 @@ export const Leaderboard = () => {
           </div>
         )}
 
-        {rankState && rankState.user.uid !== currentUserTopEntry?.uid && (
+        {showMyRank && currentUserEntry && (
           <>
             <div className='border-t border-dashed border-[var(--color-outline-variant)] my-1' />
             <p className='text-[10px] font-bold uppercase tracking-widest px-3 text-[var(--color-on-surface-soft)]'>
               Peringkatmu
             </p>
             <LeaderboardRow
-              user={rankState.user}
-              rank={rankState.rank}
+              user={currentUserEntry}
+              rank={currentUserEntry.rank}
               variant='me'
               isCurrentUser={true}
             />
