@@ -17,7 +17,7 @@ function routeFor(item: CourseContentItem, courseId: string): string {
   if (item.itemType === 'chapter')
     return `/course/${courseId}/chapter/${item.id}`;
   if (item.type === 'drag_drop')
-    return `/course/${courseId}/drag-drop/${item.id}`;
+    return `/course/${courseId}/activity/${item.id}/drag-drop`;
   if (item.type === 'word_search')
     return `/course/${courseId}/activity/${item.id}/word-search`;
   return `/course/${courseId}/activity/${item.id}/true-or-false`;
