@@ -55,8 +55,14 @@ export function DragDropPlayer({ params }: DragDropPlayerProps) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { refreshContentItems, contentItems } = useContext(CourseLayoutContext);
+  const { refreshContentItems, contentItems, setChatFabHidden } =
+    useContext(CourseLayoutContext);
   const prevItemCountsRef = useRef<Record<string, number>>({});
+
+  useEffect(() => {
+    setChatFabHidden(true);
+    return () => setChatFabHidden(false);
+  }, [setChatFabHidden]);
 
   useEffect(() => {
     params.then((p) => {

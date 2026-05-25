@@ -1,12 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getCourse, getCourseContent, getLeaderboard } from '@/lib/api';
+import { getCourse, getCourseContent } from '@/lib/api';
+import { useLeaderboard } from '@/hooks/use-realtime';
 
+import { ChatbotDrawer } from '@/components/course/ChatbotDrawer';
+import { ChatbotFab } from '@/components/course/ChatbotFab';
 import { CourseNavbar } from '@/components/course/CourseNavbar';
-import { CourseOverlay } from '@/components/course/CourseOverlay';
+import { CourseRoadmap } from '@/components/course/CourseRoadmap';
 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -32,15 +35,22 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
   const [course, setCourse] = useState<CourseData | null>(null);
   const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isPetaOpen, setIsPetaOpen] = useState(false);
-  const [myRank, setMyRank] = useState<number | null>(null);
+  const [isRoadmapOpen, setIsRoadmapOpen] = useState(false);
+  const { data: leaderboardData } = useLeaderboard();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isChatFabHidden, setIsChatFabHidden] = useState(false);
+
+  const myRank = useMemo(() => {
+    if (!user?.uid) return null;
+    const idx = leaderboardData.findIndex((e) => e.uid === user.uid);
+    return idx >= 0 ? idx + 1 : null;
+  }, [leaderboardData, user?.uid]);
 
   const fetchCourseData = useCallback(async () => {
     try {
-      const [courseData, courseContentData, leaderboard] = await Promise.all([
+      const [courseData, courseContentData] = await Promise.all([
         getCourse(courseId),
         getCourseContent(courseId),
-        getLeaderboard().catch(() => []),
       ]);
 
       if (!courseData) {
@@ -58,16 +68,13 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
       setContentItems(
         [...courseContentData].sort((a, b) => a.position - b.position),
       );
-
-      const rankIndex = leaderboard.findIndex((e) => e.uid === user?.uid);
-      setMyRank(rankIndex >= 0 ? rankIndex + 1 : null);
     } catch (err) {
       console.error('Failed to load course:', err);
       router.push('/');
     } finally {
       setLoading(false);
     }
-  }, [courseId, router, user?.uid]);
+  }, [courseId, router]);
 
   const refreshContentItems = useCallback(() => {
     void fetchCourseData();
@@ -97,21 +104,27 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
           refreshContentItems,
           courseTitle: course.title,
           courseDescription: course.description,
-          isPetaOpen,
-          setPetaOpen: setIsPetaOpen,
+          isRoadmapOpen,
+          setRoadmapOpen: setIsRoadmapOpen,
           myRank,
+          isChatOpen,
+          setChatOpen: setIsChatOpen,
+          isChatFabHidden,
+          setChatFabHidden: setIsChatFabHidden,
         }}
       >
         <CourseNavbar courseId={courseId} />
         <main className='pt-20 pb-28 bg-pattern-organic min-h-screen'>
           {children}
         </main>
-        <CourseOverlay
+        <CourseRoadmap
           course={course}
           contentItems={contentItems}
-          isOpen={isPetaOpen}
-          onClose={() => setIsPetaOpen(false)}
+          isOpen={isRoadmapOpen}
+          onClose={() => setIsRoadmapOpen(false)}
         />
+        <ChatbotFab />
+        <ChatbotDrawer />
       </CourseLayoutContext.Provider>
     </div>
   );

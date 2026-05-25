@@ -7,9 +7,13 @@ export type CourseLayoutContextType = {
   refreshContentItems: () => void;
   courseTitle: string;
   courseDescription: string;
-  isPetaOpen: boolean;
-  setPetaOpen: (open: boolean) => void;
+  isRoadmapOpen: boolean;
+  setRoadmapOpen: (open: boolean) => void;
   myRank: number | null;
+  isChatOpen: boolean;
+  setChatOpen: (open: boolean) => void;
+  isChatFabHidden: boolean;
+  setChatFabHidden: (hidden: boolean) => void;
 };
 
 export const CourseLayoutContext = createContext<CourseLayoutContextType>({
@@ -17,7 +21,11 @@ export const CourseLayoutContext = createContext<CourseLayoutContextType>({
   refreshContentItems: () => undefined,
   courseTitle: '',
   courseDescription: '',
-  isPetaOpen: false,
-  setPetaOpen: () => undefined,
+  isRoadmapOpen: false,
+  setRoadmapOpen: () => undefined,
   myRank: null,
+  isChatOpen: false,
+  setChatOpen: () => undefined,
+  isChatFabHidden: false,
+  setChatFabHidden: () => undefined,
 });

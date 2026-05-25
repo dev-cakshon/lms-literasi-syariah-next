@@ -10,9 +10,13 @@ interface CourseLayoutContextValue {
   refreshContentItems: () => void;
   courseTitle: string;
   courseDescription: string;
-  isPetaOpen: boolean;
-  setPetaOpen: (open: boolean) => void;
+  isRoadmapOpen: boolean;
+  setRoadmapOpen: (open: boolean) => void;
   myRank: number | null;
+  isChatOpen: boolean;
+  setChatOpen: (open: boolean) => void;
+  isChatFabHidden: boolean;
+  setChatFabHidden: (hidden: boolean) => void;
 }
 
 const defaultCourseLayout: CourseLayoutContextValue = {
@@ -20,9 +24,13 @@ const defaultCourseLayout: CourseLayoutContextValue = {
   refreshContentItems: jest.fn(),
   courseTitle: 'Test Course',
   courseDescription: '',
-  isPetaOpen: false,
-  setPetaOpen: jest.fn(),
+  isRoadmapOpen: false,
+  setRoadmapOpen: jest.fn(),
   myRank: null,
+  isChatOpen: false,
+  setChatOpen: jest.fn(),
+  isChatFabHidden: false,
+  setChatFabHidden: jest.fn(),
 };
 
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {

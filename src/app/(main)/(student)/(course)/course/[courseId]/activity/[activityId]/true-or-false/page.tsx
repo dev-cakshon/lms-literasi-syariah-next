@@ -43,7 +43,13 @@ export default function TrueOrFalseActivityPage({
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { contentItems, refreshContentItems } = useContext(CourseLayoutContext);
+  const { contentItems, refreshContentItems, setChatFabHidden } =
+    useContext(CourseLayoutContext);
+
+  useEffect(() => {
+    setChatFabHidden(true);
+    return () => setChatFabHidden(false);
+  }, [setChatFabHidden]);
 
   useEffect(() => {
     params.then((p) => {
