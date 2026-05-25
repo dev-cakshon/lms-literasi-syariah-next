@@ -1,36 +1,37 @@
 'use client';
 
-import { Award, BookOpen, Check, Lock, Play, X, Zap } from 'lucide-react';
+import { BookOpen, Check, Lock, Play, Trophy, X, Zap } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { resetCourseProgressApi } from '@/lib/api';
 import { getItemPath } from '@/lib/courseUtils';
+import { useLeaderboard } from '@/hooks/use-realtime';
 
 import { useAuth } from '@/contexts/AuthContext';
 
 import type { CourseContentItem } from '@/types';
 
-interface CourseOverlayProps {
+interface CourseRoadmapProps {
   course: { id: string; title: string };
   contentItems: CourseContentItem[];
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function CourseOverlay({
+export function CourseRoadmap({
   course,
   contentItems,
   isOpen,
   onClose,
-}: CourseOverlayProps) {
+}: CourseRoadmapProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { userProfile } = useAuth();
+  const { user, userProfile } = useAuth();
+  const { data: leaderboardData } = useLeaderboard();
   const [isResetting, setIsResetting] = useState(false);
 
   const xp = userProfile?.totalPoints ?? 0;
-  const badgesCount = userProfile?.badges?.length ?? 0;
   const completedCount = contentItems.filter((i) => i.completed).length;
   const totalCount = contentItems.length;
   const progressPct =
@@ -40,6 +41,12 @@ export function CourseOverlay({
     pathname.match(/\/chapter\/([^/]+)/)?.[1] ??
     pathname.match(/\/activity\/([^/]+)/)?.[1] ??
     null;
+
+  const myRank = useMemo(() => {
+    if (!user?.uid) return null;
+    const idx = leaderboardData.findIndex((e) => e.uid === user.uid);
+    return idx >= 0 ? idx + 1 : null;
+  }, [leaderboardData, user?.uid]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -89,7 +96,7 @@ export function CourseOverlay({
         className={`fixed top-0 left-0 h-full w-full max-w-[320px] bg-surface-container-low z-[70] flex flex-col border-emerald-deep/10 shadow-2xl
           transform transition-transform duration-300 ease-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        aria-label='Peta Kursus'
+        aria-label='Roadmap Kursus'
       >
         {/* Header */}
         <header className='p-6 bg-emerald-deep text-white flex items-center justify-between'>
@@ -97,7 +104,6 @@ export function CourseOverlay({
             <h2 className='font-display text-xl font-semibold'>
               {course.title}
             </h2>
-            {/* Dev Reset Button */}
             {process.env.NEXT_PUBLIC_APP_ENV !== 'production' && (
               <div className='bg-surface-container-lowest'>
                 <button
@@ -114,7 +120,7 @@ export function CourseOverlay({
           <button
             type='button'
             onClick={onClose}
-            aria-label='Tutup Peta'
+            aria-label='Tutup Roadmap'
             className='w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50'
           >
             <X className='w-5 h-5' />
@@ -123,16 +129,16 @@ export function CourseOverlay({
 
         {/* Scrollable body */}
         <div className='flex-grow overflow-y-auto p-6 space-y-8'>
-          {/* Stats badges */}
+          {/* Stats pills */}
           <div className='flex gap-3'>
             <div className='bg-primary-container text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-[0_4px_0_0_#005141]'>
               <Zap className='w-4 h-4 text-amber-300 fill-amber-300' />
               <span className='text-sm font-bold tracking-wide'>{xp} XP</span>
             </div>
-            <div className='bg-secondary-container text-on-secondary-container px-4 py-2 rounded-full flex items-center gap-2 shadow-[0_4px_0_0_#367218]'>
-              <Award className='w-4 h-4' />
+            <div className='bg-primary-container text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-[0_4px_0_0_#005141]'>
+              <Trophy className='w-4 h-4 text-tertiary-fixed' />
               <span className='text-sm font-bold tracking-wide'>
-                {badgesCount} Lencana
+                {myRank != null ? `#${myRank}` : '#—'}
               </span>
             </div>
           </div>

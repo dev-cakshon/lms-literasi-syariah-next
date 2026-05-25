@@ -62,7 +62,7 @@ export function ChatbotDrawer() {
     }
   }, [isChatOpen]);
 
-  // Escape key closes the drawer — mirrors CourseOverlay.tsx:44-51.
+  // Escape key closes the drawer — mirrors CourseRoadmap.tsx:44-51.
   useEffect(() => {
     if (!isChatOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -179,7 +179,7 @@ export function ChatbotDrawer() {
 
   return (
     <>
-      {/* Backdrop — matches CourseOverlay z-[60] / bg-inverse-surface/40 */}
+      {/* Backdrop — matches CourseRoadmap z-[60] / bg-inverse-surface/40 */}
       {isChatOpen && (
         <div
           aria-hidden='true'

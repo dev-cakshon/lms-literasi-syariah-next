@@ -10,8 +10,8 @@ interface CourseLayoutContextValue {
   refreshContentItems: () => void;
   courseTitle: string;
   courseDescription: string;
-  isPetaOpen: boolean;
-  setPetaOpen: (open: boolean) => void;
+  isRoadmapOpen: boolean;
+  setRoadmapOpen: (open: boolean) => void;
   myRank: number | null;
   isChatOpen: boolean;
   setChatOpen: (open: boolean) => void;
@@ -24,8 +24,8 @@ const defaultCourseLayout: CourseLayoutContextValue = {
   refreshContentItems: jest.fn(),
   courseTitle: 'Test Course',
   courseDescription: '',
-  isPetaOpen: false,
-  setPetaOpen: jest.fn(),
+  isRoadmapOpen: false,
+  setRoadmapOpen: jest.fn(),
   myRank: null,
   isChatOpen: false,
   setChatOpen: jest.fn(),

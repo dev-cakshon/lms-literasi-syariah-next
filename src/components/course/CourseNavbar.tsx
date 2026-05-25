@@ -17,7 +17,7 @@ interface CourseNavbarProps {
 }
 
 export const CourseNavbar = ({ courseId }: CourseNavbarProps) => {
-  const { contentItems, courseTitle, setPetaOpen, myRank } =
+  const { contentItems, courseTitle, setRoadmapOpen, myRank } =
     useContext(CourseLayoutContext);
   const { userProfile } = useAuth();
   const pathname = usePathname();
@@ -65,7 +65,7 @@ export const CourseNavbar = ({ courseId }: CourseNavbarProps) => {
 
         <button
           type='button'
-          onClick={() => setPetaOpen(true)}
+          onClick={() => setRoadmapOpen(true)}
           className='bg-primary-fixed text-on-primary-fixed-variant flex items-center gap-2 rounded-full px-4 py-1.5
               shadow-[0_2px_0_0_#005141] hover:-translate-y-0.5 active:translate-y-0 transition-all text-sm font-bold'
         >
