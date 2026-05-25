@@ -10,6 +10,10 @@ export type CourseLayoutContextType = {
   isPetaOpen: boolean;
   setPetaOpen: (open: boolean) => void;
   myRank: number | null;
+  isChatOpen: boolean;
+  setChatOpen: (open: boolean) => void;
+  isChatFabHidden: boolean;
+  setChatFabHidden: (hidden: boolean) => void;
 };
 
 export const CourseLayoutContext = createContext<CourseLayoutContextType>({
@@ -20,4 +24,8 @@ export const CourseLayoutContext = createContext<CourseLayoutContextType>({
   isPetaOpen: false,
   setPetaOpen: () => undefined,
   myRank: null,
+  isChatOpen: false,
+  setChatOpen: () => undefined,
+  isChatFabHidden: false,
+  setChatFabHidden: () => undefined,
 });

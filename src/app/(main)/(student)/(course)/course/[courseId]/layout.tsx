@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { getCourse, getCourseContent, getLeaderboard } from '@/lib/api';
 
+import { ChatbotDrawer } from '@/components/course/ChatbotDrawer';
+import { ChatbotFab } from '@/components/course/ChatbotFab';
 import { CourseNavbar } from '@/components/course/CourseNavbar';
 import { CourseOverlay } from '@/components/course/CourseOverlay';
 
@@ -34,6 +36,8 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
   const [loading, setLoading] = useState(true);
   const [isPetaOpen, setIsPetaOpen] = useState(false);
   const [myRank, setMyRank] = useState<number | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isChatFabHidden, setIsChatFabHidden] = useState(false);
 
   const fetchCourseData = useCallback(async () => {
     try {
@@ -100,6 +104,10 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
           isPetaOpen,
           setPetaOpen: setIsPetaOpen,
           myRank,
+          isChatOpen,
+          setChatOpen: setIsChatOpen,
+          isChatFabHidden,
+          setChatFabHidden: setIsChatFabHidden,
         }}
       >
         <CourseNavbar courseId={courseId} />
@@ -112,6 +120,8 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
           isOpen={isPetaOpen}
           onClose={() => setIsPetaOpen(false)}
         />
+        <ChatbotFab />
+        <ChatbotDrawer />
       </CourseLayoutContext.Provider>
     </div>
   );

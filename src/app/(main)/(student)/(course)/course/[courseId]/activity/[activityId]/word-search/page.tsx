@@ -87,8 +87,14 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
   const [result, setResult] = useState<SubmitActivityResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { contentItems, refreshContentItems } = useContext(CourseLayoutContext);
+  const { contentItems, refreshContentItems, setChatFabHidden } =
+    useContext(CourseLayoutContext);
   const autoSubmitFiredRef = useRef(false);
+
+  useEffect(() => {
+    setChatFabHidden(true);
+    return () => setChatFabHidden(false);
+  }, [setChatFabHidden]);
 
   useEffect(() => {
     params.then((p) => {

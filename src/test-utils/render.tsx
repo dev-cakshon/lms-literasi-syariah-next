@@ -13,6 +13,10 @@ interface CourseLayoutContextValue {
   isPetaOpen: boolean;
   setPetaOpen: (open: boolean) => void;
   myRank: number | null;
+  isChatOpen: boolean;
+  setChatOpen: (open: boolean) => void;
+  isChatFabHidden: boolean;
+  setChatFabHidden: (hidden: boolean) => void;
 }
 
 const defaultCourseLayout: CourseLayoutContextValue = {
@@ -23,6 +27,10 @@ const defaultCourseLayout: CourseLayoutContextValue = {
   isPetaOpen: false,
   setPetaOpen: jest.fn(),
   myRank: null,
+  isChatOpen: false,
+  setChatOpen: jest.fn(),
+  isChatFabHidden: false,
+  setChatFabHidden: jest.fn(),
 };
 
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
