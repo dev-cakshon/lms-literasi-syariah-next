@@ -22,6 +22,7 @@ export const mockUserProfile = (
   role: 'student',
   totalPoints: 0,
   badges: [],
+  chatbotEnabled: true,
   createdAt: '2024-01-01T00:00:00Z',
   ...overrides,
 });

@@ -46,10 +46,13 @@ const adminRoutes = [
 
 const SidebarRoutes = () => {
   const pathname = usePathname();
-  const { isAdmin } = useAuth();
+  const { isAdmin, userProfile } = useAuth();
 
   const isAdminPage = pathname?.includes('/admin');
-  const routes = isAdmin && isAdminPage ? adminRoutes : userRoutes;
+  const visibleUserRoutes = userRoutes.filter(
+    (r) => r.href !== '/chatbot' || userProfile?.chatbotEnabled === true,
+  );
+  const routes = isAdmin && isAdminPage ? adminRoutes : visibleUserRoutes;
 
   return (
     <div className='flex flex-col w-full'>

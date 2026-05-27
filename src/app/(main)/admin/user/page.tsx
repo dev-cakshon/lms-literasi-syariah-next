@@ -3,7 +3,15 @@
 import { Search, Shield, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { ApiError, authAssignRole, deleteUser, getUsers } from '@/lib/api';
+import {
+  ApiError,
+  authAssignRole,
+  deleteUser,
+  getUsers,
+  updateUser,
+} from '@/lib/api';
+
+import { Checkbox } from '@/components/ui/checkbox';
 
 import type { UserProfile, UserRole } from '@/types';
 
@@ -54,6 +62,24 @@ export default function UserManagementPage() {
       } else {
         setError('Gagal mengubah role pengguna.');
       }
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleChatbotToggle = async (uid: string, next: boolean) => {
+    setActionLoading(uid);
+    try {
+      setError(null);
+      setSuccessMessage(null);
+      await updateUser(uid, { chatbotEnabled: next });
+      setUsers((prev) =>
+        prev.map((u) => (u.uid === uid ? { ...u, chatbotEnabled: next } : u)),
+      );
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : 'Gagal mengubah akses chatbot.',
+      );
     } finally {
       setActionLoading(null);
     }
@@ -142,6 +168,9 @@ export default function UserManagementPage() {
                     Role
                   </th>
                   <th className='text-left p-4 font-medium text-slate-600'>
+                    Chatbot
+                  </th>
+                  <th className='text-left p-4 font-medium text-slate-600'>
                     Poin
                   </th>
                   <th className='text-right p-4 font-medium text-slate-600'>
@@ -172,6 +201,21 @@ export default function UserManagementPage() {
                         <option value='instructor'>Instructor</option>
                         <option value='admin'>Admin</option>
                       </select>
+                    </td>
+                    <td className='p-4'>
+                      {user.role === 'student' ? (
+                        <Checkbox
+                          checked={user.chatbotEnabled === true}
+                          onCheckedChange={(v) =>
+                            handleChatbotToggle(user.uid, v === true)
+                          }
+                          disabled={actionLoading === user.uid}
+                        />
+                      ) : (
+                        <span className='text-xs text-slate-400'>
+                          Selalu aktif
+                        </span>
+                      )}
                     </td>
                     <td className='p-4 text-slate-600'>
                       {user.totalPoints || 0}
