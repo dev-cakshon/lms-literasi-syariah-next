@@ -44,6 +44,7 @@ export interface UserProfile {
   totalPoints: number;
   badges: Badge[];
   isActive?: boolean;
+  chatbotEnabled: boolean;
   createdAt: string;
   updatedAt?: string;
 }

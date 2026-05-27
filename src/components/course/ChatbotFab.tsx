@@ -4,12 +4,15 @@ import { Bot } from 'lucide-react';
 import { useContext } from 'react';
 
 import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function ChatbotFab() {
   const { isChatOpen, isChatFabHidden, setChatOpen } =
     useContext(CourseLayoutContext);
+  const { userProfile } = useAuth();
 
-  if (isChatFabHidden || isChatOpen) return null;
+  if (isChatFabHidden || isChatOpen || userProfile?.chatbotEnabled !== true)
+    return null;
 
   return (
     <button

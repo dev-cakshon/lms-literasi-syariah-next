@@ -51,10 +51,13 @@ interface NavbarRoutesProps {
 export const NavbarRoutes = ({ onNavigate }: NavbarRoutesProps) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAdmin } = useAuth();
+  const { isAdmin, userProfile } = useAuth();
 
   const isAdminPage = pathname?.includes('/admin');
-  const routes = isAdmin && isAdminPage ? adminRoutes : userRoutes;
+  const visibleUserRoutes = userRoutes.filter(
+    (r) => r.href !== '/chatbot' || userProfile?.chatbotEnabled === true,
+  );
+  const routes = isAdmin && isAdminPage ? adminRoutes : visibleUserRoutes;
 
   return (
     <>

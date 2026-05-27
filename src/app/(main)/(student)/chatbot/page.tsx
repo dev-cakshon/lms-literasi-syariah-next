@@ -5,6 +5,7 @@ import {
   ArrowDown,
   Bot,
   Loader2,
+  Lock,
   RefreshCw,
   Trash2,
 } from 'lucide-react';
@@ -51,7 +52,7 @@ interface Chat {
 }
 
 export default function ChatbotPage() {
-  const { idToken } = useAuth();
+  const { idToken, userProfile, loading } = useAuth();
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -287,6 +288,36 @@ export default function ChatbotPage() {
       setIsLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className='flex h-[calc(100vh-4rem)] items-center justify-center'>
+        <Loader2 className='w-8 h-8 animate-spin text-primary-600' />
+      </div>
+    );
+  }
+
+  if (userProfile?.chatbotEnabled !== true) {
+    return (
+      <div className='flex h-[calc(100vh-4rem)] items-center justify-center bg-surface-soft'>
+        <div className='flex flex-col items-center justify-center text-center py-12'>
+          <div className='relative w-24 h-24 rounded-xl bg-primary-100 flex items-center justify-center mb-6 shadow-sm'>
+            <Bot className='w-12 h-12 text-primary-600' />
+            <span className='absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white border border-outline-variant flex items-center justify-center'>
+              <Lock className='w-3.5 h-3.5 text-on-surface-variant' />
+            </span>
+          </div>
+          <h2 className='text-2xl font-bold text-on-surface mb-3'>
+            Chatbot belum tersedia
+          </h2>
+          <p className='text-on-surface-variant max-w-md leading-relaxed'>
+            Akses chatbot belum diaktifkan untuk akun Anda. Hubungi admin untuk
+            mengaktifkannya.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='flex h-[calc(100vh-4rem)]'>

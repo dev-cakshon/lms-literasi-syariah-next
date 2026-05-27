@@ -199,7 +199,7 @@ export async function getUser(uid: string): Promise<UserProfile> {
 
 export async function updateUser(
   uid: string,
-  data: { name?: string; email?: string },
+  data: { name?: string; email?: string; chatbotEnabled?: boolean },
 ): Promise<UserProfile> {
   return apiFetch(`/users/${uid}`, {
     method: 'PATCH',

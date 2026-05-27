@@ -7,6 +7,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ChatbotPage from '@/app/(main)/(student)/chatbot/page';
+import { mockUserProfile } from '@/test-utils/mocks/api';
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
@@ -67,7 +68,7 @@ describe('F5 — Chatbot AI', () => {
   beforeEach(() => {
     getAuthMock().useAuth.mockReturnValue({
       user: { uid: 'user-1' },
-      userProfile: null,
+      userProfile: mockUserProfile({ chatbotEnabled: true }),
       loading: false,
       idToken: 'token-123',
       signIn: jest.fn(),
