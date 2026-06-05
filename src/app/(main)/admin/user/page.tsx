@@ -1,7 +1,8 @@
 'use client';
 
-import { Search, Shield, Trash2 } from 'lucide-react';
+import { Search, Trash2, UsersRound } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import {
   ApiError,
@@ -11,7 +12,20 @@ import {
   updateUser,
 } from '@/lib/api';
 
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 
 import type { UserProfile, UserRole } from '@/types';
 
@@ -20,20 +34,18 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<UserProfile | null>(null);
 
   const fetchUsers = useCallback(async () => {
     try {
-      setError(null);
+      setLoadError(null);
       const data = await getUsers(search ? { search } : undefined);
       setUsers(data);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Gagal memuat pengguna.');
-      }
+      setLoadError(
+        err instanceof ApiError ? err.message : 'Gagal memuat pengguna.',
+      );
     } finally {
       setLoading(false);
     }
@@ -50,18 +62,17 @@ export default function UserManagementPage() {
   const handleRoleChange = async (uid: string, newRole: UserRole) => {
     setActionLoading(uid);
     try {
-      setError(null);
-      setSuccessMessage(null);
       await authAssignRole(uid, newRole);
       setUsers((prev) =>
         prev.map((u) => (u.uid === uid ? { ...u, role: newRole } : u)),
       );
+      toast.success('Peran pengguna diperbarui.');
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Gagal mengubah role pengguna.');
-      }
+      toast.error(
+        err instanceof ApiError
+          ? err.message
+          : 'Gagal mengubah peran pengguna.',
+      );
     } finally {
       setActionLoading(null);
     }
@@ -70,14 +81,15 @@ export default function UserManagementPage() {
   const handleChatbotToggle = async (uid: string, next: boolean) => {
     setActionLoading(uid);
     try {
-      setError(null);
-      setSuccessMessage(null);
       await updateUser(uid, { chatbotEnabled: next });
       setUsers((prev) =>
         prev.map((u) => (u.uid === uid ? { ...u, chatbotEnabled: next } : u)),
       );
+      toast.success(
+        next ? 'Akses chatbot diaktifkan.' : 'Akses chatbot dinonaktifkan.',
+      );
     } catch (err) {
-      setError(
+      toast.error(
         err instanceof ApiError ? err.message : 'Gagal mengubah akses chatbot.',
       );
     } finally {
@@ -86,169 +98,181 @@ export default function UserManagementPage() {
   };
 
   const handleDelete = async (uid: string) => {
-    if (
-      !confirm(
-        'Yakin ingin menghapus permanen pengguna ini? Tindakan ini tidak dapat dibatalkan.',
-      )
-    )
-      return;
     setActionLoading(uid);
     try {
-      setError(null);
-      setSuccessMessage(null);
       await deleteUser(uid);
       setUsers((prev) => prev.filter((u) => u.uid !== uid));
+      toast.success('Pengguna dihapus.');
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Gagal menghapus pengguna.');
-      }
+      toast.error(
+        err instanceof ApiError ? err.message : 'Gagal menghapus pengguna.',
+      );
+      throw err; // keep the confirm dialog open so the user can retry
     } finally {
       setActionLoading(null);
     }
   };
 
+  const showTableBody = !loading && !loadError && users.length > 0;
+
   return (
-    <div className='min-h-full bg-linear-to-b from-primary-600 via-primary-50 to-ivory'>
-      {/* Header + Search Bar */}
-      <div className='bg-primary-600 px-6 py-6'>
-        <div className='max-w-4xl mx-auto space-y-3'>
-          <div>
-            <h1 className='font-display text-3xl font-bold text-white tracking-tight mb-1'>
-              Manajemen Pengguna
-            </h1>
-            <p className='text-primary-100'>
-              Kelola pengguna dan atur peran mereka.
-            </p>
-          </div>
-          <div className='flex items-center gap-3'>
-            <div className='flex-1 relative'>
-              <input
-                type='text'
-                placeholder='Cari berdasarkan nama atau email...'
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className='w-full rounded-full px-5 py-3 text-sm text-gray-700 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-primary-300'
-              />
-            </div>
-            <button className='bg-primary-800 hover:bg-primary-900 text-white font-semibold px-6 py-3 rounded-full transition flex items-center gap-2 cursor-pointer'>
-              <Search className='w-4 h-4' />
-              Cari
-            </button>
-          </div>
+    <div className='mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-6 lg:px-8'>
+      {/* Page header */}
+      <div className='mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
+        <div>
+          <h1 className='font-display text-2xl font-bold tracking-tight text-slate-900 md:text-3xl'>
+            Manajemen Pengguna
+          </h1>
+          <p className='mt-1 text-sm text-slate-500'>
+            Kelola pengguna dan atur peran mereka.
+          </p>
+        </div>
+        <div className='relative w-full sm:w-72'>
+          <Search className='pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400' />
+          <Input
+            type='text'
+            placeholder='Cari nama atau email…'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className='pl-9'
+            aria-label='Cari pengguna'
+          />
         </div>
       </div>
 
-      {/* Content */}
-      <div className='max-w-7xl mx-auto p-6 lg:p-8 space-y-6'>
-        {error && <p className='text-sm text-red-600'>{error}</p>}
-        {successMessage && (
-          <p className='text-sm text-green-600'>{successMessage}</p>
-        )}
+      {/* Table card */}
+      <div className='overflow-hidden rounded-[var(--radius-card)] border border-slate-200 bg-white shadow-[var(--shadow-elevated-1)]'>
+        <Table>
+          <TableHeader>
+            <TableRow className='bg-slate-50 hover:bg-slate-50'>
+              <TableHead className='text-slate-600'>Nama</TableHead>
+              <TableHead className='text-slate-600'>Email</TableHead>
+              <TableHead className='text-slate-600'>Peran</TableHead>
+              <TableHead className='text-slate-600'>Chatbot</TableHead>
+              <TableHead className='text-slate-600'>Poin</TableHead>
+              <TableHead className='text-right text-slate-600'>Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
 
-        {loading ? (
-          <p className='text-sm text-muted-foreground'>Memuat pengguna...</p>
-        ) : users.length === 0 ? (
-          <p className='text-sm text-muted-foreground'>
-            Tidak ada pengguna ditemukan.
-          </p>
-        ) : (
-          <div className='bg-white rounded-[var(--radius-card)] border shadow-[var(--shadow-elevated-1)] overflow-hidden'>
-            <table className='w-full text-sm'>
-              <thead>
-                <tr className='border-b bg-slate-50'>
-                  <th className='text-left p-4 font-medium text-slate-600'>
-                    Nama
-                  </th>
-                  <th className='text-left p-4 font-medium text-slate-600'>
-                    Email
-                  </th>
-                  <th className='text-left p-4 font-medium text-slate-600'>
-                    Role
-                  </th>
-                  <th className='text-left p-4 font-medium text-slate-600'>
-                    Chatbot
-                  </th>
-                  <th className='text-left p-4 font-medium text-slate-600'>
-                    Poin
-                  </th>
-                  <th className='text-right p-4 font-medium text-slate-600'>
-                    Aksi
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr
-                    key={user.uid}
-                    className='border-b last:border-b-0 hover:bg-slate-50'
-                  >
-                    <td className='p-4 font-medium text-slate-800'>
+          {loading && <TableSkeleton columns={6} />}
+
+          {showTableBody && (
+            <TableBody>
+              {users.map((user) => {
+                const isBusy = actionLoading === user.uid;
+                return (
+                  <TableRow key={user.uid} className='hover:bg-slate-50'>
+                    <TableCell className='font-medium text-slate-800'>
                       {user.name || user.displayName || '-'}
-                    </td>
-                    <td className='p-4 text-slate-600'>{user.email}</td>
-                    <td className='p-4'>
+                    </TableCell>
+                    <TableCell className='text-slate-600'>
+                      {user.email}
+                    </TableCell>
+                    <TableCell>
                       <select
                         value={user.role}
                         onChange={(e) =>
                           handleRoleChange(user.uid, e.target.value as UserRole)
                         }
-                        disabled={actionLoading === user.uid}
-                        className='px-2 py-1 border border-slate-300 rounded text-xs font-medium'
+                        disabled={isBusy}
+                        aria-label={`Peran untuk ${user.name || user.email}`}
+                        className='h-9 rounded-md border border-slate-300 bg-white px-2 text-sm font-medium text-slate-700 transition-colors focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:cursor-not-allowed disabled:opacity-50'
                       >
                         <option value='student'>Student</option>
                         <option value='instructor'>Instructor</option>
                         <option value='admin'>Admin</option>
                       </select>
-                    </td>
-                    <td className='p-4'>
+                    </TableCell>
+                    <TableCell>
                       {user.role === 'student' ? (
                         <Checkbox
                           checked={user.chatbotEnabled === true}
                           onCheckedChange={(v) =>
                             handleChatbotToggle(user.uid, v === true)
                           }
-                          disabled={actionLoading === user.uid}
+                          disabled={isBusy}
+                          aria-label='Akses chatbot'
                         />
                       ) : (
                         <span className='text-xs text-slate-400'>
                           Selalu aktif
                         </span>
                       )}
-                    </td>
-                    <td className='p-4 text-slate-600'>
+                    </TableCell>
+                    <TableCell className='text-slate-600'>
                       {user.totalPoints || 0}
-                    </td>
-                    <td className='p-4 text-right'>
-                      <div className='flex items-center justify-end gap-2'>
-                        <button
-                          onClick={() => handleRoleChange(user.uid, 'admin')}
-                          disabled={
-                            actionLoading === user.uid || user.role === 'admin'
-                          }
-                          className='p-1.5 text-blue-600 hover:bg-blue-50 rounded disabled:opacity-30'
-                          title='Set as admin'
-                        >
-                          <Shield className='w-4 h-4' />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user.uid)}
-                          disabled={actionLoading === user.uid}
-                          className='p-1.5 text-red-600 hover:bg-red-50 rounded disabled:opacity-30'
-                          title='Hapus pengguna'
-                        >
-                          <Trash2 className='w-4 h-4' />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </TableCell>
+                    <TableCell className='text-right'>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => setDeleteTarget(user)}
+                        disabled={isBusy}
+                        className='text-red-600 hover:bg-red-50 hover:text-red-700'
+                      >
+                        <Trash2 className='mr-1.5 h-4 w-4' />
+                        Hapus
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          )}
+        </Table>
+
+        {!loading && loadError && (
+          <EmptyState
+            icon={UsersRound}
+            title='Gagal memuat pengguna'
+            description={loadError}
+            action={
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setLoading(true);
+                  fetchUsers();
+                }}
+              >
+                Coba lagi
+              </Button>
+            }
+          />
+        )}
+
+        {!loading && !loadError && users.length === 0 && (
+          <EmptyState
+            icon={UsersRound}
+            title='Tidak ada pengguna ditemukan'
+            description={
+              search
+                ? 'Coba kata kunci pencarian yang berbeda.'
+                : 'Belum ada pengguna yang terdaftar.'
+            }
+          />
         )}
       </div>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title='Hapus pengguna?'
+        description={
+          deleteTarget
+            ? `Yakin ingin menghapus permanen ${
+                deleteTarget.name || deleteTarget.email
+              }? Tindakan ini tidak dapat dibatalkan.`
+            : undefined
+        }
+        confirmLabel='Hapus'
+        destructive
+        onConfirm={async () => {
+          if (deleteTarget) await handleDelete(deleteTarget.uid);
+        }}
+      />
     </div>
   );
 }
