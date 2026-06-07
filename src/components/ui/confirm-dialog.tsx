@@ -76,7 +76,12 @@ export function ConfirmDialog({
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={busy}>{cancelLabel}</AlertDialogCancel>
+          <AlertDialogCancel
+            disabled={busy}
+            className='border-slate-200 bg-white text-slate-600 hover:bg-slate-50 active:bg-slate-100'
+          >
+            {cancelLabel}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={busy}
