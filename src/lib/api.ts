@@ -348,7 +348,7 @@ export async function deleteQuiz(
 export async function submitQuiz(
   courseId: string,
   quizId: string,
-  answers: number[],
+  answers: (number | string)[],
 ): Promise<QuizSubmitResult> {
   const response = await apiFetch<QuizSubmitResult>(
     `/courses/${courseId}/quizzes/${quizId}/submit`,
