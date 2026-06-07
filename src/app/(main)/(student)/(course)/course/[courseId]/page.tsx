@@ -2,16 +2,17 @@
 
 import { useContext, useEffect, useMemo, useState } from 'react';
 
-import { ApiError, getCertificate } from '@/lib/api';
+import { ApiError, getCertificate, getQuizzes } from '@/lib/api';
 
 import CourseCertificateModal from '@/components/course/CourseCertificateModal';
 import CourseCompletionBanner from '@/components/course/CourseCompletionBanner';
 import CourseContentList from '@/components/course/CourseContentList';
 import CourseOverviewHero from '@/components/course/CourseOverviewHero';
+import CourseQuizList from '@/components/course/CourseQuizList';
 
 import { CourseLayoutContext } from './CourseLayoutContext';
 
-import type { Certificate, CourseContentItem } from '@/types';
+import type { Certificate, CourseContentItem, Quiz } from '@/types';
 
 function routeFor(item: CourseContentItem, courseId: string): string {
   if (item.itemType === 'chapter')
@@ -64,6 +65,7 @@ export default function CourseIdPage({
   const [courseId, setCourseId] = useState<string | null>(null);
   const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [showCertModal, setShowCertModal] = useState(false);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
 
   useEffect(() => {
     params.then((p) => setCourseId(p.courseId));
@@ -80,6 +82,18 @@ export default function CourseIdPage({
         )
           return;
         console.error('Failed to load certificate:', err);
+      });
+  }, [courseId]);
+
+  // Quizzes are NOT included in /content — fetch separately for the Evaluasi section.
+  useEffect(() => {
+    if (!courseId) return;
+    getQuizzes(courseId)
+      .then(setQuizzes)
+      .catch((err: unknown) => {
+        // Silently ignore missing quizzes; the section simply won't render.
+        if (err instanceof ApiError && err.status === 404) return;
+        console.error('Failed to load quizzes:', err);
       });
   }, [courseId]);
 
@@ -145,6 +159,10 @@ export default function CourseIdPage({
             courseId={courseId}
             nextUpId={nextUpId}
           />
+        )}
+        {/* Evaluasi: quizzes are fetched separately because /content excludes them */}
+        {courseId && quizzes.length > 0 && (
+          <CourseQuizList quizzes={quizzes} courseId={courseId} />
         )}
       </div>
     </>

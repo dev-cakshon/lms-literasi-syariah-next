@@ -317,7 +317,15 @@ export async function getQuiz(courseId: string, quizId: string): Promise<Quiz> {
 
 export async function createQuiz(
   courseId: string,
-  data: { title: string; questions: Quiz['questions'] },
+  data: {
+    title: string;
+    questions: Quiz['questions'];
+    type?: Quiz['type'];
+    gamificationType?: Quiz['gamificationType'];
+    passingGrade?: number;
+    allowRetake?: boolean;
+    showAnswers?: boolean;
+  },
 ): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes`, {
     method: 'POST',
@@ -328,7 +336,18 @@ export async function createQuiz(
 export async function updateQuiz(
   courseId: string,
   quizId: string,
-  data: Partial<Pick<Quiz, 'title' | 'questions'>>,
+  data: Partial<
+    Pick<
+      Quiz,
+      | 'title'
+      | 'questions'
+      | 'type'
+      | 'gamificationType'
+      | 'passingGrade'
+      | 'allowRetake'
+      | 'showAnswers'
+    >
+  >,
 ): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes/${quizId}`, {
     method: 'PATCH',
@@ -348,7 +367,7 @@ export async function deleteQuiz(
 export async function submitQuiz(
   courseId: string,
   quizId: string,
-  answers: number[],
+  answers: (number | string)[],
 ): Promise<QuizSubmitResult> {
   const response = await apiFetch<QuizSubmitResult>(
     `/courses/${courseId}/quizzes/${quizId}/submit`,
