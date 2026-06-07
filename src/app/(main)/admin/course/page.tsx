@@ -1,9 +1,10 @@
 'use client';
 
-import { Plus, Search } from 'lucide-react';
+import { Library, Plus, Search, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import {
   ApiError,
@@ -14,6 +15,11 @@ import {
 } from '@/lib/api';
 
 import { CourseCard } from '@/components/course-list/CourseCard';
+import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import type { Course } from '@/types';
 
@@ -22,12 +28,13 @@ export default function AdminCoursePage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<Course | null>(null);
 
   const fetchCourses = useCallback(async () => {
     try {
-      setError(null);
+      setLoadError(null);
       const data = await getCourses();
       const sorted = [...data].sort((a, b) => {
         const ad = a.createdAt ? Date.parse(a.createdAt) : 0;
@@ -36,11 +43,9 @@ export default function AdminCoursePage() {
       });
       setCourses(sorted);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Gagal memuat kursus.');
-      }
+      setLoadError(
+        err instanceof ApiError ? err.message : 'Gagal memuat kursus.',
+      );
     } finally {
       setLoading(false);
     }
@@ -53,18 +58,15 @@ export default function AdminCoursePage() {
   const handleCreateCourse = async () => {
     try {
       setCreating(true);
-      setError(null);
       const newCourse = await createCourse({
         title: 'Kursus Baru',
         isPublished: false,
       });
       router.push(`/admin/course/${newCourse.id}`);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Gagal membuat kursus baru.');
-      }
+      toast.error(
+        err instanceof ApiError ? err.message : 'Gagal membuat kursus baru.',
+      );
     } finally {
       setCreating(false);
     }
@@ -72,45 +74,36 @@ export default function AdminCoursePage() {
 
   const handleTogglePublish = async (course: Course) => {
     try {
-      setError(null);
       const updated = await updateCourse(course.id, {
         isPublished: !course.isPublished,
       });
       setCourses((prev) =>
         prev.map((item) =>
-          item.id === course.id
-            ? {
-                ...item,
-                ...updated,
-              }
-            : item,
+          item.id === course.id ? { ...item, ...updated } : item,
         ),
       );
+      toast.success(
+        updated.isPublished ? 'Kursus diterbitkan.' : 'Kursus diarsipkan.',
+      );
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Gagal memperbarui status publikasi kursus.');
-      }
+      toast.error(
+        err instanceof ApiError
+          ? err.message
+          : 'Gagal memperbarui status publikasi kursus.',
+      );
     }
   };
 
   const handleDeleteCourse = async (course: Course) => {
-    const confirmed = window.confirm(
-      `Apakah Anda yakin ingin menghapus kursus "${course.title}"?`,
-    );
-    if (!confirmed) return;
-
     try {
-      setError(null);
       await deleteCourse(course.id);
       setCourses((prev) => prev.filter((item) => item.id !== course.id));
+      toast.success('Kursus dihapus.');
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError('Gagal menghapus kursus.');
-      }
+      toast.error(
+        err instanceof ApiError ? err.message : 'Gagal menghapus kursus.',
+      );
+      throw err; // keep the ConfirmDialog open so the user can retry
     }
   };
 
@@ -119,61 +112,79 @@ export default function AdminCoursePage() {
   );
 
   return (
-    <div className='min-h-full bg-linear-to-b from-primary-600 via-primary-50 to-ivory'>
-      {/* Header + Search Bar */}
-      <div className='bg-primary-600 px-6 py-6'>
-        <div className='max-w-4xl mx-auto space-y-3'>
-          <div className='flex items-center justify-between'>
-            <div>
-              <h1 className='font-display text-3xl font-bold text-white tracking-tight mb-1'>
-                Kelola Kursus
-              </h1>
-              <p className='text-primary-100'>
-                Buat, edit, dan kelola kursus ekonomi syariah Anda di sini.
-              </p>
-            </div>
-            <button
-              onClick={handleCreateCourse}
-              disabled={creating}
-              className='bg-white hover:bg-gray-50 text-primary-700 font-semibold px-5 py-2.5 rounded-[var(--radius-control)] shadow-[var(--shadow-elevated-1)] transition flex items-center gap-2 cursor-pointer disabled:opacity-50'
-            >
-              <Plus className='w-4 h-4' />
-              {creating ? 'Membuat...' : 'Buat Kursus Baru'}
-            </button>
-          </div>
-          <div className='flex items-center gap-3'>
-            <div className='flex-1 relative'>
-              <input
-                type='text'
-                placeholder='Cari kursus'
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className='w-full rounded-full px-5 py-3 text-sm text-gray-700 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-primary-300'
-              />
-            </div>
-            <button className='bg-primary-800 hover:bg-primary-900 text-white font-semibold px-6 py-3 rounded-full transition flex items-center gap-2 cursor-pointer'>
-              <Search className='w-4 h-4' />
-              Cari
-            </button>
-          </div>
-        </div>
+    <div className='mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-6 lg:px-8'>
+      {/* Page header */}
+      <div className='mb-6'>
+        <h1 className='font-display text-2xl font-bold tracking-tight text-slate-900 md:text-3xl'>
+          Kelola Kursus
+        </h1>
+        <p className='mt-1 text-sm text-slate-500'>
+          Buat, edit, dan kelola kursus ekonomi syariah Anda.
+        </p>
       </div>
 
-      {/* Content */}
-      <div className='max-w-7xl mx-auto p-6 lg:p-8 space-y-6'>
-        {error && <p className='text-sm text-red-600'>{error}</p>}
-        {loading ? (
-          <div className='grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4'>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className='h-64 rounded-[var(--radius-card)] border bg-white shadow-[var(--shadow-elevated-1)] animate-pulse'
-              />
-            ))}
-          </div>
-        ) : (
-          <>
-            <div className='grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4'>
+      {/* Toolbar */}
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        {/* Live search */}
+        <div className='relative w-full sm:w-72'>
+          <Search className='pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400' />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className='pl-9'
+            placeholder='Cari kursus…'
+            aria-label='Cari kursus'
+          />
+        </div>
+
+        {/* Spacer */}
+        <div className='flex-1' />
+
+        {/* Create */}
+        <Button onClick={handleCreateCourse} disabled={creating}>
+          <Plus className='mr-1.5 h-4 w-4' />
+          {creating ? 'Membuat…' : 'Buat Kursus'}
+        </Button>
+      </div>
+
+      {/* Load error */}
+      {!loading && loadError && (
+        <EmptyState
+          icon={Library}
+          title='Gagal memuat kursus'
+          description={loadError}
+          action={
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => {
+                setLoading(true);
+                fetchCourses();
+              }}
+            >
+              Coba lagi
+            </Button>
+          }
+        />
+      )}
+
+      {/* Loading skeleton grid */}
+      {loading && (
+        <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              className='h-64 w-full rounded-[var(--radius-card)]'
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Course grid */}
+      {!loading && !loadError && (
+        <>
+          {filteredCourses.length > 0 ? (
+            <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
               {filteredCourses.map((course) => (
                 <CourseCard
                   key={course.id}
@@ -182,42 +193,75 @@ export default function AdminCoursePage() {
                   description={course.description}
                   imageUrl={course.thumbnailUrl || null}
                   chaptersLength={course.totalChapters || 0}
+                  activities={course.totalActivities}
                   isPublished={course.isPublished}
                   editUrl={`/admin/course/${course.id}`}
                   actions={
-                    <div className='p-4 flex flex-wrap gap-2'>
-                      <Link
-                        href={`/admin/course/${course.id}`}
-                        className='text-sm font-medium px-3 py-2 rounded-md border border-slate-300 hover:bg-slate-50'
-                      >
-                        Edit
-                      </Link>
-                      <button
+                    <div className='flex items-center gap-2 p-4'>
+                      <Button asChild variant='outline' size='sm'>
+                        <Link href={`/admin/course/${course.id}`}>Edit</Link>
+                      </Button>
+                      <Button
+                        variant={course.isPublished ? 'outline' : 'tonal'}
+                        size='sm'
                         onClick={() => handleTogglePublish(course)}
-                        className='text-sm font-medium px-3 py-2 rounded-md border border-primary-300 text-primary-700 hover:bg-primary-50 cursor-pointer'
                       >
                         {course.isPublished ? 'Unpublish' : 'Publish'}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCourse(course)}
-                        className='text-sm font-medium px-3 py-2 rounded-md border border-red-300 text-red-700 hover:bg-red-50 cursor-pointer'
+                      </Button>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='ml-auto text-red-600 hover:bg-red-50 hover:text-red-700'
+                        onClick={() => setDeleteTarget(course)}
+                        aria-label={`Hapus kursus ${course.title}`}
                       >
-                        Delete
-                      </button>
+                        <Trash2 className='h-4 w-4' />
+                      </Button>
                     </div>
                   }
                 />
               ))}
             </div>
+          ) : (
+            <EmptyState
+              icon={Library}
+              title='Belum ada kursus'
+              description={
+                searchQuery
+                  ? 'Coba kata kunci pencarian yang berbeda.'
+                  : 'Buat kursus pertama Anda untuk memulai.'
+              }
+              action={
+                !searchQuery ? (
+                  <Button onClick={handleCreateCourse} disabled={creating}>
+                    <Plus className='mr-1.5 h-4 w-4' />
+                    Buat Kursus
+                  </Button>
+                ) : undefined
+              }
+            />
+          )}
+        </>
+      )}
 
-            {filteredCourses.length === 0 && (
-              <div className='text-center text-sm text-muted-foreground mt-10'>
-                Tidak ada kursus ditemukan
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title='Hapus kursus?'
+        description={
+          deleteTarget
+            ? `Yakin ingin menghapus kursus "${deleteTarget.title}"? Tindakan ini tidak dapat dibatalkan.`
+            : undefined
+        }
+        confirmLabel='Hapus'
+        destructive
+        onConfirm={async () => {
+          if (deleteTarget) await handleDeleteCourse(deleteTarget);
+        }}
+      />
     </div>
   );
 }
