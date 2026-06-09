@@ -3,15 +3,18 @@
 import {
   BookOpen,
   CheckSquare,
+  ClipboardList,
   Grid2X2,
   Pencil,
   Search,
+  Trash2,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCallback, useContext, useEffect, useState } from 'react';
 
-import { getCourse } from '@/lib/api';
+import { createQuiz, deleteQuiz, getCourse, getQuizzes } from '@/lib/api';
 
 import { CourseInfoForm } from '@/components/course/admin/CourseInfoForm';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +22,7 @@ import { Button } from '@/components/ui/button';
 
 import { AdminCourseLayoutContext } from './AdminCourseLayoutContext';
 
-import type { Course } from '@/types';
+import type { Course, Quiz } from '@/types';
 
 interface EditPageProps {
   params: Promise<{ courseId: string }>;
@@ -44,12 +47,33 @@ export default function AdminCourseOverviewPage({ params }: EditPageProps) {
 }
 
 function OverviewPageContent({ courseId }: { courseId: string }) {
+  const router = useRouter();
   const { refreshContentItems, contentItems } = useContext(
     AdminCourseLayoutContext,
   );
   const [course, setCourse] = useState<Course | null>(null);
   const [courseLoading, setCourseLoading] = useState(true);
   const [editingInfo, setEditingInfo] = useState(false);
+
+  // ── Quiz list state ──────────────────────────────────────────────────────
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [quizLoading, setQuizLoading] = useState(true);
+  const [quizCreating, setQuizCreating] = useState(false);
+
+  const fetchQuizzes = useCallback(async () => {
+    try {
+      const data = await getQuizzes(courseId);
+      setQuizzes(data);
+    } catch (err) {
+      void err;
+    } finally {
+      setQuizLoading(false);
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    void fetchQuizzes();
+  }, [fetchQuizzes]);
 
   const fetchCourse = useCallback(async () => {
     try {
@@ -65,6 +89,54 @@ function OverviewPageContent({ courseId }: { courseId: string }) {
   useEffect(() => {
     void fetchCourse();
   }, [fetchCourse]);
+
+  /**
+   * Creates a blank quiz with a valid-shaped stub question so the edit form
+   * renders immediately without crashing on load.
+   */
+  const handleAddQuiz = async () => {
+    if (quizCreating) return;
+    setQuizCreating(true);
+    try {
+      const newQuiz = await createQuiz(courseId, {
+        title: 'Kuis Baru',
+        type: 'standard',
+        questions: [
+          {
+            question: '',
+            questionText: '',
+            type: 'multipleChoice',
+            options: ['', '', '', ''],
+            correctAnswerIndex: 0,
+            points: 1,
+          },
+        ],
+      });
+      await fetchQuizzes();
+      router.push(`/admin/course/${courseId}/quiz/${newQuiz.id}`);
+    } catch (err) {
+      void err;
+    } finally {
+      setQuizCreating(false);
+    }
+  };
+
+  /**
+   * Deletes a quiz after confirmation. No sidebar entry exists for quizzes, so
+   * this is the only delete affordance — without it, stub-creates accumulate.
+   */
+  const handleDeleteQuiz = async (quizId: string, title: string) => {
+    if (
+      !confirm(`Hapus kuis "${title}"?\n\nTindakan ini tidak dapat dibatalkan.`)
+    )
+      return;
+    try {
+      await deleteQuiz(courseId, quizId);
+      await fetchQuizzes();
+    } catch (err) {
+      void err;
+    }
+  };
 
   const handleCourseUpdated = (updated: Course) => {
     setCourse(updated);
@@ -194,6 +266,76 @@ function OverviewPageContent({ courseId }: { courseId: string }) {
                     {activityLabel}
                   </span>
                 </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* ── Daftar Kuis ─────────────────────────────────────────────────────
+           Quizzes are NOT in contentItems (they live in a separate Firestore
+           subcollection and are excluded from the /content aggregation).
+           This section is therefore the ONLY place to list, create, and delete
+           quizzes for a course in the admin UI. */}
+      <section className='rounded-lg border bg-white p-6 shadow-sm'>
+        <div className='mb-4 flex items-center justify-between gap-4'>
+          <h2 className='text-lg font-semibold text-slate-900'>Daftar Kuis</h2>
+          <Button
+            size='sm'
+            variant='outline'
+            onClick={() => void handleAddQuiz()}
+            disabled={quizCreating}
+          >
+            {quizCreating ? 'Membuat...' : '+ Tambah Kuis'}
+          </Button>
+        </div>
+
+        {quizLoading ? (
+          <p className='text-sm text-slate-400'>Memuat kuis...</p>
+        ) : quizzes.length === 0 ? (
+          <p className='text-sm text-slate-500'>
+            Belum ada kuis. Klik &ldquo;Tambah Kuis&rdquo; untuk memulai.
+          </p>
+        ) : (
+          <div className='overflow-hidden rounded-md border'>
+            {quizzes.map((quiz) => {
+              const typeLabel =
+                quiz.type === 'preTest'
+                  ? 'Pre-Test'
+                  : quiz.type === 'postTest'
+                    ? 'Post-Test'
+                    : 'Standar';
+
+              return (
+                <div
+                  key={quiz.id}
+                  className='flex items-center gap-x-3 border-b px-4 py-3 text-sm text-slate-600 last:border-b-0'
+                >
+                  <ClipboardList
+                    size={16}
+                    className='shrink-0 text-slate-400'
+                  />
+                  <Link
+                    href={`/admin/course/${courseId}/quiz/${quiz.id}`}
+                    className='flex-1 truncate font-medium hover:underline'
+                  >
+                    {quiz.title}
+                  </Link>
+                  <span className='shrink-0 text-xs text-slate-400'>
+                    {typeLabel}
+                  </span>
+                  <span className='shrink-0 text-xs text-slate-400'>
+                    {quiz.questions.length} soal
+                  </span>
+                  <button
+                    type='button'
+                    onClick={() => void handleDeleteQuiz(quiz.id, quiz.title)}
+                    className='ml-1 shrink-0 rounded p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600'
+                    title='Hapus kuis'
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               );
             })}
           </div>

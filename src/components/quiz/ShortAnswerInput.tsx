@@ -1,23 +1,15 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-import { QuizOption } from './QuizOption';
-
-export interface Question {
-  id: number;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  points: number;
-}
-
-interface MultipleAnswerProps {
-  question: Question;
+interface ShortAnswerInputProps {
+  /** The question prompt text (already normalized by the container). */
+  questionText: string;
   currentQuestion: number;
   totalQuestions: number;
-  selectedAnswer: number;
-  onSelectAnswer: (answerIndex: number) => void;
+  value: string;
+  onChangeValue: (value: string) => void;
   onNext: () => void;
   onPrevious: () => void;
   onSubmit: () => void;
@@ -28,12 +20,12 @@ interface MultipleAnswerProps {
   submitDisabled?: boolean;
 }
 
-export const MultipleAnswer = ({
-  question,
+export const ShortAnswerInput = ({
+  questionText,
   currentQuestion,
   totalQuestions,
-  selectedAnswer,
-  onSelectAnswer,
+  value,
+  onChangeValue,
   onNext,
   onPrevious,
   onSubmit,
@@ -41,13 +33,13 @@ export const MultipleAnswer = ({
   answeredCount,
   isSubmitting = false,
   submitDisabled = false,
-}: MultipleAnswerProps) => {
+}: ShortAnswerInputProps) => {
   const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
 
   return (
     <div className='flex flex-col items-center justify-center p-6'>
       <div className='max-w-4xl w-full p-8'>
-        {/* Progress */}
+        {/* Progress — mirrors MultipleAnswer */}
         <div className='mb-6'>
           <div className='flex justify-between text-sm text-gray-600 mb-2'>
             <span className='font-bold'>
@@ -58,32 +50,30 @@ export const MultipleAnswer = ({
           <div className='w-full bg-gray-200 rounded-full h-2'>
             <div
               className='bg-primary-500 h-2 rounded-full transition-all'
-              style={{
-                width: `${progressPercentage}%`,
-              }}
+              style={{ width: `${progressPercentage}%` }}
             />
           </div>
         </div>
 
         {/* Question */}
-        <h2 className='text-2xl font-bold mb-8 text-primary-900'>
-          {question.question}
+        <h2 className='text-2xl font-bold mb-4 text-primary-900'>
+          {questionText}
         </h2>
 
-        {/* Options */}
-        <div className='space-y-3 mb-8'>
-          {question.options.map((option, index) => (
-            <QuizOption
-              key={index}
-              option={option}
-              index={index}
-              isSelected={selectedAnswer === index}
-              onSelect={() => onSelectAnswer(index)}
-            />
-          ))}
-        </div>
+        <p className='text-sm text-gray-500 mb-6'>
+          Ketikkan jawaban Anda di bawah ini.
+        </p>
 
-        {/* Navigation */}
+        {/* Text input */}
+        <Input
+          value={value}
+          onChange={(e) => onChangeValue(e.target.value)}
+          placeholder='Jawaban Anda...'
+          className='mb-8 text-base'
+          disabled={isSubmitting}
+        />
+
+        {/* Navigation — mirrors MultipleAnswer */}
         <div className='flex justify-between items-center'>
           <Button
             onClick={onPrevious}

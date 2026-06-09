@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import * as React from 'react';
+import { Toaster } from 'sonner';
 
 import '@/styles/globals.css';
 
@@ -78,6 +79,7 @@ export default function RootLayout({
         <MobileGate>
           <AuthProvider>{children}</AuthProvider>
         </MobileGate>
+        <Toaster richColors position='bottom-right' />
       </body>
     </html>
   );

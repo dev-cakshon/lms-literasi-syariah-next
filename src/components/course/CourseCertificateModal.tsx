@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+
+import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
 
 import type { Certificate } from '@/types';
 
@@ -13,9 +15,15 @@ export default function CourseCertificateModal({
   certificate,
   onClose,
 }: Props) {
+  const { setChatFabHidden } = useContext(CourseLayoutContext);
   const [phase, setPhase] = useState<1 | 2>(1);
   const [downloadError, setDownloadError] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setChatFabHidden(true);
+    return () => setChatFabHidden(false);
+  }, [setChatFabHidden]);
 
   useEffect(() => {
     const t = setTimeout(() => setPhase(2), 1500);

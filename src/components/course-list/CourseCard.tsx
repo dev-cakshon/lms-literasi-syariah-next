@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Gamepad2 } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -88,14 +88,12 @@ export const CourseCard = ({
           <div className='flex items-center justify-between mb-2'>
             <div className='flex items-center gap-2'>
               {chaptersLength > 0 && (
-                <span className='text-xs text-gray-500 flex items-center gap-1'>
-                  <BookOpen className='w-3 h-3' />
+                <span className='rounded-md bg-surface-container px-2 py-0.5 text-[11px] font-semibold text-on-surface-soft'>
                   {chaptersLength} Bab
                 </span>
               )}
               {activities !== undefined && activities > 0 && (
-                <span className='text-xs text-gray-500 flex items-center gap-1'>
-                  <Gamepad2 className='w-3 h-3' />
+                <span className='rounded-md bg-surface-container px-2 py-0.5 text-[11px] font-semibold text-on-surface-soft'>
                   {activities} Aktivitas
                 </span>
               )}

@@ -88,7 +88,7 @@ export interface QuizQuestion {
   correctAnswerIndex?: number;
   correctAnswerText?: string;
   points?: number;
-  type?: string;
+  type?: 'multipleChoice' | 'shortAnswer';
 }
 
 export interface Quiz {
@@ -98,6 +98,12 @@ export interface Quiz {
   type?: 'preTest' | 'postTest' | 'standard';
   gamificationType?: GamificationType;
   questions: QuizQuestion[];
+  /** Minimum pointsAwarded to be considered passing (FE-only display hint; not server-enforced). */
+  passingGrade?: number;
+  /** Whether the student may retake the quiz (FE-only display hint; not server-enforced). */
+  allowRetake?: boolean;
+  /** Whether to reveal correct answers after submission (FE-only; pilot: always false). */
+  showAnswers?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
