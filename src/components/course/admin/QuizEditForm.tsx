@@ -87,6 +87,15 @@ function validateQuiz(questions: QuizQuestion[]): string | null {
   return null;
 }
 
+/**
+ * Max obtainable points = sum of every question's points (default 1).
+ * passingGrade is compared against pointsAwarded (raw points), so any
+ * passingGrade above this sum is an impossible bar nobody can clear.
+ */
+function maxObtainablePoints(questions: QuizQuestion[]): number {
+  return questions.reduce((sum, q) => sum + (q.points ?? 1), 0);
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface QuizEditFormProps {
@@ -119,10 +128,20 @@ export const QuizEditForm = ({
     return () => clearTimeout(t);
   }, [saved]);
 
+  const maxPoints = maxObtainablePoints(form.questions);
+  const passingGradeTooHigh = (form.passingGrade ?? 0) > maxPoints;
+
   const onSave = async () => {
     const validationError = validateQuiz(form.questions);
     if (validationError) {
       setError(validationError);
+      return;
+    }
+
+    if (passingGradeTooHigh) {
+      setError(
+        `Passing grade (${form.passingGrade}) melebihi total poin maksimum kuis ini (${maxPoints}) — tidak ada skor yang bisa lulus. Turunkan passing grade atau tambah poin pertanyaan.`,
+      );
       return;
     }
 
@@ -228,22 +247,40 @@ export const QuizEditForm = ({
 
         <div className='space-y-2'>
           <label className='text-sm font-medium'>Passing Grade (poin)</label>
-          <Input
-            type='number'
-            min={0}
-            value={form.passingGrade ?? 0}
-            onChange={(e) => {
-              const next = Number(e.target.value);
-              setForm((prev) => ({
-                ...prev,
-                passingGrade: Number.isFinite(next) ? next : 0,
-              }));
-            }}
-          />
-          <p className='text-xs text-slate-500'>
-            Minimum poin yang harus diraih siswa. Set ke 0 jika tidak ada batas
-            kelulusan.
-          </p>
+          <div className='flex items-center gap-3'>
+            <Input
+              type='number'
+              min={0}
+              className={cn(
+                'w-32',
+                passingGradeTooHigh &&
+                  'border-red-400 focus-visible:ring-red-400',
+              )}
+              value={form.passingGrade ?? 0}
+              onChange={(e) => {
+                const next = Number(e.target.value);
+                setForm((prev) => ({
+                  ...prev,
+                  passingGrade: Number.isFinite(next) ? next : 0,
+                }));
+              }}
+            />
+            <span className='text-xs text-slate-500'>
+              Maks. poin kuis ini: <strong>{maxPoints}</strong>
+            </span>
+          </div>
+          {passingGradeTooHigh ? (
+            <p className='text-xs font-medium text-red-600'>
+              Passing grade melebihi total poin maksimum ({maxPoints}) — tidak
+              ada skor yang bisa lulus. Turunkan nilainya atau tambah poin
+              pertanyaan.
+            </p>
+          ) : (
+            <p className='text-xs text-slate-500'>
+              Minimum poin yang harus diraih siswa. Set ke 0 jika tidak ada
+              batas kelulusan.
+            </p>
+          )}
         </div>
 
         <div className='flex flex-wrap gap-6'>
