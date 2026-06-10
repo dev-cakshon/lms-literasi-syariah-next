@@ -121,6 +121,24 @@ export interface QuizSubmitResult {
   }[];
 }
 
+/**
+ * Aggregated prior-attempt summary from GET /courses/:courseId/quizzes/:quizId/result.
+ * Used to gate retakes FE-side when allowRetake === false.
+ */
+export interface QuizResult {
+  attempted: boolean;
+  attemptCount: number;
+  /** Best score across attempts, as a percentage (0–100). */
+  bestScore: number;
+  /** Best raw points across attempts. */
+  bestPointsAwarded: number;
+  totalQuestions: number;
+  passingGrade: number;
+  passed: boolean;
+  /** ISO timestamp of the most recent attempt, or null if never attempted. */
+  lastSubmittedAt: string | null;
+}
+
 // ─── Progress tracking ───
 export interface CourseProgress {
   id?: string;

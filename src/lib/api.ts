@@ -27,6 +27,7 @@ import type {
   DownloadUrlResponse,
   LeaderboardUser,
   Quiz,
+  QuizResult,
   QuizSubmitResult,
   StudentActivity,
   SubmitActivityRequest,
@@ -313,6 +314,17 @@ export async function getQuizzes(courseId: string): Promise<Quiz[]> {
 
 export async function getQuiz(courseId: string, quizId: string): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes/${quizId}`);
+}
+
+/**
+ * Aggregated prior-attempt summary for the current student.
+ * Drives the FE retake gate when quiz.allowRetake === false.
+ */
+export async function getQuizResult(
+  courseId: string,
+  quizId: string,
+): Promise<QuizResult> {
+  return apiFetch(`/courses/${courseId}/quizzes/${quizId}/result`);
 }
 
 export async function createQuiz(
