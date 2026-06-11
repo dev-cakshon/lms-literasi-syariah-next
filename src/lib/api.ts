@@ -337,6 +337,7 @@ export async function createQuiz(
     passingGrade?: number;
     allowRetake?: boolean;
     showAnswers?: boolean;
+    timeLimitMinutes?: number;
   },
 ): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes`, {
@@ -358,6 +359,7 @@ export async function updateQuiz(
       | 'passingGrade'
       | 'allowRetake'
       | 'showAnswers'
+      | 'timeLimitMinutes'
     >
   >,
 ): Promise<Quiz> {

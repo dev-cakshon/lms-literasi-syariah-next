@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { ApiError, updateQuiz } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
+import { ImageUpload } from '@/components/course/admin/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -159,6 +160,7 @@ export const QuizEditForm = ({
         passingGrade: form.passingGrade,
         allowRetake: form.allowRetake,
         showAnswers: form.showAnswers,
+        timeLimitMinutes: form.timeLimitMinutes,
       });
 
       onQuizSaved(updated);
@@ -305,6 +307,31 @@ export const QuizEditForm = ({
             Tampilkan Jawaban Setelah Kuis (showAnswers)
           </label>
         </div>
+
+        <div className='space-y-2'>
+          <label className='text-sm font-medium'>
+            Waktu Pengerjaan (menit)
+          </label>
+          <div className='flex items-center gap-3'>
+            <Input
+              type='number'
+              min={0}
+              className='w-32'
+              value={form.timeLimitMinutes ?? 0}
+              onChange={(e) => {
+                const next = Number(e.target.value);
+                setForm((prev) => ({
+                  ...prev,
+                  timeLimitMinutes:
+                    Number.isFinite(next) && next >= 0 ? next : 0,
+                }));
+              }}
+            />
+            <span className='text-xs text-slate-500'>
+              0 = tidak ada batas waktu
+            </span>
+          </div>
+        </div>
       </section>
 
       {/* ── Pertanyaan ─────────────────────────────────────────────────────── */}
@@ -353,6 +380,21 @@ export const QuizEditForm = ({
               >
                 <Trash2 className='h-4 w-4' />
               </Button>
+            </div>
+
+            {/* Question image (optional) */}
+            <div className='pl-6'>
+              <ImageUpload
+                folder='thumbnails/quizzes'
+                value={q.imageUrl ?? ''}
+                onChange={(url) =>
+                  setForm((prev) => {
+                    const questions = [...prev.questions];
+                    questions[qIndex] = { ...questions[qIndex], imageUrl: url };
+                    return { ...prev, questions };
+                  })
+                }
+              />
             </div>
 
             {/* Type toggle + points */}

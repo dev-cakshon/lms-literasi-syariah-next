@@ -89,6 +89,7 @@ export interface QuizQuestion {
   correctAnswerText?: string;
   points?: number;
   type?: 'multipleChoice' | 'shortAnswer';
+  imageUrl?: string;
 }
 
 export interface Quiz {
@@ -104,6 +105,7 @@ export interface Quiz {
   allowRetake?: boolean;
   /** Whether to reveal correct answers after submission (FE-only; pilot: always false). */
   showAnswers?: boolean;
+  timeLimitMinutes?: number;
   createdAt?: string;
   updatedAt?: string;
 }

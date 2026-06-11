@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { ApiError, getQuiz, getQuizResult, submitQuiz } from '@/lib/api';
+import { buildMediaViewUrl } from '@/lib/media';
 
 import { MultipleAnswer } from '@/components/quiz/MultipleAnswer';
 import { QuizResultScreen } from '@/components/quiz/QuizResultScreen';
+import { QuizTimer } from '@/components/quiz/QuizTimer';
 import { ShortAnswerInput } from '@/components/quiz/ShortAnswerInput';
 
 import type { Quiz, QuizResult, QuizSubmitResult } from '@/types';
@@ -170,6 +172,20 @@ export default function QuizPage({ params }: QuizPageProps) {
     setSubmitResult(null);
   }
 
+  function handleExpire() {
+    if (isSubmitting || submitResult) return;
+    if (!quiz || !courseId || !quizId) return;
+    const payload: (number | string)[] = answers.map((slot, i) => {
+      if (slot !== null) return typeof slot === 'string' ? slot.trim() : slot;
+      return quiz.questions[i]?.type === 'shortAnswer' ? '' : -1;
+    });
+    setIsSubmitting(true);
+    submitQuiz(courseId, quizId, payload)
+      .then(setSubmitResult)
+      .catch((err) => console.error('Auto-submit on timer expiry failed:', err))
+      .finally(() => setIsSubmitting(false));
+  }
+
   // ── Render states ──────────────────────────────────────────────────────────
 
   if (!courseId || !quizId || !quiz || !retakeGateChecked) {
@@ -265,6 +281,15 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   return (
     <div className='mx-auto w-full max-w-4xl'>
+      {quiz.timeLimitMinutes && quiz.timeLimitMinutes > 0 && (
+        <div className='flex justify-end px-6 pt-4'>
+          <QuizTimer
+            totalSeconds={quiz.timeLimitMinutes * 60}
+            onExpire={handleExpire}
+          />
+        </div>
+      )}
+
       {/* All-answered gate hint */}
       {isLastQuestion && !allAnswered && (
         <div className='mx-6 mt-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-700'>
@@ -286,6 +311,9 @@ export default function QuizPage({ params }: QuizPageProps) {
           answeredCount={answeredCount}
           isSubmitting={isSubmitting}
           submitDisabled={!allAnswered}
+          imageUrl={
+            question.imageUrl ? buildMediaViewUrl(question.imageUrl) : undefined
+          }
         />
       ) : (
         /* Default: multipleChoice (also handles undefined type gracefully) */
@@ -302,6 +330,9 @@ export default function QuizPage({ params }: QuizPageProps) {
           answeredCount={answeredCount}
           isSubmitting={isSubmitting}
           submitDisabled={!allAnswered}
+          imageUrl={
+            question.imageUrl ? buildMediaViewUrl(question.imageUrl) : undefined
+          }
         />
       )}
     </div>
