@@ -1,11 +1,21 @@
 'use client';
 
-import { ArrowRight, Award, BookOpen, CheckCircle2, Play } from 'lucide-react';
+import {
+  ArrowRight,
+  Award,
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  Lock,
+  Play,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
 import { buildMediaViewUrl } from '@/lib/media';
+
+import type { RequestStatus } from '@/types';
 
 interface MyCourseCardProps {
   id: string;
@@ -16,6 +26,8 @@ interface MyCourseCardProps {
   activities?: number;
   progress: number;
   accessTier?: 'free' | 'premium';
+  locked?: boolean;
+  requestStatus?: RequestStatus;
   onViewCertificate?: () => void;
 }
 
@@ -28,6 +40,8 @@ export function MyCourseCard({
   activities,
   progress,
   accessTier,
+  locked = false,
+  requestStatus,
   onViewCertificate,
 }: MyCourseCardProps) {
   const normalizedImageUrl = imageUrl ? buildMediaViewUrl(imageUrl) : null;
@@ -53,38 +67,54 @@ export function MyCourseCard({
     >
       {/* Thumbnail */}
       <Link href={`/course/${id}`} tabIndex={-1} aria-hidden='true'>
-        <div
-          className={[
-            'relative aspect-[16/10] overflow-hidden bg-slate-200',
-            status === 'not-started' ? 'grayscale-[0.2]' : '',
-          ].join(' ')}
-        >
-          {showImage ? (
-            <Image
-              fill
-              className='object-cover group-hover:scale-110 transition-transform duration-700'
-              alt={title}
-              src={normalizedImageUrl}
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <div className='w-full h-full flex items-center justify-center'>
-              <BookOpen className='w-12 h-12 text-slate-400' />
+        <div className='relative aspect-[16/10] overflow-hidden bg-slate-200'>
+          {/* Image layer — grayscale scoped here so overlays stay full colour */}
+          <div
+            className={[
+              'absolute inset-0',
+              locked
+                ? 'grayscale'
+                : status === 'not-started'
+                  ? 'grayscale-[0.2]'
+                  : '',
+            ].join(' ')}
+          >
+            {showImage ? (
+              <Image
+                fill
+                className='object-cover group-hover:scale-110 transition-transform duration-700'
+                alt={title}
+                src={normalizedImageUrl}
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className='w-full h-full flex items-center justify-center'>
+                <BookOpen className='w-12 h-12 text-slate-400' />
+              </div>
+            )}
+          </div>
+
+          {/* Lock overlay */}
+          {locked && (
+            <div className='absolute inset-0 flex items-center justify-center bg-slate-900/40'>
+              <div className='flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg'>
+                <Lock className='h-6 w-6 text-slate-600' />
+              </div>
             </div>
           )}
 
-          {status === 'running' && (
+          {!locked && status === 'running' && (
             <span className='absolute top-4 left-4 bg-amber-500 text-amber-ink text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md'>
               Sedang Berjalan
             </span>
           )}
-          {status === 'completed' && (
+          {!locked && status === 'completed' && (
             <span className='absolute top-4 left-4 bg-primary-100 text-primary-700 text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1'>
               <CheckCircle2 className='w-3 h-3' />
               Selesai
             </span>
           )}
-          {status === 'not-started' && (
+          {!locked && status === 'not-started' && (
             <span className='absolute top-4 left-4 bg-slate-300 text-slate-700 text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md'>
               Belum Mulai
             </span>
@@ -106,7 +136,7 @@ export function MyCourseCard({
       >
         {/* Info chips */}
         <div className='flex gap-2 mb-3 flex-wrap'>
-          {status === 'completed' ? (
+          {!locked && status === 'completed' ? (
             <span className='bg-surface-container text-on-surface-soft text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-md'>
               Sertifikat
             </span>
@@ -140,74 +170,95 @@ export function MyCourseCard({
           </p>
         )}
 
-        {/* Progress block */}
+        {/* Progress block / locked CTA */}
         <div className='mt-auto'>
-          <div className='flex justify-between items-center mb-1'>
-            <span className='text-on-surface-soft text-[11px] font-bold uppercase tracking-wider'>
-              {status === 'completed' ? 'Lulus' : 'Progress'}
-            </span>
-            <span
-              className={`text-[11px] font-bold ${
-                status === 'completed'
-                  ? 'text-primary-700'
-                  : status === 'running'
-                    ? 'text-amber-700'
-                    : 'text-slate-500'
-              }`}
-            >
-              {progress}%
-            </span>
-          </div>
-          <div className='w-full bg-surface-variant rounded-full h-2 mb-4'>
-            <div
-              className={`h-2 rounded-full ${
-                status === 'completed'
-                  ? 'bg-primary-600'
-                  : status === 'running'
-                    ? 'bg-amber-500'
-                    : 'bg-slate-300'
-              }`}
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          {/* CTAs */}
-          {status === 'running' && (
-            <Link
-              href={`/course/${id}`}
-              className={`${ctaClass} bg-amber-500 text-amber-ink hover:bg-amber-600`}
-            >
-              Lanjutkan <ArrowRight className='w-4 h-4' />
-            </Link>
-          )}
-          {status === 'not-started' && (
-            <Link
-              href={`/course/${id}`}
-              className={`${ctaClass} border border-outline-variant text-on-surface-soft hover:bg-surface-container`}
-            >
-              Mulai <Play className='w-4 h-4' />
-            </Link>
-          )}
-          {status === 'completed' &&
-            (onViewCertificate ? (
+          {locked ? (
+            /* Locked premium course — no progress bar, access-request CTA */
+            requestStatus === 'pending' ? (
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onViewCertificate();
-                }}
-                className={`${ctaClass} border border-primary-300 text-primary-700 hover:bg-primary-50`}
+                disabled
+                className={`${ctaClass} bg-surface-container text-on-surface-soft cursor-default`}
               >
-                <Award className='w-4 h-4' /> Lihat Sertifikat
+                <Clock className='w-4 h-4' /> Menunggu Persetujuan
               </button>
             ) : (
               <Link
                 href={`/course/${id}`}
-                className={`${ctaClass} border border-primary-300 text-primary-700 hover:bg-primary-50`}
+                className={`${ctaClass} bg-amber-50 border border-amber-300 text-amber-700 hover:bg-amber-100`}
               >
-                <Award className='w-4 h-4' /> Lihat Sertifikat
+                <Lock className='w-4 h-4' /> Minta Akses
               </Link>
-            ))}
+            )
+          ) : (
+            <>
+              <div className='flex justify-between items-center mb-1'>
+                <span className='text-on-surface-soft text-[11px] font-bold uppercase tracking-wider'>
+                  {status === 'completed' ? 'Lulus' : 'Progress'}
+                </span>
+                <span
+                  className={`text-[11px] font-bold ${
+                    status === 'completed'
+                      ? 'text-primary-700'
+                      : status === 'running'
+                        ? 'text-amber-700'
+                        : 'text-slate-500'
+                  }`}
+                >
+                  {progress}%
+                </span>
+              </div>
+              <div className='w-full bg-surface-variant rounded-full h-2 mb-4'>
+                <div
+                  className={`h-2 rounded-full ${
+                    status === 'completed'
+                      ? 'bg-primary-600'
+                      : status === 'running'
+                        ? 'bg-amber-500'
+                        : 'bg-slate-300'
+                  }`}
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+
+              {/* CTAs */}
+              {status === 'running' && (
+                <Link
+                  href={`/course/${id}`}
+                  className={`${ctaClass} bg-amber-500 text-amber-ink hover:bg-amber-600`}
+                >
+                  Lanjutkan <ArrowRight className='w-4 h-4' />
+                </Link>
+              )}
+              {status === 'not-started' && (
+                <Link
+                  href={`/course/${id}`}
+                  className={`${ctaClass} border border-outline-variant text-on-surface-soft hover:bg-surface-container`}
+                >
+                  Mulai <Play className='w-4 h-4' />
+                </Link>
+              )}
+              {status === 'completed' &&
+                (onViewCertificate ? (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onViewCertificate();
+                    }}
+                    className={`${ctaClass} border border-primary-300 text-primary-700 hover:bg-primary-50`}
+                  >
+                    <Award className='w-4 h-4' /> Lihat Sertifikat
+                  </button>
+                ) : (
+                  <Link
+                    href={`/course/${id}`}
+                    className={`${ctaClass} border border-primary-300 text-primary-700 hover:bg-primary-50`}
+                  >
+                    <Award className='w-4 h-4' /> Lihat Sertifikat
+                  </Link>
+                ))}
+            </>
+          )}
         </div>
       </div>
     </div>

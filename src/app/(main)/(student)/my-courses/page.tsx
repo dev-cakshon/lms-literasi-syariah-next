@@ -3,18 +3,26 @@
 import { Search } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { ApiError, getCourseProgressApi, getCourses } from '@/lib/api';
+import {
+  ApiError,
+  getCourseProgressApi,
+  getCourses,
+  getMyEnrollmentRequests,
+} from '@/lib/api';
 import { useMyCertificates } from '@/hooks/use-certificates';
 
 import CourseCertificateModal from '@/components/course/CourseCertificateModal';
 import { MyCourseCard } from '@/components/course-list/MyCourseCard';
 
-import type { Certificate, Course } from '@/types';
+import type { Certificate, Course, RequestStatus } from '@/types';
 
 export default function MyCoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [courses, setCourses] = useState<Course[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+  const [enrollmentStatusMap, setEnrollmentStatusMap] = useState<
+    Record<string, RequestStatus>
+  >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCertificate, setSelectedCertificate] =
@@ -34,11 +42,20 @@ export default function MyCoursesPage() {
       try {
         setLoading(true);
         setError(null);
-        const allCourses = await getCourses();
+        const [allCourses, myRequests] = await Promise.all([
+          getCourses(),
+          getMyEnrollmentRequests(),
+        ]);
 
         if (!active) return;
 
         setCourses(allCourses);
+
+        const statusMap: Record<string, RequestStatus> = {};
+        myRequests.forEach((r) => {
+          statusMap[r.courseId] = r.status;
+        });
+        setEnrollmentStatusMap(statusMap);
 
         const results = await Promise.allSettled(
           allCourses.map((c) => getCourseProgressApi(c.id)),
@@ -82,17 +99,24 @@ export default function MyCoursesPage() {
         .filter((course) =>
           course.title.toLowerCase().includes(searchQuery.toLowerCase()),
         )
-        .map((course) => ({
-          id: course.id,
-          title: course.title,
-          description: course.description,
-          imageUrl: course.thumbnailUrl ?? course.imageUrl ?? null,
-          chaptersLength: course.totalChapters ?? 0,
-          activities: course.totalActivities,
-          progress: progressMap[course.id] ?? 0,
-          accessTier: course.accessTier,
-        })),
-    [courses, searchQuery, progressMap],
+        .map((course) => {
+          const requestStatus = enrollmentStatusMap[course.id];
+          const locked =
+            course.accessTier === 'premium' && requestStatus !== 'approved';
+          return {
+            id: course.id,
+            title: course.title,
+            description: course.description,
+            imageUrl: course.thumbnailUrl ?? course.imageUrl ?? null,
+            chaptersLength: course.totalChapters ?? 0,
+            activities: course.totalActivities,
+            progress: progressMap[course.id] ?? 0,
+            accessTier: course.accessTier,
+            locked,
+            requestStatus,
+          };
+        }),
+    [courses, searchQuery, progressMap, enrollmentStatusMap],
   );
 
   return (
@@ -160,6 +184,8 @@ export default function MyCoursesPage() {
                 activities={course.activities}
                 progress={course.progress}
                 accessTier={course.accessTier}
+                locked={course.locked}
+                requestStatus={course.requestStatus}
                 onViewCertificate={
                   course.progress >= 100 && certByCourseId[course.id]
                     ? () =>
