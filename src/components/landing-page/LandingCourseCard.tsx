@@ -7,6 +7,7 @@ export interface CourseCardProps {
   iconName: string;
   duration: string;
   level?: 'Pemula' | 'Menengah' | 'Lanjutan';
+  accessTier?: 'free' | 'premium';
   href: string;
 }
 
@@ -15,6 +16,7 @@ export const LandingCourseCard = ({
   iconName,
   duration,
   level,
+  accessTier,
   href,
 }: CourseCardProps) => {
   return (
@@ -29,11 +31,18 @@ export const LandingCourseCard = ({
         <div className='w-16 h-16 rounded-xl bg-linear-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white shadow-inner'>
           <span className='material-symbols-outlined text-3xl'>{iconName}</span>
         </div>
-        {level && (
-          <span className='bg-accent-lime text-accent-lime-ink px-3 py-1 rounded-full font-bold text-xs uppercase tracking-wide'>
-            {level}
-          </span>
-        )}
+        <div className='flex flex-col items-end gap-1'>
+          {level && (
+            <span className='bg-accent-lime text-accent-lime-ink px-3 py-1 rounded-full font-bold text-xs uppercase tracking-wide'>
+              {level}
+            </span>
+          )}
+          {accessTier === 'premium' && (
+            <span className='bg-amber-500 text-white px-3 py-1 rounded-full font-bold text-xs uppercase tracking-wide'>
+              Premium
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Title */}

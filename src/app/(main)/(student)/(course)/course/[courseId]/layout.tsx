@@ -3,24 +3,31 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getCourse, getCourseContent } from '@/lib/api';
+import {
+  ApiError,
+  getCourse,
+  getCourseContent,
+  getMyEnrollmentRequests,
+} from '@/lib/api';
 import { useLeaderboard } from '@/hooks/use-realtime';
 
 import { ChatbotDrawer } from '@/components/course/ChatbotDrawer';
 import { ChatbotFab } from '@/components/course/ChatbotFab';
 import { CourseNavbar } from '@/components/course/CourseNavbar';
 import { CourseRoadmap } from '@/components/course/CourseRoadmap';
+import { PremiumGateScreen } from '@/components/course/PremiumGateScreen';
 
 import { useAuth } from '@/contexts/AuthContext';
 
 import { CourseLayoutContext } from './CourseLayoutContext';
 
-import type { CourseContentItem } from '@/types';
+import type { CourseContentItem, EnrollmentRequest } from '@/types';
 
 interface CourseData {
   id: string;
   title: string;
   description: string;
+  accessTier?: 'free' | 'premium';
   price: number;
 }
 
@@ -35,6 +42,9 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
   const [course, setCourse] = useState<CourseData | null>(null);
   const [contentItems, setContentItems] = useState<CourseContentItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [gated, setGated] = useState(false);
+  const [enrollmentRequest, setEnrollmentRequest] =
+    useState<EnrollmentRequest | null>(null);
   const [isRoadmapOpen, setIsRoadmapOpen] = useState(false);
   const { data: leaderboardData } = useLeaderboard();
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -48,10 +58,8 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
 
   const fetchCourseData = useCallback(async () => {
     try {
-      const [courseData, courseContentData] = await Promise.all([
-        getCourse(courseId),
-        getCourseContent(courseId),
-      ]);
+      // getCourse (metadata) is never gated — always fetch first.
+      const courseData = await getCourse(courseId);
 
       if (!courseData) {
         router.push('/');
@@ -62,12 +70,35 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
         id: courseData.id,
         title: courseData.title || 'Untitled Course',
         description: courseData.description || '',
+        accessTier: courseData.accessTier,
         price: 0,
       });
 
-      setContentItems(
-        [...courseContentData].sort((a, b) => a.position - b.position),
-      );
+      // getCourseContent is gated on premium courses.
+      // A 403 PREMIUM_NOT_ENROLLED means we should show the gate screen,
+      // not bounce the user away — so we catch it specifically here.
+      try {
+        const courseContentData = await getCourseContent(courseId);
+        setContentItems(
+          [...courseContentData].sort((a, b) => a.position - b.position),
+        );
+      } catch (contentErr) {
+        if (
+          contentErr instanceof ApiError &&
+          (contentErr.code === 'PREMIUM_NOT_ENROLLED' ||
+            contentErr.status === 403)
+        ) {
+          // Show the premium gate screen. Fetch the student's request state
+          // so the gate can render the right CTA immediately.
+          const reqs = await getMyEnrollmentRequests();
+          const myReq = reqs.find((r) => r.courseId === courseId) ?? null;
+          setEnrollmentRequest(myReq);
+          setGated(true);
+          return;
+        }
+        // Any other content error (404, 500, …) falls through to the outer catch.
+        throw contentErr;
+      }
     } catch (err) {
       console.error('Failed to load course:', err);
       router.push('/');
@@ -93,6 +124,16 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
       <div className='h-screen flex items-center justify-center'>
         <p className='text-muted-foreground'>Memuat kursus...</p>
       </div>
+    );
+  }
+
+  if (gated) {
+    return (
+      <PremiumGateScreen
+        course={course}
+        request={enrollmentRequest}
+        onRequested={(req) => setEnrollmentRequest(req)}
+      />
     );
   }
 

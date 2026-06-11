@@ -1,6 +1,6 @@
 'use client';
 
-import { Library, LogOut, User, Users } from 'lucide-react';
+import { Inbox, Library, LogOut, User, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const adminNav = [
   { icon: Library, label: 'Kursus', href: '/admin/course' },
   { icon: Users, label: 'Pengguna', href: '/admin/user' },
+  { icon: Inbox, label: 'Pendaftaran', href: '/admin/enrollment' },
 ];
 
 /**

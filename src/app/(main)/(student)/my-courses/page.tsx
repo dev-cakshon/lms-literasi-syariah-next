@@ -90,6 +90,7 @@ export default function MyCoursesPage() {
           chaptersLength: course.totalChapters ?? 0,
           activities: course.totalActivities,
           progress: progressMap[course.id] ?? 0,
+          accessTier: course.accessTier,
         })),
     [courses, searchQuery, progressMap],
   );
@@ -158,6 +159,7 @@ export default function MyCoursesPage() {
                 chaptersLength={course.chaptersLength}
                 activities={course.activities}
                 progress={course.progress}
+                accessTier={course.accessTier}
                 onViewCertificate={
                   course.progress >= 100 && certByCourseId[course.id]
                     ? () =>

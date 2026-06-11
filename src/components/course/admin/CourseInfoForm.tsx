@@ -31,6 +31,7 @@ const courseFormSchema = z.object({
   description: z.string().optional(),
   thumbnailUrl: z.string().optional(),
   isPublished: z.boolean().optional(),
+  accessTier: z.enum(['free', 'premium']).optional(),
 });
 
 type CourseFormValues = z.infer<typeof courseFormSchema>;
@@ -41,7 +42,10 @@ interface CourseInfoFormProps {
 }
 
 type CoursePatchPayload = Partial<
-  Pick<Course, 'title' | 'description' | 'thumbnailUrl' | 'isPublished'>
+  Pick<
+    Course,
+    'title' | 'description' | 'thumbnailUrl' | 'isPublished' | 'accessTier'
+  >
 >;
 
 export const CourseInfoForm = ({
@@ -59,6 +63,7 @@ export const CourseInfoForm = ({
       description: course.description || '',
       thumbnailUrl: course.thumbnailUrl || '',
       isPublished: course.isPublished ?? false,
+      accessTier: course.accessTier ?? 'free',
     },
   });
 
@@ -68,6 +73,7 @@ export const CourseInfoForm = ({
       description: course.description || '',
       thumbnailUrl: course.thumbnailUrl || '',
       isPublished: course.isPublished ?? false,
+      accessTier: course.accessTier ?? 'free',
     });
   }, [course, form]);
 
@@ -101,6 +107,10 @@ export const CourseInfoForm = ({
 
       if ((values.isPublished ?? false) !== (course.isPublished ?? false)) {
         patch.isPublished = values.isPublished ?? false;
+      }
+
+      if ((values.accessTier ?? 'free') !== (course.accessTier ?? 'free')) {
+        patch.accessTier = values.accessTier ?? 'free';
       }
 
       if (Object.keys(patch).length === 0) {
@@ -206,6 +216,50 @@ export const CourseInfoForm = ({
                   <FormDescription>
                     Kursus yang dipublikasikan akan terlihat oleh semua
                     pengguna.
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Access Tier */}
+          <FormField
+            control={form.control}
+            name='accessTier'
+            render={({ field }) => (
+              <FormItem className='flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4'>
+                <div className='space-y-3 w-full'>
+                  <FormLabel>Mode Akses</FormLabel>
+                  <div className='flex rounded-lg border border-slate-200 overflow-hidden w-fit'>
+                    <button
+                      type='button'
+                      onClick={() => field.onChange('free')}
+                      className={[
+                        'px-4 py-2 text-sm font-semibold transition-colors',
+                        field.value === 'free' || !field.value
+                          ? 'bg-primary-600 text-white'
+                          : 'bg-white text-slate-600 hover:bg-slate-50',
+                      ].join(' ')}
+                    >
+                      Gratis
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => field.onChange('premium')}
+                      className={[
+                        'px-4 py-2 text-sm font-semibold transition-colors border-l border-slate-200',
+                        field.value === 'premium'
+                          ? 'bg-amber-500 text-white'
+                          : 'bg-white text-slate-600 hover:bg-slate-50',
+                      ].join(' ')}
+                    >
+                      Premium
+                    </button>
+                  </div>
+                  <FormDescription>
+                    {field.value === 'premium'
+                      ? 'Premium: siswa perlu persetujuan admin untuk mengakses kursus ini.'
+                      : 'Gratis: siswa langsung masuk tanpa persetujuan.'}
                   </FormDescription>
                 </div>
               </FormItem>

@@ -15,6 +15,7 @@ interface MyCourseCardProps {
   chaptersLength: number;
   activities?: number;
   progress: number;
+  accessTier?: 'free' | 'premium';
   onViewCertificate?: () => void;
 }
 
@@ -26,6 +27,7 @@ export function MyCourseCard({
   chaptersLength,
   activities,
   progress,
+  accessTier,
   onViewCertificate,
 }: MyCourseCardProps) {
   const normalizedImageUrl = imageUrl ? buildMediaViewUrl(imageUrl) : null;
@@ -85,6 +87,11 @@ export function MyCourseCard({
           {status === 'not-started' && (
             <span className='absolute top-4 left-4 bg-slate-300 text-slate-700 text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md'>
               Belum Mulai
+            </span>
+          )}
+          {accessTier === 'premium' && (
+            <span className='absolute top-4 right-4 bg-amber-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md'>
+              Premium
             </span>
           )}
         </div>
