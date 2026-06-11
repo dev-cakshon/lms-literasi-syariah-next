@@ -81,4 +81,45 @@ describe('parseMoodleQuizXml', () => {
     expect(questions[0].correctAnswerIndex).toBe(0);
     expect(warnings.some((w) => /multi/i.test(w))).toBe(true);
   });
+
+  it('skips MC question with fewer than 2 non-empty options, adds warning', () => {
+    const xml = `<quiz>
+      <question type="multichoice">
+        <questiontext format="html"><text>Empty options</text></questiontext>
+        <defaultgrade>1</defaultgrade>
+        <answer fraction="100"><text>Only one</text></answer>
+      </question>
+    </quiz>`;
+    const { questions, warnings } = parseMoodleQuizXml(xml);
+    expect(questions).toHaveLength(0);
+    expect(warnings.some((w) => /pilihan|minimum 2/i.test(w))).toBe(true);
+  });
+
+  it('skips shortanswer question with no correct answer, adds warning', () => {
+    const xml = `<quiz>
+      <question type="shortanswer">
+        <questiontext format="html"><text>No correct answer</text></questiontext>
+        <defaultgrade>1</defaultgrade>
+        <answer fraction="0"><text>Wrong</text></answer>
+      </question>
+    </quiz>`;
+    const { questions, warnings } = parseMoodleQuizXml(xml);
+    expect(questions).toHaveLength(0);
+    expect(warnings.some((w) => /jawaban benar/i.test(w))).toBe(true);
+  });
+
+  it('warns but still imports MC question when no answer has fraction >= 100', () => {
+    const xml = `<quiz>
+      <question type="multichoice">
+        <questiontext format="html"><text>No correct marked</text></questiontext>
+        <defaultgrade>1</defaultgrade>
+        <answer fraction="50"><text>Half credit</text></answer>
+        <answer fraction="0"><text>Wrong</text></answer>
+      </question>
+    </quiz>`;
+    const { questions, warnings } = parseMoodleQuizXml(xml);
+    expect(questions).toHaveLength(1);
+    expect(questions[0].correctAnswerIndex).toBe(0);
+    expect(warnings.some((w) => /tidak ada jawaban benar/i.test(w))).toBe(true);
+  });
 });

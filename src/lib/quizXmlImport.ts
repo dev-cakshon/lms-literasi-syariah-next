@@ -61,6 +61,13 @@ export function parseMoodleQuizXml(xml: string): {
         (a) => parseFloat(a.getAttribute('fraction') ?? '0') >= 100,
       );
 
+      if (options.filter((o) => o.trim() !== '').length < 2) {
+        warnings.push(
+          `Pertanyaan ${questionNumber}: pilihan ganda tanpa cukup pilihan (minimum 2), dilewati.`,
+        );
+        return;
+      }
+
       const singleText = el
         .querySelector('single')
         ?.textContent?.trim()
@@ -68,6 +75,12 @@ export function parseMoodleQuizXml(xml: string): {
       if (singleText === 'false') {
         warnings.push(
           `Pertanyaan ${questionNumber}: multi-jawaban tidak didukung — mengambil jawaban benar pertama.`,
+        );
+      }
+
+      if (correctIdx < 0) {
+        warnings.push(
+          `Pertanyaan ${questionNumber}: tidak ada jawaban benar ditemukan — pilihan pertama ditandai benar secara default, periksa sebelum menyimpan.`,
         );
       }
 
@@ -86,6 +99,13 @@ export function parseMoodleQuizXml(xml: string): {
       const correctAnswerText = stripHtml(
         firstCorrect?.querySelector('text')?.textContent ?? '',
       );
+
+      if (!correctAnswerText) {
+        warnings.push(
+          `Pertanyaan ${questionNumber}: tidak ditemukan jawaban benar, dilewati.`,
+        );
+        return;
+      }
 
       questions.push({
         question: '',
