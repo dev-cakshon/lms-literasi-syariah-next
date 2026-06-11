@@ -295,6 +295,16 @@ export async function declineEnrollmentRequest(
   });
 }
 
+export async function revokeEnrollmentRequest(
+  id: string,
+  reason?: string,
+): Promise<EnrollmentRequest> {
+  return apiFetch(`/enrollment-requests/${id}/revoke`, {
+    method: 'POST',
+    body: JSON.stringify(reason ? { reason } : {}),
+  });
+}
+
 // ─── Chapters endpoints ──────────────────────────────────────────────────────
 
 export async function getChapters(courseId: string): Promise<Chapter[]> {

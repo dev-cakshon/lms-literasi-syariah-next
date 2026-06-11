@@ -121,6 +121,22 @@ export function PremiumGateScreen({
           </div>
         )}
 
+        {request?.status === 'revoked' && (
+          <div className='w-full space-y-3'>
+            <p className='text-sm text-slate-600'>
+              Akses kamu ke kursus ini telah dicabut oleh admin. Kamu bisa
+              mengajukan akses kembali.
+            </p>
+            <Button
+              className='w-full'
+              onClick={handleRequest}
+              disabled={submitting}
+            >
+              {submitting ? 'Mengirim...' : 'Minta Akses lagi'}
+            </Button>
+          </div>
+        )}
+
         {/* Back link */}
         <Link
           href='/dashboard'

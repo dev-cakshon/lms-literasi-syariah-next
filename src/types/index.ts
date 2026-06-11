@@ -65,7 +65,7 @@ export interface Course {
 }
 
 // ─── Enrollment request types ───
-export type RequestStatus = 'pending' | 'approved' | 'declined';
+export type RequestStatus = 'pending' | 'approved' | 'declined' | 'revoked';
 
 export interface EnrollmentRequest {
   id: string;
