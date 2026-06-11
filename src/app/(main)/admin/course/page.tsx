@@ -195,6 +195,7 @@ export default function AdminCoursePage() {
                   chaptersLength={course.totalChapters || 0}
                   activities={course.totalActivities}
                   isPublished={course.isPublished}
+                  accessTier={course.accessTier}
                   editUrl={`/admin/course/${course.id}`}
                   actions={
                     <div className='flex items-center gap-2 p-4'>

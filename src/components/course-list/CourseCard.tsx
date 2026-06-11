@@ -15,6 +15,7 @@ interface CourseCardProps {
   imageUrl: string | null;
   chaptersLength: number;
   isPublished?: boolean;
+  accessTier?: 'free' | 'premium';
   category?: string;
   activities?: number;
   author?: string;
@@ -32,6 +33,7 @@ export const CourseCard = ({
   imageUrl,
   chaptersLength,
   isPublished,
+  accessTier,
   activities,
   author,
   points,
@@ -98,18 +100,25 @@ export const CourseCard = ({
                 </span>
               )}
             </div>
-            {typeof isPublished === 'boolean' && (
-              <span
-                className={cn(
-                  'rounded-full px-2 py-0.5 text-[11px] font-semibold',
-                  isPublished
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'bg-warning-bg text-warning',
-                )}
-              >
-                {isPublished ? 'Diterbitkan' : 'Draft'}
-              </span>
-            )}
+            <div className='flex items-center gap-1.5'>
+              {accessTier === 'premium' && (
+                <span className='rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-700 uppercase tracking-wide'>
+                  Premium
+                </span>
+              )}
+              {typeof isPublished === 'boolean' && (
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                    isPublished
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'bg-warning-bg text-warning',
+                  )}
+                >
+                  {isPublished ? 'Diterbitkan' : 'Draft'}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Title */}

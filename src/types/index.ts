@@ -59,8 +59,23 @@ export interface Course {
   totalChapters?: number;
   totalActivities?: number;
   isPublished?: boolean;
+  accessTier?: 'free' | 'premium';
   createdAt?: string;
   updatedAt?: string;
+}
+
+// ─── Enrollment request types ───
+export type RequestStatus = 'pending' | 'approved' | 'declined' | 'revoked';
+
+export interface EnrollmentRequest {
+  id: string;
+  userId: string;
+  courseId: string;
+  status: RequestStatus;
+  requestedAt: string;
+  decidedAt?: string | null;
+  decidedBy?: string | null;
+  declineReason?: string | null;
 }
 
 export interface Chapter {
