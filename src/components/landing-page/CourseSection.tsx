@@ -134,6 +134,7 @@ export const CourseSection = () => {
           {courses.slice(0, 3).map((course, index) => (
             <LandingCourseCard
               key={course.id || index}
+              id={course.id}
               title={course.title}
               iconName={course.iconName}
               duration={course.duration}
