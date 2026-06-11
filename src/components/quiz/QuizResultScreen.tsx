@@ -10,9 +10,13 @@
  * Scoring rules — every field is a distinct concept:
  *   • displayPercent  = Math.round(result.score / result.total * 100)
  *                       (result.score is a RAW correct count, not a percent)
- *   • isPassed        = quiz.passingGrade > 0
- *                         ? result.pointsAwarded >= quiz.passingGrade
- *                         : true
+ *   • isPassed        = displayPercent === 100
+ *                         ? true
+ *                         : quiz.passingGrade > 0
+ *                           ? result.pointsAwarded >= quiz.passingGrade
+ *                           : true
+ *                       A perfect score ALWAYS passes — heals quizzes whose
+ *                       passingGrade was authored above max obtainable points.
  *                       DO NOT use result.passed — that is the 100%-only flag.
  *   • Per-question correctness — from result.answers[].correct only.
  *                       NO answer-key reveal (keys are stripped by the BE).
@@ -80,13 +84,18 @@ export const QuizResultScreen = ({
     result.total > 0 ? Math.round((result.score / result.total) * 100) : 0;
 
   /**
-   * FE pass/fail rule (PRD §14.9 decision 3).
+   * FE pass/fail rule (PRD §14.9 decision 3, amended 2026-06-10 advisor batch).
+   * A perfect score always passes regardless of passingGrade — guards against
+   * quizzes authored with an impossible points bar (e.g. passingGrade=100 on a
+   * 5-point quiz). Otherwise the raw points comparison applies unchanged.
    * result.passed is the 100%-only server flag — do not use it for pass/fail UI.
    */
   const isPassed =
-    quiz.passingGrade && quiz.passingGrade > 0
-      ? result.pointsAwarded >= quiz.passingGrade
-      : true;
+    displayPercent === 100
+      ? true
+      : quiz.passingGrade && quiz.passingGrade > 0
+        ? result.pointsAwarded >= quiz.passingGrade
+        : true;
 
   const frame = isPassed ? 'celebration' : 'retry';
 

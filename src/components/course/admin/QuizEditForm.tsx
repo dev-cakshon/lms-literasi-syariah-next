@@ -1,11 +1,13 @@
 'use client';
 
-import { Loader2, Plus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Loader2, Plus, Trash2, Upload } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ApiError, updateQuiz } from '@/lib/api';
+import { parseMoodleQuizXml } from '@/lib/quizXmlImport';
 import { cn } from '@/lib/utils';
 
+import { ImageUpload } from '@/components/course/admin/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -87,6 +89,15 @@ function validateQuiz(questions: QuizQuestion[]): string | null {
   return null;
 }
 
+/**
+ * Max obtainable points = sum of every question's points (default 1).
+ * passingGrade is compared against pointsAwarded (raw points), so any
+ * passingGrade above this sum is an impossible bar nobody can clear.
+ */
+function maxObtainablePoints(questions: QuizQuestion[]): number {
+  return questions.reduce((sum, q) => sum + (q.points ?? 1), 0);
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface QuizEditFormProps {
@@ -104,6 +115,11 @@ export const QuizEditForm = ({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [xmlImport, setXmlImport] = useState<{
+    questions: QuizQuestion[];
+    warnings: string[];
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Resync when parent passes an updated quiz (e.g. after redirect or refresh)
   useEffect(() => {
@@ -119,10 +135,20 @@ export const QuizEditForm = ({
     return () => clearTimeout(t);
   }, [saved]);
 
+  const maxPoints = maxObtainablePoints(form.questions);
+  const passingGradeTooHigh = (form.passingGrade ?? 0) > maxPoints;
+
   const onSave = async () => {
     const validationError = validateQuiz(form.questions);
     if (validationError) {
       setError(validationError);
+      return;
+    }
+
+    if (passingGradeTooHigh) {
+      setError(
+        `Passing grade (${form.passingGrade}) melebihi total poin maksimum kuis ini (${maxPoints}) — tidak ada skor yang bisa lulus. Turunkan passing grade atau tambah poin pertanyaan.`,
+      );
       return;
     }
 
@@ -140,6 +166,7 @@ export const QuizEditForm = ({
         passingGrade: form.passingGrade,
         allowRetake: form.allowRetake,
         showAnswers: form.showAnswers,
+        timeLimitMinutes: form.timeLimitMinutes,
       });
 
       onQuizSaved(updated);
@@ -153,6 +180,32 @@ export const QuizEditForm = ({
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleXmlFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const xml = ev.target?.result as string;
+      try {
+        const result = parseMoodleQuizXml(xml);
+        if (result.questions.length === 0) {
+          setError('Tidak ada soal yang berhasil diimpor dari file XML.');
+          return;
+        }
+        setXmlImport(result);
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Gagal membaca file XML.',
+        );
+      }
+    };
+    reader.onerror = () => setError('Gagal membaca file.');
+    reader.readAsText(file);
   };
 
   return (
@@ -228,22 +281,40 @@ export const QuizEditForm = ({
 
         <div className='space-y-2'>
           <label className='text-sm font-medium'>Passing Grade (poin)</label>
-          <Input
-            type='number'
-            min={0}
-            value={form.passingGrade ?? 0}
-            onChange={(e) => {
-              const next = Number(e.target.value);
-              setForm((prev) => ({
-                ...prev,
-                passingGrade: Number.isFinite(next) ? next : 0,
-              }));
-            }}
-          />
-          <p className='text-xs text-slate-500'>
-            Minimum poin yang harus diraih siswa. Set ke 0 jika tidak ada batas
-            kelulusan.
-          </p>
+          <div className='flex items-center gap-3'>
+            <Input
+              type='number'
+              min={0}
+              className={cn(
+                'w-32',
+                passingGradeTooHigh &&
+                  'border-red-400 focus-visible:ring-red-400',
+              )}
+              value={form.passingGrade ?? 0}
+              onChange={(e) => {
+                const next = Number(e.target.value);
+                setForm((prev) => ({
+                  ...prev,
+                  passingGrade: Number.isFinite(next) ? next : 0,
+                }));
+              }}
+            />
+            <span className='text-xs text-slate-500'>
+              Maks. poin kuis ini: <strong>{maxPoints}</strong>
+            </span>
+          </div>
+          {passingGradeTooHigh ? (
+            <p className='text-xs font-medium text-red-600'>
+              Passing grade melebihi total poin maksimum ({maxPoints}) — tidak
+              ada skor yang bisa lulus. Turunkan nilainya atau tambah poin
+              pertanyaan.
+            </p>
+          ) : (
+            <p className='text-xs text-slate-500'>
+              Minimum poin yang harus diraih siswa. Set ke 0 jika tidak ada
+              batas kelulusan.
+            </p>
+          )}
         </div>
 
         <div className='flex flex-wrap gap-6'>
@@ -267,6 +338,31 @@ export const QuizEditForm = ({
             />
             Tampilkan Jawaban Setelah Kuis (showAnswers)
           </label>
+        </div>
+
+        <div className='space-y-2'>
+          <label className='text-sm font-medium'>
+            Waktu Pengerjaan (menit)
+          </label>
+          <div className='flex items-center gap-3'>
+            <Input
+              type='number'
+              min={0}
+              className='w-32'
+              value={form.timeLimitMinutes ?? 0}
+              onChange={(e) => {
+                const next = Number(e.target.value);
+                setForm((prev) => ({
+                  ...prev,
+                  timeLimitMinutes:
+                    Number.isFinite(next) && next >= 0 ? next : 0,
+                }));
+              }}
+            />
+            <span className='text-xs text-slate-500'>
+              0 = tidak ada batas waktu
+            </span>
+          </div>
         </div>
       </section>
 
@@ -316,6 +412,21 @@ export const QuizEditForm = ({
               >
                 <Trash2 className='h-4 w-4' />
               </Button>
+            </div>
+
+            {/* Question image (optional) */}
+            <div className='pl-6'>
+              <ImageUpload
+                folder='thumbnails/quizzes'
+                value={q.imageUrl ?? ''}
+                onChange={(url) =>
+                  setForm((prev) => {
+                    const questions = [...prev.questions];
+                    questions[qIndex] = { ...questions[qIndex], imageUrl: url };
+                    return { ...prev, questions };
+                  })
+                }
+              />
             </div>
 
             {/* Type toggle + points */}
@@ -538,6 +649,79 @@ export const QuizEditForm = ({
           <Plus className='mr-1 h-4 w-4' />
           Tambah Pertanyaan (Isian Singkat)
         </Button>
+
+        {/* ── XML Import ── */}
+        <input
+          ref={fileInputRef}
+          type='file'
+          accept='.xml,text/xml,application/xml'
+          className='hidden'
+          onChange={handleXmlFile}
+        />
+        <Button
+          type='button'
+          variant='outline'
+          size='sm'
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className='mr-1 h-4 w-4' />
+          Import Soal (XML)
+        </Button>
+
+        {/* ── Import preview banner ── */}
+        {xmlImport && (
+          <div className='rounded-md border border-primary-200 bg-primary-50 p-3 text-sm'>
+            <p className='font-medium text-primary-800'>
+              {xmlImport.questions.length} soal siap diimpor
+              {xmlImport.warnings.length > 0 &&
+                ` · ${xmlImport.warnings.length} peringatan`}
+            </p>
+            {xmlImport.warnings.length > 0 && (
+              <ul className='mt-1 list-inside list-disc space-y-0.5 text-xs text-amber-700'>
+                {xmlImport.warnings.map((w, i) => (
+                  <li key={i}>{w}</li>
+                ))}
+              </ul>
+            )}
+            <div className='mt-3 flex gap-2'>
+              <Button
+                type='button'
+                size='sm'
+                onClick={() => {
+                  setForm((prev) => ({
+                    ...prev,
+                    questions: [...prev.questions, ...xmlImport.questions],
+                  }));
+                  setXmlImport(null);
+                }}
+              >
+                Tambahkan
+              </Button>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() => {
+                  setForm((prev) => ({
+                    ...prev,
+                    questions: xmlImport.questions,
+                  }));
+                  setXmlImport(null);
+                }}
+              >
+                Ganti Semua
+              </Button>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() => setXmlImport(null)}
+              >
+                Batal
+              </Button>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ── Save ────────────────────────────────────────────────────────────── */}

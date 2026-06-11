@@ -17,6 +17,7 @@ interface LandingCourse {
   iconName: string;
   duration: string;
   level?: 'Pemula' | 'Menengah' | 'Lanjutan';
+  accessTier?: 'free' | 'premium';
   href: string;
 }
 
@@ -38,6 +39,7 @@ function toLandingCourse(course: Course, index: number): LandingCourse {
     iconName: ICONS[index % ICONS.length],
     duration: totalChapters > 0 ? `${totalChapters} Bab` : 'Materi tersedia',
     level: getLevelFromChapters(totalChapters),
+    accessTier: course.accessTier,
     href: `/course/${course.id}`,
   };
 }
@@ -132,10 +134,12 @@ export const CourseSection = () => {
           {courses.slice(0, 3).map((course, index) => (
             <LandingCourseCard
               key={course.id || index}
+              id={course.id}
               title={course.title}
               iconName={course.iconName}
               duration={course.duration}
               level={course.level}
+              accessTier={course.accessTier}
               href={course.href}
             />
           ))}

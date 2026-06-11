@@ -59,8 +59,23 @@ export interface Course {
   totalChapters?: number;
   totalActivities?: number;
   isPublished?: boolean;
+  accessTier?: 'free' | 'premium';
   createdAt?: string;
   updatedAt?: string;
+}
+
+// ─── Enrollment request types ───
+export type RequestStatus = 'pending' | 'approved' | 'declined' | 'revoked';
+
+export interface EnrollmentRequest {
+  id: string;
+  userId: string;
+  courseId: string;
+  status: RequestStatus;
+  requestedAt: string;
+  decidedAt?: string | null;
+  decidedBy?: string | null;
+  declineReason?: string | null;
 }
 
 export interface Chapter {
@@ -89,6 +104,7 @@ export interface QuizQuestion {
   correctAnswerText?: string;
   points?: number;
   type?: 'multipleChoice' | 'shortAnswer';
+  imageUrl?: string;
 }
 
 export interface Quiz {
@@ -104,6 +120,7 @@ export interface Quiz {
   allowRetake?: boolean;
   /** Whether to reveal correct answers after submission (FE-only; pilot: always false). */
   showAnswers?: boolean;
+  timeLimitMinutes?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -119,6 +136,24 @@ export interface QuizSubmitResult {
     questionId: string;
     correct: boolean;
   }[];
+}
+
+/**
+ * Aggregated prior-attempt summary from GET /courses/:courseId/quizzes/:quizId/result.
+ * Used to gate retakes FE-side when allowRetake === false.
+ */
+export interface QuizResult {
+  attempted: boolean;
+  attemptCount: number;
+  /** Best score across attempts, as a percentage (0–100). */
+  bestScore: number;
+  /** Best raw points across attempts. */
+  bestPointsAwarded: number;
+  totalQuestions: number;
+  passingGrade: number;
+  passed: boolean;
+  /** ISO timestamp of the most recent attempt, or null if never attempted. */
+  lastSubmittedAt: string | null;
 }
 
 // ─── Progress tracking ───

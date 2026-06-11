@@ -1,6 +1,7 @@
 'use client';
 
 import { Bot } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { useContext } from 'react';
 
 import { CourseLayoutContext } from '@/app/(main)/(student)/(course)/course/[courseId]/CourseLayoutContext';
@@ -10,8 +11,19 @@ export function ChatbotFab() {
   const { isChatOpen, isChatFabHidden, setChatOpen } =
     useContext(CourseLayoutContext);
   const { userProfile } = useAuth();
+  const pathname = usePathname();
 
-  if (isChatFabHidden || isChatOpen || userProfile?.chatbotEnabled !== true)
+  // Show the FAB only while viewing a chapter — not on the course overview,
+  // quiz, or any activity screen. The modal flag (isChatFabHidden) handles
+  // transient overlays (e.g. the certificate modal) that appear on chapter routes.
+  const isChapterRoute = /\/course\/[^/]+\/chapter\//.test(pathname);
+
+  if (
+    !isChapterRoute ||
+    isChatFabHidden ||
+    isChatOpen ||
+    userProfile?.chatbotEnabled !== true
+  )
     return null;
 
   return (

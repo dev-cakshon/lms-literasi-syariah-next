@@ -25,9 +25,12 @@ import type {
   CourseContentItem,
   CourseProgress,
   DownloadUrlResponse,
+  EnrollmentRequest,
   LeaderboardUser,
   Quiz,
+  QuizResult,
   QuizSubmitResult,
+  RequestStatus,
   StudentActivity,
   SubmitActivityRequest,
   SubmitActivityResponse,
@@ -226,6 +229,7 @@ export async function createCourse(data: {
   description?: string;
   thumbnailUrl?: string;
   isPublished?: boolean;
+  accessTier?: 'free' | 'premium';
 }): Promise<Course> {
   return apiFetch('/courses', {
     method: 'POST',
@@ -236,7 +240,10 @@ export async function createCourse(data: {
 export async function updateCourse(
   courseId: string,
   data: Partial<
-    Pick<Course, 'title' | 'description' | 'thumbnailUrl' | 'isPublished'>
+    Pick<
+      Course,
+      'title' | 'description' | 'thumbnailUrl' | 'isPublished' | 'accessTier'
+    >
   >,
 ): Promise<Course> {
   return apiFetch(`/courses/${courseId}`, {
@@ -249,6 +256,53 @@ export async function deleteCourse(
   courseId: string,
 ): Promise<{ id: string; deleted: boolean }> {
   return apiFetch(`/courses/${courseId}`, { method: 'DELETE' });
+}
+
+// ─── Enrollment request endpoints ───────────────────────────────────────────
+
+export async function createEnrollmentRequest(
+  courseId: string,
+): Promise<EnrollmentRequest> {
+  return apiFetch('/enrollment-requests', {
+    method: 'POST',
+    body: JSON.stringify({ courseId }),
+  });
+}
+
+export async function getMyEnrollmentRequests(): Promise<EnrollmentRequest[]> {
+  return apiFetch('/enrollment-requests/me');
+}
+
+export async function listEnrollmentRequests(
+  status: RequestStatus = 'pending',
+): Promise<EnrollmentRequest[]> {
+  return apiFetch(`/enrollment-requests?status=${status}`);
+}
+
+export async function approveEnrollmentRequest(
+  id: string,
+): Promise<EnrollmentRequest> {
+  return apiFetch(`/enrollment-requests/${id}/approve`, { method: 'POST' });
+}
+
+export async function declineEnrollmentRequest(
+  id: string,
+  reason?: string,
+): Promise<EnrollmentRequest> {
+  return apiFetch(`/enrollment-requests/${id}/decline`, {
+    method: 'POST',
+    body: JSON.stringify(reason ? { reason } : {}),
+  });
+}
+
+export async function revokeEnrollmentRequest(
+  id: string,
+  reason?: string,
+): Promise<EnrollmentRequest> {
+  return apiFetch(`/enrollment-requests/${id}/revoke`, {
+    method: 'POST',
+    body: JSON.stringify(reason ? { reason } : {}),
+  });
 }
 
 // ─── Chapters endpoints ──────────────────────────────────────────────────────
@@ -315,6 +369,17 @@ export async function getQuiz(courseId: string, quizId: string): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes/${quizId}`);
 }
 
+/**
+ * Aggregated prior-attempt summary for the current student.
+ * Drives the FE retake gate when quiz.allowRetake === false.
+ */
+export async function getQuizResult(
+  courseId: string,
+  quizId: string,
+): Promise<QuizResult> {
+  return apiFetch(`/courses/${courseId}/quizzes/${quizId}/result`);
+}
+
 export async function createQuiz(
   courseId: string,
   data: {
@@ -325,6 +390,7 @@ export async function createQuiz(
     passingGrade?: number;
     allowRetake?: boolean;
     showAnswers?: boolean;
+    timeLimitMinutes?: number;
   },
 ): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes`, {
@@ -346,6 +412,7 @@ export async function updateQuiz(
       | 'passingGrade'
       | 'allowRetake'
       | 'showAnswers'
+      | 'timeLimitMinutes'
     >
   >,
 ): Promise<Quiz> {
