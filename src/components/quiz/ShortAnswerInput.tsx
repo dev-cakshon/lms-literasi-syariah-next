@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -18,6 +20,7 @@ interface ShortAnswerInputProps {
   isSubmitting?: boolean;
   /** When true, the Submit button is visually disabled (all answers must be filled). */
   submitDisabled?: boolean;
+  imageUrl?: string;
 }
 
 export const ShortAnswerInput = ({
@@ -33,6 +36,7 @@ export const ShortAnswerInput = ({
   answeredCount,
   isSubmitting = false,
   submitDisabled = false,
+  imageUrl,
 }: ShortAnswerInputProps) => {
   const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
 
@@ -54,6 +58,17 @@ export const ShortAnswerInput = ({
             />
           </div>
         </div>
+
+        {imageUrl && (
+          <div className='relative w-full aspect-video max-w-lg mb-4 rounded-md overflow-hidden bg-slate-100'>
+            <Image
+              src={imageUrl}
+              alt='Gambar soal'
+              fill
+              className='object-contain'
+            />
+          </div>
+        )}
 
         {/* Question */}
         <h2 className='text-2xl font-bold mb-4 text-primary-900'>

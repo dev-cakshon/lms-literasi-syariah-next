@@ -10,9 +10,14 @@ import { buildMediaViewUrl } from '@/lib/media';
 interface ImageUploadProps {
   value: string;
   onChange: (url: string) => void;
+  folder?: string;
 }
 
-export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
+export const ImageUpload = ({
+  value,
+  onChange,
+  folder = 'thumbnails',
+}: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(() =>
     value ? buildMediaViewUrl(value) : null,
@@ -51,11 +56,13 @@ export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
       try {
         setUploading(true);
 
-        // Get signed upload URL
+        const ext = file.name.split('.').pop() ?? 'jpg';
+        const safeFileName = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+
         const { uploadUrl, filePath } = await getUploadUrl({
-          fileName: file.name,
+          fileName: safeFileName,
           contentType: file.type,
-          folder: 'thumbnails',
+          folder,
         });
 
         // Upload file to signed URL
@@ -79,7 +86,7 @@ export const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
         setUploading(false);
       }
     },
-    [onChange],
+    [onChange, folder],
   );
 
   const handleRemove = () => {
