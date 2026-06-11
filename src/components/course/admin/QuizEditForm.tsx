@@ -204,6 +204,7 @@ export const QuizEditForm = ({
         );
       }
     };
+    reader.onerror = () => setError('Gagal membaca file.');
     reader.readAsText(file);
   };
 
