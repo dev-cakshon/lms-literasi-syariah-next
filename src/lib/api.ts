@@ -173,6 +173,13 @@ export async function authMe(): Promise<UserProfile> {
   return apiFetch('/auth/me');
 }
 
+export async function updateMyDisplayName(name: string): Promise<UserProfile> {
+  return apiFetch('/auth/me', {
+    method: 'PATCH',
+    body: JSON.stringify({ name }),
+  });
+}
+
 export async function authAssignRole(
   uid: string,
   role: string,
