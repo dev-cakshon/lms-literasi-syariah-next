@@ -139,11 +139,11 @@ export function PremiumGateScreen({
 
         {/* Back link */}
         <Link
-          href='/dashboard'
+          href='/my-courses'
           className='flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors'
         >
           <ArrowLeft size={14} />
-          Kembali ke Dashboard
+          Kembali ke Kursus Saya
         </Link>
       </div>
     </div>
