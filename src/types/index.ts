@@ -39,6 +39,7 @@ export interface UserProfile {
   email: string;
   name: string;
   displayName?: string;
+  displayNameConfirmed?: boolean;
   photoURL?: string;
   role: UserRole;
   totalPoints: number;
