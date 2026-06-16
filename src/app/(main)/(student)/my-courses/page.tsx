@@ -99,6 +99,12 @@ export default function MyCoursesPage() {
         .filter((course) =>
           course.title.toLowerCase().includes(searchQuery.toLowerCase()),
         )
+        .sort((a, b) => {
+          if (a.accessTier !== b.accessTier) {
+            return a.accessTier === 'premium' ? 1 : -1;
+          }
+          return 0;
+        })
         .map((course) => {
           const requestStatus = enrollmentStatusMap[course.id];
           const locked =
