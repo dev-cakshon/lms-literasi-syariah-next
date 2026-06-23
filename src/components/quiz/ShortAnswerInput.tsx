@@ -65,6 +65,7 @@ export const ShortAnswerInput = ({
               src={imageUrl}
               alt='Gambar soal'
               fill
+              sizes='(max-width: 512px) 100vw, 512px'
               className='object-contain'
             />
           </div>

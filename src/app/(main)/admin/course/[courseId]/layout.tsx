@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getCourse, getCourseContent } from '@/lib/api';
 
@@ -51,6 +51,12 @@ function AdminCourseLayoutClient({
     void fetchData();
   }, [fetchData]);
 
+  // Memoize unconditionally (before early return) to satisfy Rules of Hooks.
+  const adminCourseContextValue = useMemo(
+    () => ({ refreshContentItems, contentItems, loading }),
+    [refreshContentItems, contentItems, loading],
+  );
+
   if (loading || !course) {
     return (
       <div className='h-screen flex items-center justify-center'>
@@ -60,9 +66,7 @@ function AdminCourseLayoutClient({
   }
 
   return (
-    <AdminCourseLayoutContext.Provider
-      value={{ refreshContentItems, contentItems, loading }}
-    >
+    <AdminCourseLayoutContext.Provider value={adminCourseContextValue}>
       <div className='h-full'>
         <div className='h-15 md:pl-85 fixed inset-x-0 top-0 z-40 bg-white border-b flex items-center px-4 shadow-sm float-end'>
           <UnstyledLink

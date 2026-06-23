@@ -12,6 +12,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -125,66 +126,83 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return unsubscribe;
   }, [fetchProfile]);
 
-  const signIn = async (email: string, password: string) => {
-    const auth = getAuthInstance();
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-
-    // Sync Firestore role into custom claims before redirect logic reads them.
-    await authSync({ email });
-    await fetchProfile(cred.user);
-  };
-
-  const signUp = async (name: string, email: string, password: string) => {
-    const auth = getAuthInstance();
-    isSigningUp.current = true;
-
-    try {
-      // Step 1: create account/profile via backend.
-      await authRegister({ name, email, password });
-
-      // Step 2: establish client session.
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const auth = getAuthInstance();
       const cred = await signInWithEmailAndPassword(auth, email, password);
 
-      // Step 3: sync profile + role claims with backend source of truth.
-      await authSync({ email, displayName: name });
-
-      // Step 4: force-refresh token to ensure custom role claims are available.
-      await cred.user.getIdToken(true);
-
-      // Final step: fetch profile explicitly.
+      // Sync Firestore role into custom claims before redirect logic reads them.
+      await authSync({ email });
       await fetchProfile(cred.user);
-    } catch (err) {
-      throw new Error(mapSignupErrorToMessage(err));
-    } finally {
-      isSigningUp.current = false;
-    }
-  };
+    },
+    [fetchProfile],
+  );
 
-  const logout = async () => {
+  const signUp = useCallback(
+    async (name: string, email: string, password: string) => {
+      const auth = getAuthInstance();
+      isSigningUp.current = true;
+
+      try {
+        // Step 1: create account/profile via backend.
+        await authRegister({ name, email, password });
+
+        // Step 2: establish client session.
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+
+        // Step 3: sync profile + role claims with backend source of truth.
+        await authSync({ email, displayName: name });
+
+        // Step 4: force-refresh token to ensure custom role claims are available.
+        await cred.user.getIdToken(true);
+
+        // Final step: fetch profile explicitly.
+        await fetchProfile(cred.user);
+      } catch (err) {
+        throw new Error(mapSignupErrorToMessage(err));
+      } finally {
+        isSigningUp.current = false;
+      }
+    },
+    [fetchProfile],
+  );
+
+  const logout = useCallback(async () => {
     const auth = getAuthInstance();
     await firebaseSignOut(auth);
     setUserProfile(null);
     setIdToken(null);
-  };
+  }, []);
 
   const isAdmin = userProfile?.role === 'admin';
 
+  const contextValue = useMemo(
+    () => ({
+      user,
+      userProfile,
+      loading,
+      idToken,
+      refreshProfile,
+      signIn,
+      signUp,
+      logout,
+      isAdmin,
+    }),
+    [
+      user,
+      userProfile,
+      loading,
+      idToken,
+      refreshProfile,
+      signIn,
+      signUp,
+      logout,
+      isAdmin,
+    ],
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        userProfile,
-        loading,
-        idToken,
-        refreshProfile,
-        signIn,
-        signUp,
-        logout,
-        isAdmin,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 

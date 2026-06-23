@@ -106,6 +106,7 @@ export const ImageUpload = ({
             src={previewUrl || value}
             alt='Thumbnail'
             fill
+            sizes='(max-width: 448px) 100vw, 448px'
             className='object-cover'
           />
           <button

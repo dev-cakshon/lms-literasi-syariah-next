@@ -70,6 +70,7 @@ export const CourseCard = ({
           <div className='relative w-full aspect-video overflow-hidden bg-slate-200'>
             <Image
               fill
+              sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
               className='object-cover'
               alt={title}
               src={normalizedImageUrl}

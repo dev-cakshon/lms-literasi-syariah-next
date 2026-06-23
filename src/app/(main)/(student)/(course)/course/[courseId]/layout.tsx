@@ -119,6 +119,34 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
     fetchCourseData();
   }, [user, fetchCourseData]);
 
+  // Memoize the context value unconditionally (before early returns) to satisfy
+  // Rules of Hooks. course may be null here — use optional chaining in deps.
+  const courseContextValue = useMemo(
+    () => ({
+      contentItems,
+      refreshContentItems,
+      courseTitle: course?.title ?? '',
+      courseDescription: course?.description ?? '',
+      isRoadmapOpen,
+      setRoadmapOpen: setIsRoadmapOpen,
+      myRank,
+      isChatOpen,
+      setChatOpen: setIsChatOpen,
+      isChatFabHidden,
+      setChatFabHidden: setIsChatFabHidden,
+    }),
+    [
+      contentItems,
+      refreshContentItems,
+      course?.title,
+      course?.description,
+      isRoadmapOpen,
+      myRank,
+      isChatOpen,
+      isChatFabHidden,
+    ],
+  );
+
   if (loading || !course) {
     return (
       <div className='h-screen flex items-center justify-center'>
@@ -139,21 +167,7 @@ function CourseLayoutClient({ children, courseId }: CourseLayoutClientProps) {
 
   return (
     <div className='h-full'>
-      <CourseLayoutContext.Provider
-        value={{
-          contentItems,
-          refreshContentItems,
-          courseTitle: course.title,
-          courseDescription: course.description,
-          isRoadmapOpen,
-          setRoadmapOpen: setIsRoadmapOpen,
-          myRank,
-          isChatOpen,
-          setChatOpen: setIsChatOpen,
-          isChatFabHidden,
-          setChatFabHidden: setIsChatFabHidden,
-        }}
-      >
+      <CourseLayoutContext.Provider value={courseContextValue}>
         <CourseNavbar courseId={courseId} />
         <main className='pt-20 pb-28 bg-pattern-organic min-h-screen'>
           {children}
