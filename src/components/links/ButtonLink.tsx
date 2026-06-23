@@ -7,19 +7,19 @@ import UnstyledLink, {
   UnstyledLinkProps,
 } from '@/components/links/UnstyledLink';
 
-const ButtonLinkVariant = [
+const _ButtonLinkVariant = [
   'primary',
   'outline',
   'ghost',
   'light',
   'dark',
 ] as const;
-const ButtonLinkSize = ['sm', 'base'] as const;
+const _ButtonLinkSize = ['sm', 'base'] as const;
 
 type ButtonLinkProps = {
   isDarkBg?: boolean;
-  variant?: (typeof ButtonLinkVariant)[number];
-  size?: (typeof ButtonLinkSize)[number];
+  variant?: (typeof _ButtonLinkVariant)[number];
+  size?: (typeof _ButtonLinkSize)[number];
   leftIcon?: LucideIcon;
   rightIcon?: LucideIcon;
   classNames?: {

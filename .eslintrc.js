@@ -87,6 +87,7 @@ module.exports = {
       files: ['*.js', '*.cjs'],
       rules: {
         '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
       },
     },
     {
@@ -99,6 +100,7 @@ module.exports = {
       ],
       rules: {
         '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
         '@typescript-eslint/no-empty-function': 'off',
       },
     },

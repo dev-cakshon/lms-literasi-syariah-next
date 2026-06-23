@@ -6,9 +6,9 @@ import UnstyledLink, {
   UnstyledLinkProps,
 } from '@/components/links/UnstyledLink';
 
-const PrimaryLinkVariant = ['primary', 'basic'] as const;
+const _PrimaryLinkVariant = ['primary', 'basic'] as const;
 type PrimaryLinkProps = {
-  variant?: (typeof PrimaryLinkVariant)[number];
+  variant?: (typeof _PrimaryLinkVariant)[number];
 } & UnstyledLinkProps;
 
 const PrimaryLink = React.forwardRef<HTMLAnchorElement, PrimaryLinkProps>(
