@@ -101,6 +101,7 @@ function SortableHead({
       }
     >
       <button
+        type='button'
         onClick={() => onSort(key)}
         className='flex items-center gap-1 hover:text-slate-700'
       >
@@ -502,6 +503,7 @@ export default function UserManagementPage() {
                     {/* Actions — hover-reveal delete */}
                     <TableCell className='px-3 py-2 text-right'>
                       <button
+                        type='button'
                         onClick={() => setDeleteTarget(user)}
                         disabled={isBusy}
                         aria-label={`Hapus ${displayName}`}
@@ -589,6 +591,7 @@ export default function UserManagementPage() {
             </p>
             <div className='flex items-center gap-1'>
               <button
+                type='button'
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={safePage === 1}
                 aria-label='Halaman sebelumnya'
@@ -607,6 +610,7 @@ export default function UserManagementPage() {
                   </span>
                 ) : (
                   <button
+                    type='button'
                     key={p}
                     onClick={() => setPage(p as number)}
                     aria-label={`Halaman ${p}`}
@@ -624,6 +628,7 @@ export default function UserManagementPage() {
               )}
 
               <button
+                type='button'
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={safePage === totalPages}
                 aria-label='Halaman berikutnya'

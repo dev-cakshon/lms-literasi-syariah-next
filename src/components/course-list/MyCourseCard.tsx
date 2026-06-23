@@ -176,6 +176,7 @@ export function MyCourseCard({
             /* Locked premium course — no progress bar, access-request CTA */
             requestStatus === 'pending' ? (
               <button
+                type='button'
                 disabled
                 className={`${ctaClass} bg-surface-container text-on-surface-soft cursor-default`}
               >
@@ -240,6 +241,7 @@ export function MyCourseCard({
               {status === 'completed' &&
                 (onViewCertificate ? (
                   <button
+                    type='button'
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();

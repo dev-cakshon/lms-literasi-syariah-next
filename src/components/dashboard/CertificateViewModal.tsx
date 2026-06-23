@@ -184,12 +184,14 @@ export default function CertificateViewModal({ certificate, onClose }: Props) {
 
         <div className='flex gap-3'>
           <button
+            type='button'
             onClick={handleDownload}
             className='px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors'
           >
             Unduh PDF
           </button>
           <button
+            type='button'
             onClick={onClose}
             className='px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition-colors'
           >

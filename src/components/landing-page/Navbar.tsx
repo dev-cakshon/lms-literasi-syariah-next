@@ -46,6 +46,7 @@ export const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <button
+          type='button'
           className='md:hidden'
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label='Toggle menu'

@@ -214,6 +214,7 @@ export const AdminCourseSidebar = ({
 
       {/* Info Kursus tab */}
       <button
+        type='button'
         onClick={() => router.push(`/admin/course/${courseId}`)}
         className={cn(
           'flex items-center gap-x-2 text-sm font-medium pl-6 pr-4 py-4 transition-all hover:bg-slate-100 text-slate-600',
@@ -267,6 +268,7 @@ export const AdminCourseSidebar = ({
 
                         {/* Item label */}
                         <button
+                          type='button'
                           onClick={() => handleItemClick(item)}
                           className='flex-1 text-left py-4 pl-1 pr-2 font-medium truncate'
                         >
@@ -276,6 +278,7 @@ export const AdminCourseSidebar = ({
                         {/* Delete button */}
                         {item.itemType === 'chapter' && (
                           <button
+                            type='button'
                             onClick={(e) => {
                               e.stopPropagation();
                               void handleDeleteChapter(item.id);
@@ -288,6 +291,7 @@ export const AdminCourseSidebar = ({
                         )}
                         {item.itemType === 'activity' && (
                           <button
+                            type='button'
                             onClick={(e) => {
                               e.stopPropagation();
                               void handleDeleteActivity(item.id);
@@ -312,6 +316,7 @@ export const AdminCourseSidebar = ({
       {/* Add content button */}
       <div className='relative'>
         <button
+          type='button'
           onClick={() => setIsDropdownOpen((prev) => !prev)}
           className='w-full flex items-center justify-between gap-2 text-sm font-medium text-primary-600 hover:text-primary-700 pl-6 pr-4 py-4 transition hover:bg-slate-50'
         >
@@ -331,6 +336,7 @@ export const AdminCourseSidebar = ({
         {isDropdownOpen && (
           <div className='absolute left-6 right-4 bottom-14 z-20 overflow-hidden rounded-md border bg-white shadow-lg'>
             <button
+              type='button'
               onClick={() => {
                 setIsDropdownOpen(false);
                 void handleAddChapter();
@@ -341,6 +347,7 @@ export const AdminCourseSidebar = ({
               {adding ? 'Menambahkan...' : 'Bab (Chapter)'}
             </button>
             <button
+              type='button'
               onClick={() => {
                 setIsDropdownOpen(false);
                 setIsActivityModalOpen(true);

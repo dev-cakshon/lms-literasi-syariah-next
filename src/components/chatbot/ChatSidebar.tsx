@@ -68,6 +68,7 @@ export const ChatSidebar = ({
           </h2>
         )}
         <button
+          type='button'
           onClick={() => setIsCollapsed(!isCollapsed)}
           className='p-2 hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-colors cursor-pointer'
           title={isCollapsed ? 'Perluas sidebar' : 'Kecilkan sidebar'}
@@ -83,6 +84,7 @@ export const ChatSidebar = ({
       {/* New Chat Button */}
       <div className='p-3'>
         <button
+          type='button'
           onClick={onNewChat}
           className={`w-full flex items-center gap-2 px-3 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium text-sm cursor-pointer squishy-shadow shadow-primary-800 squishy-active ${
             isCollapsed ? 'justify-center' : ''
@@ -177,7 +179,10 @@ export const ChatSidebar = ({
                     >
                       <DropdownMenu.Root>
                         <DropdownMenu.Trigger asChild>
-                          <button className='p-1 hover:bg-surface-container-high rounded-md text-on-surface-variant'>
+                          <button
+                            type='button'
+                            className='p-1 hover:bg-surface-container-high rounded-md text-on-surface-variant'
+                          >
                             <MoreVertical className='w-4 h-4' />
                           </button>
                         </DropdownMenu.Trigger>

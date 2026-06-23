@@ -184,6 +184,7 @@ export default function AdminEnrollmentPage() {
       {/* Segmented control tabs */}
       <div className='mb-6 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1'>
         <button
+          type='button'
           onClick={() => setActiveTab('pending')}
           className={[
             'rounded-md px-4 py-1.5 text-sm font-medium transition-colors',
@@ -195,6 +196,7 @@ export default function AdminEnrollmentPage() {
           Menunggu Persetujuan
         </button>
         <button
+          type='button'
           onClick={() => setActiveTab('enrolled')}
           className={[
             'rounded-md px-4 py-1.5 text-sm font-medium transition-colors',
@@ -211,6 +213,7 @@ export default function AdminEnrollmentPage() {
         <div className='mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700'>
           {loadError}{' '}
           <button
+            type='button'
             onClick={() => void fetchRequests()}
             className='font-semibold underline hover:no-underline'
           >

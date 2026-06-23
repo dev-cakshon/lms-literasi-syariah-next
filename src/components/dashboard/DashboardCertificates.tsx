@@ -36,6 +36,7 @@ function CertificateTile({ cert, index, onClick }: CertificateTileProps) {
 
   return (
     <button
+      type='button'
       onClick={onClick}
       className='bg-[var(--color-surface-container-low)] rounded-2xl border border-[var(--color-outline-variant)]/30 overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative cursor-pointer text-left w-full'
     >
@@ -77,6 +78,7 @@ export function DashboardCertificates() {
         </h2>
         {certificates.length > 0 && (
           <button
+            type='button'
             onClick={() => openModal(certificates[0])}
             className='text-xs font-bold uppercase tracking-wider text-[var(--color-emerald-deep)] hover:underline decoration-[var(--color-accent-lime-ink)] decoration-2 underline-offset-4 transition-all'
           >

@@ -46,6 +46,7 @@ export const Navbar = () => {
                 </span>
               </div>
               <button
+                type='button'
                 onClick={handleSignOut}
                 aria-label='Keluar'
                 title='Keluar'
@@ -57,6 +58,7 @@ export const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <button
+              type='button'
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className='md:hidden p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition'
             >
@@ -86,6 +88,7 @@ export const Navbar = () => {
               </span>
             </div>
             <button
+              type='button'
               onClick={() => {
                 setMobileMenuOpen(false);
                 handleSignOut();
