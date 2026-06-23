@@ -22,20 +22,20 @@ export const Footer = () => {
             </h4>
             <ul className='space-y-2'>
               <li>
-                <a
-                  href='#'
+                <button
+                  type='button'
                   className='text-on-surface-soft hover:text-primary-700 text-sm transition-colors'
                 >
                   Kebijakan Privasi
-                </a>
+                </button>
               </li>
               <li>
-                <a
-                  href='#'
+                <button
+                  type='button'
                   className='text-on-surface-soft hover:text-primary-700 text-sm transition-colors'
                 >
                   Syarat &amp; Ketentuan
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -45,20 +45,20 @@ export const Footer = () => {
             </h4>
             <ul className='space-y-2'>
               <li>
-                <a
-                  href='#'
+                <button
+                  type='button'
                   className='text-on-surface-soft hover:text-primary-700 text-sm transition-colors'
                 >
                   Bantuan
-                </a>
+                </button>
               </li>
               <li>
-                <a
-                  href='#'
+                <button
+                  type='button'
                   className='text-on-surface-soft hover:text-primary-700 text-sm transition-colors'
                 >
                   Kontak
-                </a>
+                </button>
               </li>
             </ul>
           </div>

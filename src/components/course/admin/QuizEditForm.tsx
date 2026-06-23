@@ -242,8 +242,11 @@ export const QuizEditForm = ({
         </h2>
 
         <div className='space-y-2'>
-          <label className='text-sm font-medium'>Judul Kuis</label>
+          <label htmlFor='quiz-title' className='text-sm font-medium'>
+            Judul Kuis
+          </label>
           <Input
+            id='quiz-title'
             value={form.title}
             onChange={(e) =>
               setForm((prev) => ({ ...prev, title: e.target.value }))
@@ -280,9 +283,12 @@ export const QuizEditForm = ({
         </div>
 
         <div className='space-y-2'>
-          <label className='text-sm font-medium'>Passing Grade (poin)</label>
+          <label htmlFor='quiz-passing-grade' className='text-sm font-medium'>
+            Passing Grade (poin)
+          </label>
           <div className='flex items-center gap-3'>
             <Input
+              id='quiz-passing-grade'
               type='number'
               min={0}
               className={cn(
@@ -341,11 +347,12 @@ export const QuizEditForm = ({
         </div>
 
         <div className='space-y-2'>
-          <label className='text-sm font-medium'>
+          <label htmlFor='quiz-time-limit' className='text-sm font-medium'>
             Waktu Pengerjaan (menit)
           </label>
           <div className='flex items-center gap-3'>
             <Input
+              id='quiz-time-limit'
               type='number'
               min={0}
               className='w-32'
@@ -597,8 +604,14 @@ export const QuizEditForm = ({
             {/* Short-answer correct text */}
             {q.type === 'shortAnswer' && (
               <div className='space-y-1 pl-6'>
-                <label className='text-xs text-slate-600'>Jawaban Benar</label>
+                <label
+                  htmlFor={`correct-answer-${qIndex}`}
+                  className='text-xs text-slate-600'
+                >
+                  Jawaban Benar
+                </label>
                 <Input
+                  id={`correct-answer-${qIndex}`}
                   value={q.correctAnswerText ?? ''}
                   onChange={(e) => {
                     const value = e.target.value;

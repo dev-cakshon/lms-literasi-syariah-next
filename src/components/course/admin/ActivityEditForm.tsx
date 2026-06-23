@@ -183,8 +183,11 @@ export const ActivityEditForm = ({
         </h2>
 
         <div className='space-y-2'>
-          <label className='text-sm font-medium'>Judul Aktivitas</label>
+          <label htmlFor='activity-title' className='text-sm font-medium'>
+            Judul Aktivitas
+          </label>
           <Input
+            id='activity-title'
             value={form.title}
             onChange={(e) => updateCommon({ title: e.target.value })}
             placeholder='Masukkan judul aktivitas'
@@ -192,8 +195,11 @@ export const ActivityEditForm = ({
         </div>
 
         <div className='space-y-2'>
-          <label className='text-sm font-medium'>Maksimal Poin</label>
+          <label htmlFor='activity-max-points' className='text-sm font-medium'>
+            Maksimal Poin
+          </label>
           <Input
+            id='activity-max-points'
             type='number'
             min={1}
             value={form.maxPoints}
@@ -483,8 +489,14 @@ export const ActivityEditForm = ({
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
               <div className='space-y-2'>
-                <label className='text-sm font-medium'>Grid Rows (8-15)</label>
+                <label
+                  htmlFor='word-search-grid-rows'
+                  className='text-sm font-medium'
+                >
+                  Grid Rows (8-15)
+                </label>
                 <Input
+                  id='word-search-grid-rows'
                   type='number'
                   min={8}
                   max={15}
@@ -509,8 +521,14 @@ export const ActivityEditForm = ({
               </div>
 
               <div className='space-y-2'>
-                <label className='text-sm font-medium'>Grid Cols (8-15)</label>
+                <label
+                  htmlFor='word-search-grid-cols'
+                  className='text-sm font-medium'
+                >
+                  Grid Cols (8-15)
+                </label>
                 <Input
+                  id='word-search-grid-cols'
                   type='number'
                   min={8}
                   max={15}

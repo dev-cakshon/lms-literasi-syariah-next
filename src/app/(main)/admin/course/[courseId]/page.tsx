@@ -313,7 +313,7 @@ function OverviewPageContent({ courseId }: { courseId: string }) {
                 >
                   <ClipboardList
                     size={16}
-                    className='shrink-0 text-slate-400'
+                    className='shrink-0 text-slate-500'
                   />
                   <Link
                     href={`/admin/course/${courseId}/quiz/${quiz.id}`}
@@ -321,16 +321,16 @@ function OverviewPageContent({ courseId }: { courseId: string }) {
                   >
                     {quiz.title}
                   </Link>
-                  <span className='shrink-0 text-xs text-slate-400'>
+                  <span className='shrink-0 text-xs text-slate-500'>
                     {typeLabel}
                   </span>
-                  <span className='shrink-0 text-xs text-slate-400'>
+                  <span className='shrink-0 text-xs text-slate-500'>
                     {quiz.questions.length} soal
                   </span>
                   <button
                     type='button'
                     onClick={() => void handleDeleteQuiz(quiz.id, quiz.title)}
-                    className='ml-1 shrink-0 rounded p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600'
+                    className='ml-1 shrink-0 rounded p-1 text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600'
                     title='Hapus kuis'
                   >
                     <Trash2 size={14} />

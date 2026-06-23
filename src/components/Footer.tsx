@@ -22,13 +22,13 @@ export default function Footer() {
 
         <nav className='flex flex-wrap justify-center gap-6 md:gap-8'>
           {FOOTER_LINKS.map((label) => (
-            <a
+            <button
               key={label}
-              href='#'
+              type='button'
               className='text-sm text-on-surface-soft hover:text-emerald-deep hover:underline decoration-accent-lime-ink decoration-2 underline-offset-4 transition-all duration-200'
             >
               {label}
-            </a>
+            </button>
           ))}
         </nav>
       </div>
