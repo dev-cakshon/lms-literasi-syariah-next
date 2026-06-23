@@ -83,8 +83,7 @@ export const ActivityResultScreen = ({
 
   useEffect(() => {
     void refreshProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshProfile]);
 
   useEffect(() => {
     if (!isPerfect) return;

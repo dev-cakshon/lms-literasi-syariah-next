@@ -126,8 +126,7 @@ export const QuizResultScreen = ({
 
   useEffect(() => {
     void refreshProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshProfile]);
 
   useEffect(() => {
     if (confettiFiredRef.current || frame !== 'celebration') return;
