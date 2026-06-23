@@ -66,11 +66,14 @@ export const ImageUpload = ({
         });
 
         // Upload file to signed URL
-        await fetch(uploadUrl, {
+        const uploadRes = await fetch(uploadUrl, {
           method: 'PUT',
           headers: { 'Content-Type': file.type },
           body: file,
         });
+        if (!uploadRes.ok) {
+          throw new Error(`Upload failed: ${uploadRes.status}`);
+        }
 
         onChange(filePath);
 
