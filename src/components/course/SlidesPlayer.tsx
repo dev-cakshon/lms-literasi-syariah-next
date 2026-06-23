@@ -22,6 +22,8 @@ export const SlidesPlayer: React.FC<SlidesPlayerProps> = ({ url, title }) => {
       title={title || 'Google Slides presentation'}
       frameBorder='0'
       allowFullScreen
+      sandbox='allow-scripts allow-same-origin allow-presentation'
+      referrerPolicy='strict-origin-when-cross-origin'
     />
   );
 };
