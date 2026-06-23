@@ -401,7 +401,7 @@ export const ActivityEditForm = ({
                       items: [
                         ...prev.items,
                         {
-                          id: `item_${Date.now()}_${prev.items.length}`,
+                          id: `item_${crypto.randomUUID().slice(0, 8)}`,
                           label: '',
                           correctCategory: prev.categories[0] ?? '',
                         },
@@ -646,7 +646,7 @@ export const ActivityEditForm = ({
                     statements: [
                       ...prev.statements,
                       {
-                        id: `tof_${Date.now()}_${prev.statements.length}`,
+                        id: `tof_${crypto.randomUUID().slice(0, 8)}`,
                         text: '',
                         correct: true,
                       },
