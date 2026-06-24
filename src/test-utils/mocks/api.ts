@@ -1,6 +1,5 @@
 import type {
   Course,
-  CourseContentActivityItem,
   CourseContentChapterItem,
   CourseProgress,
   LeaderboardUser,
@@ -44,19 +43,6 @@ export const mockChapterItem = (
   title: 'Pengenalan Ekonomi Syariah',
   itemType: 'chapter',
   position: 1,
-  completed: false,
-  locked: false,
-  ...overrides,
-});
-
-export const mockActivityItem = (
-  overrides: Partial<CourseContentActivityItem> = {},
-): CourseContentActivityItem => ({
-  id: 'activity-1',
-  title: 'Aktivitas Test',
-  itemType: 'activity',
-  type: 'true_or_false',
-  position: 2,
   completed: false,
   locked: false,
   ...overrides,
