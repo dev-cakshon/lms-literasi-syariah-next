@@ -1,8 +1,8 @@
 'use client';
 
 import { CheckCircle, Loader2 } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useContext, useRef, useState } from 'react';
 
 import { ApiError, issueCertificate, markChapterComplete } from '@/lib/api';
 import { useCourseProgress } from '@/hooks/use-realtime';
@@ -28,7 +28,6 @@ export const MarkCompleteButton = ({
   onComplete,
 }: MarkCompleteButtonProps) => {
   const router = useRouter();
-  const pathname = usePathname();
   const { user, refreshProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [awardedBadges, setAwardedBadges] = useState<Badge[]>([]);
@@ -40,10 +39,6 @@ export const MarkCompleteButton = ({
   const { contentItems, refreshContentItems } = useContext(CourseLayoutContext);
   const { completedChapters } = useCourseProgress(courseId);
   const isCompleted = completedChapters.includes(chapterId);
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, [pathname, courseId, chapterId]);
 
   const handleMarkComplete = async () => {
     if (!user) {

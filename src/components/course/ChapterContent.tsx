@@ -128,6 +128,7 @@ export const ChapterContent = ({
           />
           <h3 className='h3 text-primary-700'>Sudah paham materinya?</h3>
           <MarkCompleteButton
+            key={chapterId}
             courseId={courseId}
             chapterId={chapterId}
             onComplete={setToastPoints}
