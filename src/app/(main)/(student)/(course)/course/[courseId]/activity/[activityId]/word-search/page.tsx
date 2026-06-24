@@ -8,6 +8,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useEffectEvent,
   useMemo,
   useRef,
   useState,
@@ -255,18 +256,18 @@ export default function WordSearchActivityPage({ params }: { params: Params }) {
     setIsDragging(false);
   }, [activity, foundWords, puzzle, selectedCells, targetSet]);
 
+  // useEffectEvent ensures finalizeDragSelection is always the latest closure
+  // without re-subscribing the global mouseup listener on every pointer move.
+  const onMouseUp = useEffectEvent(() => finalizeDragSelection());
+
   useEffect(() => {
     if (!isDragging) return;
-
-    const handleMouseUp = () => {
-      finalizeDragSelection();
-    };
-
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mouseup', onMouseUp);
     return () => {
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mouseup', onMouseUp);
     };
-  }, [isDragging, finalizeDragSelection]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDragging]);
 
   if (loading) {
     return (

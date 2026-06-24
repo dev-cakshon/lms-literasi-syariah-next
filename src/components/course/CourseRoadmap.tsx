@@ -2,7 +2,7 @@
 
 import { BookOpen, Check, Lock, Play, Trophy, X, Zap } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useEffectEvent, useMemo, useState } from 'react';
 
 import { resetCourseProgressApi } from '@/lib/api';
 import { getItemPath } from '@/lib/courseUtils';
@@ -48,14 +48,19 @@ export function CourseRoadmap({
     return idx >= 0 ? idx + 1 : null;
   }, [leaderboardData, user?.uid]);
 
+  // useEffectEvent: onClose identity may change on each parent render,
+  // but we only want to re-subscribe when isOpen changes, not on every render.
+  const onEscape = useEffectEvent(() => onClose());
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onEscape();
     };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [isOpen, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const handleItemClick = (item: CourseContentItem) => {
     if (item.locked) return;

@@ -41,6 +41,17 @@ export function ChatbotDrawer() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isFirstMount = useRef(true);
 
+  // Single close handler — resets all state atomically.
+  // Eliminates the "reset on isChatOpen change" effect anti-pattern.
+  const closeChat = useCallback(() => {
+    setChatOpen(false);
+    setCurrentSessionId(null);
+    setMessages([]);
+    setIsStreaming(false);
+    setIsLoading(false);
+    setError(null);
+  }, [setChatOpen]);
+
   // Auto-close when student navigates to a different route.
   // Skip the first effect run (mount) so opening the drawer doesn't immediately close it.
   useEffect(() => {
@@ -48,29 +59,19 @@ export function ChatbotDrawer() {
       isFirstMount.current = false;
       return;
     }
-    setChatOpen(false);
-  }, [pathname, setChatOpen]);
-
-  // Reset conversation state whenever the drawer is closed, so next open is a clean slate.
-  useEffect(() => {
-    if (!isChatOpen) {
-      setCurrentSessionId(null);
-      setMessages([]);
-      setIsStreaming(false);
-      setIsLoading(false);
-      setError(null);
-    }
-  }, [isChatOpen]);
+    closeChat();
+  }, [pathname, closeChat]);
 
   // Escape key closes the drawer — mirrors CourseRoadmap.tsx:44-51.
+  // closeChat is stable (useCallback on stable setChatOpen), so this never re-subscribes.
   useEffect(() => {
     if (!isChatOpen) return;
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setChatOpen(false);
+      if (e.key === 'Escape') closeChat();
     };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [isChatOpen, setChatOpen]);
+  }, [isChatOpen, closeChat]);
 
   // Scroll to latest message during streaming.
   useEffect(() => {
@@ -184,7 +185,7 @@ export function ChatbotDrawer() {
         <div
           aria-hidden='true'
           className='fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-[60]'
-          onClick={() => setChatOpen(false)}
+          onClick={closeChat}
         />
       )}
 
@@ -213,7 +214,7 @@ export function ChatbotDrawer() {
               <Link
                 href='/chatbot'
                 className='inline-flex items-center gap-0.5 text-xs font-medium text-primary-600 hover:underline mt-0.5'
-                onClick={() => setChatOpen(false)}
+                onClick={closeChat}
               >
                 Lihat semua chat →
               </Link>
@@ -222,7 +223,7 @@ export function ChatbotDrawer() {
           <button
             type='button'
             aria-label='Tutup asisten AI'
-            onClick={() => setChatOpen(false)}
+            onClick={closeChat}
             className='w-8 h-8 flex items-center justify-center rounded-full
               text-on-surface-variant hover:bg-surface-container-low transition-colors shrink-0 ml-2'
           >
