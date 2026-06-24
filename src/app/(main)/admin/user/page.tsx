@@ -13,7 +13,13 @@ import {
   UserPlus,
   UsersRound,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useState,
+} from 'react';
 import { toast } from 'sonner';
 
 import {
@@ -150,19 +156,18 @@ export default function UserManagementPage() {
     }
   }, [search, roleFilter]);
 
-  useEffect(() => {
+  // useEffectEvent lets the debounce effect depend on [search, roleFilter] only
+  // (the real triggers) while always invoking the latest fetchUsers closure.
+  const runFetch = useEffectEvent(() => {
     setLoading(true);
-    const timeout = setTimeout(() => {
-      fetchUsers();
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [fetchUsers]);
-
-  // ── Reset page on any filter / sort change ────────────────────────────────
+    fetchUsers();
+  });
 
   useEffect(() => {
-    setPage(1);
-  }, [search, roleFilter, sortKey, sortDir]);
+    const timeout = setTimeout(runFetch, 300);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, roleFilter]);
 
   // ── Sort ──────────────────────────────────────────────────────────────────
 
@@ -173,6 +178,7 @@ export default function UserManagementPage() {
       setSortKey(key);
       setSortDir('asc');
     }
+    setPage(1);
   };
 
   const sortedUsers = useMemo(() => {
@@ -309,7 +315,10 @@ export default function UserManagementPage() {
             type='text'
             placeholder='Cari nama atau email…'
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className='pl-9'
             aria-label='Cari pengguna'
           />
@@ -339,7 +348,10 @@ export default function UserManagementPage() {
           <DropdownMenuContent align='start' className='w-40'>
             <DropdownMenuRadioGroup
               value={roleFilter}
-              onValueChange={(v) => setRoleFilter(v as RoleFilter)}
+              onValueChange={(v) => {
+                setRoleFilter(v as RoleFilter);
+                setPage(1);
+              }}
             >
               {(Object.keys(ROLE_LABELS) as RoleFilter[]).map((role) => (
                 <DropdownMenuRadioItem key={role} value={role}>
