@@ -71,7 +71,7 @@ function StatTile({ label, value, icon: Icon, iconColor }: StatTileProps) {
   );
 }
 
-export const ProfilePicture = () => {
+const ProfilePicture = () => {
   const { userProfile, loading } = useAuth();
 
   if (isProfileLoading(loading, userProfile)) {
