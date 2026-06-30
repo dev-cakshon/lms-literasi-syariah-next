@@ -87,7 +87,7 @@ export default function CourseOverviewHero({
           </div>
           <div className='h-3 w-full bg-white/20 rounded-full overflow-hidden'>
             <div
-              className='h-full bg-accent-lime rounded-full transition-all duration-1000 ease-out relative'
+              className='h-full bg-accent-lime rounded-full transition-all duration-700 ease-out relative'
               style={{ width: `${progressPercent}%` }}
             >
               <div className='absolute top-0 left-0 right-0 h-1 bg-white/30 rounded-t-full' />
