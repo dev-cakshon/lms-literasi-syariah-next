@@ -25,9 +25,20 @@ const nextConfig = {
 
   reactStrictMode: true,
 
-  // Uncoment to add domain whitelist
   images: {
-    remotePatterns: apiRemotePatterns,
+    remotePatterns: [
+      ...apiRemotePatterns,
+      // Firebase Storage — avatar photos uploaded by users
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+      },
+      // Google profile photos (Google sign-in avatars, various subdomains)
+      {
+        protocol: 'https',
+        hostname: '**.googleusercontent.com',
+      },
+    ],
   },
 
   webpack(config) {

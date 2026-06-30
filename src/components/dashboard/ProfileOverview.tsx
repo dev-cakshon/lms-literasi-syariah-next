@@ -8,6 +8,7 @@ import {
   Trophy,
   User,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useMemo } from 'react';
 
 import { useMyCertificates } from '@/hooks/use-certificates';
@@ -94,10 +95,11 @@ const ProfilePicture = () => {
       >
         <div className='w-44 h-44 rounded-full border-4 border-white overflow-hidden bg-gradient-to-br from-primary-400 via-cyan-500 to-blue-500 flex items-center justify-center text-white'>
           {userProfile.photoURL ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={userProfile.photoURL}
               alt={userProfile.name}
+              width={176}
+              height={176}
               className='w-full h-full object-cover'
             />
           ) : (

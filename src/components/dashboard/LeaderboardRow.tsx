@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { Award, Star, User } from 'lucide-react';
+import Image from 'next/image';
 
 import { cn } from '@/lib/utils';
 
@@ -68,14 +69,16 @@ function AvatarCircle({
   user: LeaderboardUser;
   className: string;
 }) {
+  const photoURL = (user as LeaderboardUser & { photoURL?: string }).photoURL;
   return (
-    <div className={className}>
-      {(user as LeaderboardUser & { photoURL?: string }).photoURL ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={(user as LeaderboardUser & { photoURL?: string }).photoURL}
+    <div className={cn('relative', className)}>
+      {photoURL ? (
+        <Image
+          src={photoURL}
           alt={user.name}
-          className='w-full h-full rounded-full object-cover'
+          fill
+          sizes='64px'
+          className='rounded-full object-cover'
         />
       ) : (
         <User className='w-6 h-6 text-[var(--color-outline-variant)]' />
