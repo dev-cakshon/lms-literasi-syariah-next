@@ -109,12 +109,20 @@ export const ChatSidebar = ({
             {chats.map((chat) => (
               <div
                 key={chat.id}
+                role='button'
+                tabIndex={0}
                 className={`group relative flex items-center w-full p-2.5 rounded-xl text-left transition-colors cursor-pointer ${
                   activeChatId === chat.id
                     ? 'bg-primary-50 text-primary-700 border border-primary-200'
                     : 'hover:bg-surface-container-low text-on-surface border border-transparent'
                 } ${isCollapsed ? 'justify-center' : ''}`}
                 onClick={() => onSelectChat(chat.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectChat(chat.id);
+                  }
+                }}
               >
                 {isCollapsed ? (
                   <MessageSquare
