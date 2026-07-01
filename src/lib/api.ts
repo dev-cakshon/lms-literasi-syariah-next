@@ -18,6 +18,8 @@ import { API_URL } from '@/constant/env';
 import type {
   AdminActivity,
   Badge,
+  BatchRegisterResponse,
+  BatchRegisterRow,
   Certificate,
   Chapter,
   ChatbotMessageResponse,
@@ -214,6 +216,19 @@ export async function updateUser(
   return apiFetch(`/users/${uid}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
+  });
+}
+
+// PRD14 — Batch Register: creates many student accounts in one server-side
+// call. Deliberately NOT a client-side loop over `authRegister` — a single
+// call keeps the admin's own Firebase session untouched.
+export async function batchRegisterStudents(
+  students: BatchRegisterRow[],
+  defaultPassword?: string,
+): Promise<BatchRegisterResponse> {
+  return apiFetch('/users/batch', {
+    method: 'POST',
+    body: JSON.stringify({ students, defaultPassword }),
   });
 }
 

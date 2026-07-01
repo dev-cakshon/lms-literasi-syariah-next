@@ -50,6 +50,43 @@ export interface UserProfile {
   updatedAt?: string;
 }
 
+// ─── Batch register (PRD14) + batch enrollment (PRD20) ───
+export interface BatchRegisterRow {
+  name?: string;
+  email: string;
+  password?: string;
+  courseId?: string;
+}
+
+// PRD20 — per-row enrollment outcome, independent of the registration
+// outcome. Present only when the row carried a resolved courseId.
+export interface BatchEnrollmentResult {
+  courseId: string;
+  status: 'enrolled' | 'already_enrolled' | 'course_not_found' | 'failed';
+  reason?: string;
+}
+
+export interface BatchRegisterResultRow {
+  email: string;
+  status: 'created' | 'skipped' | 'failed';
+  uid?: string;
+  reason?: string;
+  enrollment?: BatchEnrollmentResult;
+}
+
+export interface BatchRegisterResponse {
+  summary: {
+    total: number;
+    created: number;
+    skipped: number;
+    failed: number;
+    enrolled: number;
+    alreadyEnrolled: number;
+    enrollFailed: number;
+  };
+  results: BatchRegisterResultRow[];
+}
+
 // ─── Course types ───
 export interface Course {
   id: string;
