@@ -12,11 +12,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Papa from 'papaparse';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 
-import { ApiError, batchRegisterStudents } from '@/lib/api';
+import { ApiError, batchRegisterStudents, getCourses } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
@@ -31,43 +31,74 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import type { BatchRegisterResponse, BatchRegisterRow } from '@/types';
+import type { BatchRegisterResponse, BatchRegisterRow, Course } from '@/types';
 
 // PRD14 — max rows per upload, mirrors the backend's MAX_BATCH_ROWS cap.
 const MAX_BATCH_ROWS = 100;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Row shape straight out of the parser, before course resolution (PRD20 §5.1).
+interface RawRow {
+  name?: string;
+  email: string;
+  password?: string;
+  courseRaw?: string;
+}
+
+// `courseRaw` is kept (not just discarded after resolution) so the row can be
+// re-resolved if the course list finishes loading after the file was parsed.
 interface PreviewRow extends BatchRegisterRow {
   rowError?: string;
+  courseTitle?: string;
+  courseRaw?: string;
 }
 
 // Accepts loosely-cased/spaced headers (Name, E-mail, etc.) from admin-authored files.
-function normalizeHeader(key: string): 'name' | 'email' | 'password' | null {
+function normalizeHeader(
+  key: string,
+): 'name' | 'email' | 'password' | 'course' | null {
   const k = key.trim().toLowerCase();
   if (k === 'name' || k === 'nama') return 'name';
   if (k === 'email' || k === 'e-mail') return 'email';
   if (k === 'password' || k === 'sandi' || k === 'kata sandi')
     return 'password';
+  if (
+    k === 'course' ||
+    k === 'kursus' ||
+    k === 'kelas' ||
+    k === 'courseid' ||
+    k === 'id kursus'
+  )
+    return 'course';
   return null;
 }
 
-function normalizeRawRows(raw: Record<string, unknown>[]): BatchRegisterRow[] {
+function normalizeRawRows(raw: Record<string, unknown>[]): RawRow[] {
   return raw.map((rawRow) => {
-    const row: BatchRegisterRow = { email: '' };
+    const row: RawRow = { email: '' };
     for (const [key, value] of Object.entries(rawRow)) {
       const field = normalizeHeader(key);
       if (!field) continue;
       const strValue =
         value === undefined || value === null ? '' : String(value).trim();
-      row[field] = strValue;
+      if (field === 'course') {
+        row.courseRaw = strValue;
+      } else {
+        row[field] = strValue;
+      }
     }
     return row;
   });
 }
 
+// PRD20 §5.1 — resolve a non-blank course cell: exact id match first, then a
+// case-insensitive/trimmed title match. Blank ⇒ register-only (no error).
+// Unresolved/ambiguous non-blank cells are a hard row error, same treatment
+// as a bad email — never a silent register-only fallback.
 function validateRows(
-  rows: BatchRegisterRow[],
+  rows: RawRow[],
   defaultPassword: string,
+  courses: Course[],
 ): PreviewRow[] {
   const seen = new Set<string>();
   return rows.map((row) => {
@@ -81,9 +112,42 @@ function validateRows(
     } else if (!row.password?.trim() && !defaultPassword.trim()) {
       rowError = 'Password kosong (isi kolom atau default password)';
     }
-
     seen.add(email);
-    return { ...row, email: row.email.trim(), rowError };
+
+    const courseRaw = row.courseRaw?.trim();
+    let courseId: string | undefined;
+    let courseTitle: string | undefined;
+
+    if (courseRaw) {
+      const byId = courses.find((c) => c.id === courseRaw);
+      if (byId) {
+        courseId = byId.id;
+        courseTitle = byId.title;
+      } else {
+        const norm = courseRaw.toLowerCase();
+        const matches = courses.filter(
+          (c) => c.title.trim().toLowerCase() === norm,
+        );
+        if (matches.length === 1) {
+          courseId = matches[0].id;
+          courseTitle = matches[0].title;
+        } else if (matches.length === 0) {
+          rowError = rowError ?? `Kursus "${courseRaw}" tidak ditemukan`;
+        } else {
+          rowError = rowError ?? `Nama kursus "${courseRaw}" ambigu`;
+        }
+      }
+    }
+
+    return {
+      name: row.name,
+      email: row.email.trim(),
+      password: row.password,
+      courseId,
+      courseTitle,
+      courseRaw,
+      rowError,
+    };
   });
 }
 
@@ -113,6 +177,27 @@ const STATUS_CONFIG = {
   failed: { label: 'Gagal', icon: XCircle, className: 'text-red-600' },
 } as const;
 
+// PRD20 — per-row enrollment outcome styling, independent of the
+// registration status column above.
+const ENROLLMENT_STATUS_CONFIG = {
+  enrolled: {
+    label: 'Terdaftar',
+    icon: CheckCircle2,
+    className: 'text-primary-600',
+  },
+  already_enrolled: {
+    label: 'Sudah Terdaftar',
+    icon: AlertTriangle,
+    className: 'text-amber-600',
+  },
+  course_not_found: {
+    label: 'Kursus Tidak Ditemukan',
+    icon: AlertTriangle,
+    className: 'text-amber-600',
+  },
+  failed: { label: 'Gagal', icon: XCircle, className: 'text-red-600' },
+} as const;
+
 export default function BatchRegisterPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -121,9 +206,21 @@ export default function BatchRegisterPage() {
   const [parseError, setParseError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<BatchRegisterResponse | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  // PRD20 — load the admin course list once for client-side course
+  // resolution (§5.1). Admins see unpublished/premium courses too (GET
+  // /courses drops the isPublished filter for role === 'admin').
+  useEffect(() => {
+    getCourses()
+      .then(setCourses)
+      .catch(() => {
+        // Non-fatal: course cells simply won't resolve until a retry/refresh.
+      });
+  }, []);
 
   const reparse = useCallback(
-    (normalized: BatchRegisterRow[], password: string) => {
+    (normalized: RawRow[], password: string) => {
       if (normalized.length === 0) {
         setParseError('File tidak berisi baris data.');
         setRows([]);
@@ -137,10 +234,20 @@ export default function BatchRegisterPage() {
         return;
       }
       setParseError(null);
-      setRows(validateRows(normalized, password));
+      setRows(validateRows(normalized, password, courses));
     },
-    [],
+    [courses],
   );
+
+  // PRD20 — if the course list finishes loading after a file was already
+  // parsed, re-resolve the existing rows against it (`courseRaw` is kept on
+  // each PreviewRow for exactly this purpose).
+  useEffect(() => {
+    setRows((prev) =>
+      prev.length > 0 ? validateRows(prev, defaultPassword, courses) : prev,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courses]);
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -191,14 +298,14 @@ export default function BatchRegisterPage() {
   const handleDefaultPasswordChange = (value: string) => {
     setDefaultPassword(value);
     if (rows.length > 0) {
-      setRows(validateRows(rows, value));
+      setRows(validateRows(rows, value, courses));
     }
   };
 
   const handleDownloadTemplate = () => {
     downloadCsv(
       'template-batch-register.csv',
-      'name,email,password\nBudi Santoso,budi@example.com,abc123\n',
+      'name,email,password,course\nBudi Santoso,budi@example.com,abc123,Ekonomi Syariah Dasar\n',
     );
   };
 
@@ -219,15 +326,27 @@ export default function BatchRegisterPage() {
     setResult(null);
     try {
       const payload: BatchRegisterRow[] = validRows.map(
-        ({ rowError: _rowError, ...r }) => r,
+        ({
+          rowError: _rowError,
+          courseTitle: _courseTitle,
+          courseRaw: _courseRaw,
+          ...r
+        }) => r,
       );
       const response = await batchRegisterStudents(
         payload,
         defaultPassword.trim() || undefined,
       );
       setResult(response);
+      const enrollAttempted =
+        response.summary.enrolled +
+        response.summary.alreadyEnrolled +
+        response.summary.enrollFailed;
       toast.success(
-        `${response.summary.created} akun dibuat, ${response.summary.skipped} dilewati, ${response.summary.failed} gagal.`,
+        `${response.summary.created} akun dibuat, ${response.summary.skipped} dilewati, ${response.summary.failed} gagal.` +
+          (enrollAttempted > 0
+            ? ` ${response.summary.enrolled} terdaftar ke kursus.`
+            : ''),
       );
     } catch (err) {
       toast.error(
@@ -256,6 +375,8 @@ export default function BatchRegisterPage() {
         </h1>
         <p className='mt-1 text-sm text-slate-500'>
           Upload file CSV atau Excel untuk membuat banyak akun siswa sekaligus.
+          Tambahkan kolom <code>course</code> (opsional) untuk langsung
+          mendaftarkan siswa ke sebuah kursus.
         </p>
       </div>
 
@@ -332,6 +453,7 @@ export default function BatchRegisterPage() {
                 <TableHead>Nama</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Password</TableHead>
+                <TableHead>Kursus</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -351,6 +473,17 @@ export default function BatchRegisterPage() {
                       : defaultPassword
                         ? '(default)'
                         : '-'}
+                  </TableCell>
+                  <TableCell className='px-3 py-2 text-slate-500'>
+                    {row.courseTitle ? (
+                      <span className='text-primary-600'>
+                        {row.courseTitle}
+                      </span>
+                    ) : row.courseRaw ? (
+                      '-'
+                    ) : (
+                      <span className='text-slate-400'>Tanpa kursus</span>
+                    )}
                   </TableCell>
                   <TableCell className='px-3 py-2'>
                     {row.rowError ? (
@@ -388,7 +521,7 @@ export default function BatchRegisterPage() {
         <EmptyState
           icon={FileUp}
           title='Belum ada file diunggah'
-          description='Unggah file CSV atau Excel berisi kolom name, email, dan password untuk memulai.'
+          description='Unggah file CSV atau Excel berisi kolom name, email, dan password untuk memulai. Kolom course bersifat opsional.'
         />
       )}
 
@@ -400,6 +533,16 @@ export default function BatchRegisterPage() {
               Hasil: {result.summary.created} dibuat, {result.summary.skipped}{' '}
               dilewati, {result.summary.failed} gagal (dari{' '}
               {result.summary.total})
+              {(result.summary.enrolled > 0 ||
+                result.summary.alreadyEnrolled > 0 ||
+                result.summary.enrollFailed > 0) && (
+                <>
+                  {' '}
+                  · {result.summary.enrolled} terdaftar,{' '}
+                  {result.summary.alreadyEnrolled} sudah terdaftar,{' '}
+                  {result.summary.enrollFailed} gagal daftar kursus
+                </>
+              )}
             </p>
           </div>
           <Table>
@@ -407,6 +550,7 @@ export default function BatchRegisterPage() {
               <TableRow className='bg-slate-50 hover:bg-slate-50'>
                 <TableHead>Email</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Kursus</TableHead>
                 <TableHead>Keterangan</TableHead>
               </TableRow>
             </TableHeader>
@@ -414,6 +558,10 @@ export default function BatchRegisterPage() {
               {result.results.map((r, idx) => {
                 const config = STATUS_CONFIG[r.status];
                 const Icon = config.icon;
+                const enrollConfig = r.enrollment
+                  ? ENROLLMENT_STATUS_CONFIG[r.enrollment.status]
+                  : null;
+                const EnrollIcon = enrollConfig?.icon;
                 return (
                   <TableRow key={`${r.email}-${idx}`}>
                     <TableCell className='px-3 py-2'>{r.email}</TableCell>
@@ -428,8 +576,23 @@ export default function BatchRegisterPage() {
                         {config.label}
                       </span>
                     </TableCell>
+                    <TableCell className='px-3 py-2'>
+                      {enrollConfig && EnrollIcon ? (
+                        <span
+                          className={cn(
+                            'inline-flex items-center gap-1 text-xs font-medium',
+                            enrollConfig.className,
+                          )}
+                        >
+                          <EnrollIcon className='h-3.5 w-3.5' />
+                          {enrollConfig.label}
+                        </span>
+                      ) : (
+                        <span className='text-xs text-slate-400'>-</span>
+                      )}
+                    </TableCell>
                     <TableCell className='px-3 py-2 text-sm text-slate-500'>
-                      {r.reason || '-'}
+                      {r.reason || r.enrollment?.reason || '-'}
                     </TableCell>
                   </TableRow>
                 );
