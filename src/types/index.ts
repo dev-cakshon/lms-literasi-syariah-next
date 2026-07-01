@@ -50,6 +50,30 @@ export interface UserProfile {
   updatedAt?: string;
 }
 
+// ─── Batch register (PRD14) ───
+export interface BatchRegisterRow {
+  name?: string;
+  email: string;
+  password?: string;
+}
+
+export interface BatchRegisterResultRow {
+  email: string;
+  status: 'created' | 'skipped' | 'failed';
+  uid?: string;
+  reason?: string;
+}
+
+export interface BatchRegisterResponse {
+  summary: {
+    total: number;
+    created: number;
+    skipped: number;
+    failed: number;
+  };
+  results: BatchRegisterResultRow[];
+}
+
 // ─── Course types ───
 export interface Course {
   id: string;

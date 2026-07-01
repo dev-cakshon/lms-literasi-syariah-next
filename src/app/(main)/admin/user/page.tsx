@@ -13,6 +13,7 @@ import {
   UserPlus,
   UsersRound,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -349,17 +350,12 @@ export default function UserManagementPage() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Batch Import — disabled stub */}
-        <Button
-          variant='outline'
-          size='sm'
-          className='gap-1.5 cursor-not-allowed opacity-60'
-          aria-disabled='true'
-          title='Segera hadir'
-          onClick={handleComingSoon}
-        >
-          <FileUp className='h-4 w-4' />
-          Import
+        {/* Batch Import — PRD14 */}
+        <Button variant='outline' size='sm' className='gap-1.5' asChild>
+          <Link href='/admin/user/batch'>
+            <FileUp className='h-4 w-4' />
+            Import
+          </Link>
         </Button>
 
         {/* Spacer */}
