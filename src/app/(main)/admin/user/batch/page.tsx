@@ -424,7 +424,7 @@ export default function BatchRegisterPage() {
           </label>
           <Input
             type='text'
-            placeholder='mis. sekolah2026'
+            placeholder='cth: abc123'
             value={defaultPassword}
             onChange={(e) => handleDefaultPasswordChange(e.target.value)}
           />
