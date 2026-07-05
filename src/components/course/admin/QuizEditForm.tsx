@@ -167,6 +167,7 @@ export const QuizEditForm = ({
         allowRetake: form.allowRetake,
         showAnswers: form.showAnswers,
         timeLimitMinutes: form.timeLimitMinutes,
+        scoringMode: form.scoringMode,
       });
 
       onQuizSaved(updated);
@@ -363,6 +364,43 @@ export const QuizEditForm = ({
               0 = tidak ada batas waktu
             </span>
           </div>
+        </div>
+
+        <div className='space-y-2'>
+          <label className='text-sm font-medium'>Mode Penilaian</label>
+          <div className='flex gap-4'>
+            {(
+              [
+                ['standard', 'Standar'],
+                ['penalty', 'Penalti'],
+              ] as const
+            ).map(([val, label]) => (
+              <label key={val} className='flex items-center gap-2 text-sm'>
+                <input
+                  type='radio'
+                  checked={(form.scoringMode ?? 'standard') === val}
+                  onChange={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      scoringMode: val as Quiz['scoringMode'],
+                    }))
+                  }
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+          {(form.scoringMode ?? 'standard') === 'penalty' ? (
+            <p className='text-xs text-slate-500'>
+              Jawaban salah dikurangi 25% dari bobot soal (isian singkat tidak
+              kena penalti); soal yang dikosongkan bernilai 0. Skor akhir tidak
+              akan pernah negatif.
+            </p>
+          ) : (
+            <p className='text-xs text-slate-500'>
+              Jawaban salah bernilai 0 — tidak ada pengurangan skor.
+            </p>
+          )}
         </div>
       </section>
 

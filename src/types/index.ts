@@ -50,6 +50,43 @@ export interface UserProfile {
   updatedAt?: string;
 }
 
+// ─── Batch register (PRD14) + batch enrollment (PRD20) ───
+export interface BatchRegisterRow {
+  name?: string;
+  email: string;
+  password?: string;
+  courseId?: string;
+}
+
+// PRD20 — per-row enrollment outcome, independent of the registration
+// outcome. Present only when the row carried a resolved courseId.
+export interface BatchEnrollmentResult {
+  courseId: string;
+  status: 'enrolled' | 'already_enrolled' | 'course_not_found' | 'failed';
+  reason?: string;
+}
+
+export interface BatchRegisterResultRow {
+  email: string;
+  status: 'created' | 'skipped' | 'failed';
+  uid?: string;
+  reason?: string;
+  enrollment?: BatchEnrollmentResult;
+}
+
+export interface BatchRegisterResponse {
+  summary: {
+    total: number;
+    created: number;
+    skipped: number;
+    failed: number;
+    enrolled: number;
+    alreadyEnrolled: number;
+    enrollFailed: number;
+  };
+  results: BatchRegisterResultRow[];
+}
+
 // ─── Course types ───
 export interface Course {
   id: string;
@@ -122,6 +159,13 @@ export interface Quiz {
   /** Whether to reveal correct answers after submission (FE-only; pilot: always false). */
   showAnswers?: boolean;
   timeLimitMinutes?: number;
+  /**
+   * PRD21 — 'standard' (default) is today's behavior: wrong answers score 0.
+   * 'penalty' subtracts a fixed proportion of a question's weight on a wrong
+   * answer, floors the score at 0, and lets students leave questions blank
+   * (blank always scores 0, never negative). Server-enforced.
+   */
+  scoringMode?: 'standard' | 'penalty';
   createdAt?: string;
   updatedAt?: string;
 }

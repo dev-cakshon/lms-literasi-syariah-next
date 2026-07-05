@@ -13,6 +13,7 @@ import {
   UserPlus,
   UsersRound,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -46,6 +47,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
+
+import { AddUserDialog } from './AddUserDialog';
 
 import type { UserProfile, UserRole } from '@/types';
 
@@ -129,6 +132,7 @@ export default function UserManagementPage() {
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [page, setPage] = useState(1);
+  const [addOpen, setAddOpen] = useState(false);
 
   // ── Data fetch ───────────────────────────────────────────────────────────────
 
@@ -281,8 +285,6 @@ export default function UserManagementPage() {
     }
   };
 
-  const handleComingSoon = () => toast.info('Fitur ini segera hadir.');
-
   const showTableBody = !loading && !loadError && paginatedUsers.length > 0;
 
   const activeFilterCount = roleFilter !== 'all' ? 1 : 0;
@@ -349,30 +351,23 @@ export default function UserManagementPage() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Batch Import — disabled stub */}
-        <Button
-          variant='outline'
-          size='sm'
-          className='gap-1.5 cursor-not-allowed opacity-60'
-          aria-disabled='true'
-          title='Segera hadir'
-          onClick={handleComingSoon}
-        >
-          <FileUp className='h-4 w-4' />
-          Import
+        {/* Batch Import — PRD14 */}
+        <Button variant='outline' size='sm' className='gap-1.5' asChild>
+          <Link href='/admin/user/batch'>
+            <FileUp className='h-4 w-4' />
+            Import
+          </Link>
         </Button>
 
         {/* Spacer */}
         <div className='flex-1' />
 
-        {/* Add User — disabled stub */}
+        {/* Add User */}
         <Button
           variant='outline'
           size='sm'
-          className='gap-1.5 cursor-not-allowed opacity-60'
-          aria-disabled='true'
-          title='Segera hadir'
-          onClick={handleComingSoon}
+          className='gap-1.5'
+          onClick={() => setAddOpen(true)}
         >
           <UserPlus className='h-4 w-4' />
           Tambah User
@@ -654,6 +649,12 @@ export default function UserManagementPage() {
         onConfirm={async () => {
           if (deleteTarget) await handleDelete(deleteTarget.uid);
         }}
+      />
+
+      <AddUserDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        onCreated={fetchUsers}
       />
     </div>
   );

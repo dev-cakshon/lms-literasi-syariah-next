@@ -7,10 +7,21 @@
  * contains NO certificate logic (Option A: cert stays on legacy completion
  * rule; quizzes never trigger issueCertificate).
  *
+ * PRD21 Change 1 — quizzes are pure assessment: the backend no longer awards
+ * gamification points/badges on submit (`earnedBadges` is always `[]`), so
+ * this screen carries NO "+XP" / badge reward framing anymore.
+ *
  * Scoring rules — every field is a distinct concept:
  *   • displayPercent  = Math.round(result.score / result.total * 100)
- *                       (result.score is a RAW correct count, not a percent)
- *   • isPassed        = displayPercent === 100
+ *                       (result.score is a RAW correct count, not a percent;
+ *                       unchanged by scoringMode — this is the byte-for-byte
+ *                       G5-preserved value.)
+ *   • penaltyPercent  = a points-based percentage (result.pointsAwarded /
+ *                       max obtainable points), shown instead of
+ *                       displayPercent only when quiz.scoringMode ===
+ *                       'penalty' — because a wrong answer there can cost
+ *                       more than the raw correct-count reflects.
+ *   • isPassed        = effectivePercent === 100
  *                         ? true
  *                         : quiz.passingGrade > 0
  *                           ? result.pointsAwarded >= quiz.passingGrade
@@ -26,33 +37,13 @@ import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import { Frown, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { BADGE_COPY, getBadgeIcon } from '@/components/gamification';
-
 import { useAuth } from '@/contexts/AuthContext';
 
-import type { Badge, Quiz, QuizSubmitResult } from '@/types';
-import { BADGE_IDS } from '@/types';
-
-// ── Count-up animation hook (mirrors ActivityResultScreen) ────────────────────
-
-function useCountUp(target: number, duration = 800): number {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    let start: number | null = null;
-    const step = (timestamp: number) => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
-      setCount(Math.floor(progress * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [target, duration]);
-  return count;
-}
+import type { Quiz, QuizSubmitResult } from '@/types';
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -79,9 +70,34 @@ export const QuizResultScreen = ({
   /**
    * Display percentage derived from the raw correct-count / total pair.
    * result.score is NOT a percent — it is the count of correct answers.
+   * Unchanged regardless of scoringMode (G5 byte-for-byte guarantee).
    */
   const displayPercent =
     result.total > 0 ? Math.round((result.score / result.total) * 100) : 0;
+
+  /**
+   * PRD21 §6.5 — in penalty mode, a wrong answer can cost more than the raw
+   * correct-count implies, so show a points-based percentage instead:
+   * result.pointsAwarded (the penalized, floored assessment score) over the
+   * max obtainable points for this quiz. Standard mode is untouched — it
+   * always uses displayPercent.
+   */
+  const maxObtainablePoints = quiz.questions.reduce(
+    (sum, q) => sum + (q.points ?? 1),
+    0,
+  );
+  const penaltyPercent =
+    maxObtainablePoints > 0
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            Math.round((result.pointsAwarded / maxObtainablePoints) * 100),
+          ),
+        )
+      : 0;
+  const effectivePercent =
+    quiz.scoringMode === 'penalty' ? penaltyPercent : displayPercent;
 
   /**
    * FE pass/fail rule (PRD §14.9 decision 3, amended 2026-06-10 advisor batch).
@@ -91,7 +107,7 @@ export const QuizResultScreen = ({
    * result.passed is the 100%-only server flag — do not use it for pass/fail UI.
    */
   const isPassed =
-    displayPercent === 100
+    effectivePercent === 100
       ? true
       : quiz.passingGrade && quiz.passingGrade > 0
         ? result.pointsAwarded >= quiz.passingGrade
@@ -100,27 +116,13 @@ export const QuizResultScreen = ({
   const frame = isPassed ? 'celebration' : 'retry';
 
   const goldStarCount =
-    displayPercent === 100
+    effectivePercent === 100
       ? 3
-      : displayPercent >= 85
+      : effectivePercent >= 85
         ? 2
-        : displayPercent >= 70
+        : effectivePercent >= 70
           ? 1
           : 0;
-
-  // ── Badges ────────────────────────────────────────────────────────────────
-
-  const awardedBadges = useMemo<Badge[]>(() => {
-    const validBadges = new Set<string>(BADGE_IDS);
-    return (result.earnedBadges ?? [])
-      .map((b) => b.id)
-      .filter(
-        (id): id is Badge => typeof id === 'string' && validBadges.has(id),
-      );
-  }, [result.earnedBadges]);
-
-  // ── Animated counters ─────────────────────────────────────────────────────
-  const animatedXP = useCountUp(result.pointsAwarded);
 
   // ── Side-effects ──────────────────────────────────────────────────────────
 
@@ -161,7 +163,7 @@ export const QuizResultScreen = ({
           <div className='relative overflow-hidden rounded-3xl bg-surface-container-lowest p-8 text-center shadow-[0_8px_0_0_rgba(5,95,77,0.1)]'>
             <div className='pointer-events-none absolute left-0 top-0 h-32 w-full rounded-t-3xl bg-primary-700/5' />
 
-            {/* Stars — graded by displayPercent */}
+            {/* Stars — graded by effectivePercent (points-based in penalty mode) */}
             <div className='mb-5 flex items-center justify-center gap-1'>
               {[0, 1, 2].map((i) => (
                 <Star
@@ -179,42 +181,21 @@ export const QuizResultScreen = ({
 
             {/* Headline */}
             <h2 className='mb-1 font-display text-3xl font-bold text-primary-700'>
-              {displayPercent === 100 ? 'Sempurna!' : 'Kerja Bagus!'}
+              {effectivePercent === 100 ? 'Sempurna!' : 'Kerja Bagus!'}
             </h2>
-            <p className='mb-6 text-base text-on-surface-variant'>
-              {result.score} dari {result.total} benar ({displayPercent}%)
+            <p
+              className={cn(
+                'text-base text-on-surface-variant',
+                quiz.scoringMode === 'penalty' ? 'mb-1' : 'mb-6',
+              )}
+            >
+              {result.score} dari {result.total} benar ({effectivePercent}%)
             </p>
-
-            {/* Hadiah panel */}
-            <div className='relative mb-6 w-full rounded-2xl border-2 border-outline-variant bg-surface-container-low p-5'>
-              <div className='absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-0.5 text-xs font-bold uppercase tracking-[0.05em] text-on-surface-variant'>
-                Hadiah Anda
-              </div>
-
-              <div className='mt-1 flex flex-col items-center gap-4'>
-                <div className='rounded-xl border border-amber-300 bg-amber-100 px-6 py-2 text-xl font-bold text-amber-ink'>
-                  +{animatedXP} XP
-                </div>
-
-                {awardedBadges.length > 0 && (
-                  <div className='flex flex-wrap justify-center gap-4'>
-                    {awardedBadges.map((badge) => (
-                      <div
-                        key={badge}
-                        className='flex flex-col items-center gap-1'
-                      >
-                        <div className='flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary-700 bg-primary-100'>
-                          {getBadgeIcon(badge)}
-                        </div>
-                        <span className='max-w-[72px] text-center text-xs font-bold text-on-surface-variant'>
-                          {BADGE_COPY[badge].labelId}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            {quiz.scoringMode === 'penalty' && (
+              <p className='mb-6 text-sm text-on-surface-variant'>
+                Skor poin: {result.pointsAwarded} / {maxObtainablePoints}
+              </p>
+            )}
 
             {/* Primary button */}
             <button
@@ -258,18 +239,23 @@ export const QuizResultScreen = ({
             <h2 className='mb-1 font-display text-3xl font-bold text-on-surface'>
               Coba Sekali Lagi
             </h2>
-            <p className='mb-6 text-base text-on-surface-variant'>
-              {result.score} dari {result.total} benar ({displayPercent}%)
+            <p
+              className={cn(
+                'text-base text-on-surface-variant',
+                quiz.scoringMode === 'penalty' ? 'mb-1' : 'mb-6',
+              )}
+            >
+              {result.score} dari {result.total} benar ({effectivePercent}%)
             </p>
+            {quiz.scoringMode === 'penalty' && (
+              <p className='mb-6 text-sm text-on-surface-variant'>
+                Skor poin: {result.pointsAwarded} / {maxObtainablePoints}
+              </p>
+            )}
 
             {/* Retry panel */}
             <div className='mb-6 flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-outline-variant/40 bg-surface-container py-8'>
               <Frown className='h-14 w-14 text-outline-variant' />
-              {result.pointsAwarded > 0 && (
-                <span className='rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-ink'>
-                  +{result.pointsAwarded} XP
-                </span>
-              )}
             </div>
 
             {/* Retry button — only when allowRetake is not explicitly disabled */}

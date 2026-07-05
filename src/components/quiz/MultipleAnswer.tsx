@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 
+import { cn } from '@/lib/utils';
+
 import { Button } from '@/components/ui/button';
 
 import { QuizOption } from './QuizOption';
@@ -30,6 +32,10 @@ interface MultipleAnswerProps {
   /** When true, the Submit button is visually disabled (all answers must be filled). */
   submitDisabled?: boolean;
   imageUrl?: string;
+  /** PRD21 — penalty-mode-only: shows a "Lewati Soal" control to deselect the current answer. */
+  allowSkip?: boolean;
+  /** Called when the student deselects their answer via "Lewati Soal". */
+  onSkip?: () => void;
 }
 
 export const MultipleAnswer = ({
@@ -46,6 +52,8 @@ export const MultipleAnswer = ({
   isSubmitting = false,
   submitDisabled = false,
   imageUrl,
+  allowSkip = false,
+  onSkip,
 }: MultipleAnswerProps) => {
   const progressPercentage = ((currentQuestion + 1) / totalQuestions) * 100;
 
@@ -87,7 +95,7 @@ export const MultipleAnswer = ({
         </h2>
 
         {/* Options */}
-        <div className='space-y-3 mb-8'>
+        <div className={cn('space-y-3', allowSkip ? 'mb-4' : 'mb-8')}>
           {question.options.map((option, index) => (
             <QuizOption
               key={index}
@@ -98,6 +106,22 @@ export const MultipleAnswer = ({
             />
           ))}
         </div>
+
+        {/* Skip control — penalty mode only (US-4): leaving a question blank
+            is the safe move, so it needs to be as easy as picking an option. */}
+        {allowSkip && (
+          <div className='mb-8'>
+            <Button
+              type='button'
+              onClick={onSkip}
+              disabled={selectedAnswer === -1}
+              variant='outline'
+              size='sm'
+            >
+              Lewati Soal
+            </Button>
+          </div>
+        )}
 
         {/* Navigation */}
         <div className='flex justify-between items-center'>
