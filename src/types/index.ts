@@ -159,6 +159,13 @@ export interface Quiz {
   /** Whether to reveal correct answers after submission (FE-only; pilot: always false). */
   showAnswers?: boolean;
   timeLimitMinutes?: number;
+  /**
+   * PRD21 — 'standard' (default) is today's behavior: wrong answers score 0.
+   * 'penalty' subtracts a fixed proportion of a question's weight on a wrong
+   * answer, floors the score at 0, and lets students leave questions blank
+   * (blank always scores 0, never negative). Server-enforced.
+   */
+  scoringMode?: 'standard' | 'penalty';
   createdAt?: string;
   updatedAt?: string;
 }

@@ -130,6 +130,15 @@ export default function QuizPage({ params }: QuizPageProps) {
     });
   }
 
+  /** PRD21 — penalty-mode-only "Lewati" control: deselects the current MC answer. */
+  function handleSkip() {
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[stepIndex] = null;
+      return next;
+    });
+  }
+
   function handleNext() {
     if (!quiz) return;
     setStepIndex((i) => Math.min(i + 1, quiz.questions.length - 1));
@@ -141,14 +150,30 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   async function handleSubmit() {
     if (!quiz || !courseId || !quizId) return;
+    const isPenalty = quiz.scoringMode === 'penalty';
 
-    // Guard: all questions must be answered before submit
-    if (!answers.every(isAnswered)) return;
+    // Guard: standard-mode quizzes still require every question answered
+    // before submit. Penalty-mode quizzes may be submitted with blanks —
+    // that's the whole point of the mode (G4/US-4).
+    if (!isPenalty && !answers.every(isAnswered)) return;
+
+    // O2 — confirm-on-submit when blanks remain, so a skip is never accidental.
+    if (isPenalty) {
+      const blankCount = answers.filter((slot) => !isAnswered(slot)).length;
+      if (blankCount > 0) {
+        const confirmed = window.confirm(
+          `Ada ${blankCount} soal yang dikosongkan (bernilai 0, tidak ada penalti). Kirim jawaban sekarang?`,
+        );
+        if (!confirmed) return;
+      }
+    }
 
     // Trim short-answer slots before sending so extra whitespace doesn't
     // cause a correct answer to grade as wrong on an exact-match backend.
-    const payload: (number | string)[] = answers.map((slot) =>
-      typeof slot === 'string' ? slot.trim() : (slot as number),
+    // A `null` slot (blank) passes through unchanged — the backend's PRD21
+    // contract treats null as blank (never scored as a wrong guess).
+    const payload: (number | string | null)[] = answers.map((slot) =>
+      typeof slot === 'string' ? slot.trim() : slot,
     );
 
     setIsSubmitting(true);
@@ -175,10 +200,13 @@ export default function QuizPage({ params }: QuizPageProps) {
   function handleExpire() {
     if (isSubmitting || submitResult) return;
     if (!quiz || !courseId || !quizId) return;
-    const payload: (number | string)[] = answers.map((slot, i) => {
-      if (slot !== null) return typeof slot === 'string' ? slot.trim() : slot;
-      return quiz.questions[i]?.type === 'shortAnswer' ? '' : -1;
-    });
+    // A blank slot is sent as `null` (the PRD21 blank contract) rather than
+    // the old -1/'' sentinels — both grade identically (0, never a wrong
+    // guess) since a real question's correctAnswerIndex is never -1 and
+    // validateQuiz forbids an empty correctAnswerText.
+    const payload: (number | string | null)[] = answers.map((slot) =>
+      typeof slot === 'string' ? slot.trim() : slot,
+    );
     setIsSubmitting(true);
     submitQuiz(courseId, quizId, payload)
       .then(setSubmitResult)
@@ -260,6 +288,10 @@ export default function QuizPage({ params }: QuizPageProps) {
   const answeredCount = answers.filter(isAnswered).length;
   const isLastQuestion = stepIndex === quiz.questions.length - 1;
   const allAnswered = answers.every(isAnswered);
+  const isPenalty = quiz.scoringMode === 'penalty';
+  const currentWeight = question.points ?? 1;
+  // Mirrors the backend's WRONG_PENALTY_RATIO (0.25) — display only.
+  const currentPenalty = currentWeight * 0.25;
 
   // Adapt shared QuizQuestion to MultipleAnswer's local Question shape
   const mcQuestion = {
@@ -290,8 +322,17 @@ export default function QuizPage({ params }: QuizPageProps) {
         </div>
       )}
 
-      {/* All-answered gate hint */}
-      {isLastQuestion && !allAnswered && (
+      {/* Penalty-mode scoring rule banner (US-3/G4) — shown up front, per-question weight */}
+      {isPenalty && (
+        <div className='mx-6 mt-6 rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-sm text-primary-800'>
+          {question.type === 'shortAnswer'
+            ? 'Isian singkat: jawaban salah atau dikosongkan bernilai 0 — tidak ada penalti.'
+            : `✓ Benar +${currentWeight} · ✗ Salah −${currentPenalty} · Dikosongkan 0`}
+        </div>
+      )}
+
+      {/* All-answered gate hint — standard mode only; penalty mode allows blanks */}
+      {!isPenalty && isLastQuestion && !allAnswered && (
         <div className='mx-6 mt-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-700'>
           Jawab semua pertanyaan dulu sebelum mengirim.
         </div>
@@ -310,7 +351,7 @@ export default function QuizPage({ params }: QuizPageProps) {
           isLastQuestion={isLastQuestion}
           answeredCount={answeredCount}
           isSubmitting={isSubmitting}
-          submitDisabled={!allAnswered}
+          submitDisabled={isPenalty ? false : !allAnswered}
           imageUrl={
             question.imageUrl ? buildMediaViewUrl(question.imageUrl) : undefined
           }
@@ -329,7 +370,9 @@ export default function QuizPage({ params }: QuizPageProps) {
           isLastQuestion={isLastQuestion}
           answeredCount={answeredCount}
           isSubmitting={isSubmitting}
-          submitDisabled={!allAnswered}
+          submitDisabled={isPenalty ? false : !allAnswered}
+          allowSkip={isPenalty}
+          onSkip={handleSkip}
           imageUrl={
             question.imageUrl ? buildMediaViewUrl(question.imageUrl) : undefined
           }

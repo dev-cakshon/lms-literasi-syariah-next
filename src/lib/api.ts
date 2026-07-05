@@ -413,6 +413,7 @@ export async function createQuiz(
     allowRetake?: boolean;
     showAnswers?: boolean;
     timeLimitMinutes?: number;
+    scoringMode?: Quiz['scoringMode'];
   },
 ): Promise<Quiz> {
   return apiFetch(`/courses/${courseId}/quizzes`, {
@@ -435,6 +436,7 @@ export async function updateQuiz(
       | 'allowRetake'
       | 'showAnswers'
       | 'timeLimitMinutes'
+      | 'scoringMode'
     >
   >,
 ): Promise<Quiz> {
@@ -456,7 +458,7 @@ export async function deleteQuiz(
 export async function submitQuiz(
   courseId: string,
   quizId: string,
-  answers: (number | string)[],
+  answers: (number | string | null)[],
 ): Promise<QuizSubmitResult> {
   const response = await apiFetch<QuizSubmitResult>(
     `/courses/${courseId}/quizzes/${quizId}/submit`,
