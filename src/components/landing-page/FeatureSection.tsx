@@ -69,6 +69,20 @@ export const FeatureSection = () => {
             videoId={landingMedia.featureVideoId}
             title='Cara Kerja Fitur Eduloca'
           />
+
+          <div className='mt-6 flex justify-center'>
+            <a
+              href={landingMedia.userGuidePdfPath}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='inline-flex items-center gap-2 bg-primary-700 text-white px-6 py-3 rounded-full border-b-2 border-primary-500 hover:-translate-y-0.5 active:translate-y-0 active:border-b-0 transition-all duration-150 font-bold'
+            >
+              <span className='material-symbols-outlined text-xl'>
+                download
+              </span>
+              Unduh Panduan Pengguna (PDF)
+            </a>
+          </div>
         </div>
       </div>
     </section>
