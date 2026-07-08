@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 
+import { landingMedia } from '@/constant/landing-media';
+
 import { FeatureCard } from './FeatureCard';
+import { VideoEmbed } from './VideoEmbed';
 
 const features = [
   {
@@ -55,6 +58,17 @@ export const FeatureSection = () => {
               description={feature.description}
             />
           ))}
+        </div>
+
+        {/* Feature-explanation video */}
+        <div className='mt-16 mx-auto max-w-3xl'>
+          <h3 className='text-center font-display text-2xl font-bold text-dark mb-6'>
+            Lihat Cara Kerjanya
+          </h3>
+          <VideoEmbed
+            videoId={landingMedia.featureVideoId}
+            title='Cara Kerja Fitur Eduloca'
+          />
         </div>
       </div>
     </section>

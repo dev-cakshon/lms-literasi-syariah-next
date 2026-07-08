@@ -101,7 +101,7 @@ export const CourseSection = () => {
             </h2>
           </div>
           <UnstyledLink
-            href='/course'
+            href='/my-courses'
             className='text-primary-700 font-bold hover:text-primary-500 flex items-center gap-1 transition-colors flex-shrink-0'
           >
             Lihat Semua Kursus

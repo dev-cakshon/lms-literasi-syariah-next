@@ -14,24 +14,26 @@ export const Navbar = () => {
     <header className='sticky top-0 z-50 w-full backdrop-blur-md bg-white/90 shadow-sm'>
       <nav className='layout flex items-center justify-between py-4'>
         {/* Brand */}
-        <Logo logotype='textless' theme='light' size='sm' />
+        <UnstyledLink href='/'>
+          <Logo logotype='textless' theme='light' size='sm' />
+        </UnstyledLink>
 
         {/* Desktop Navigation */}
         <div className='hidden items-center gap-8 md:flex'>
           <UnstyledLink
-            href='#course'
+            href='/#course'
             className='text-gray-700 transition-colors hover:text-primary-700'
           >
             Kursus
           </UnstyledLink>
           <UnstyledLink
-            href='#about'
+            href='/tentang-kami'
             className='text-gray-700 transition-colors hover:text-primary-700'
           >
             Tentang Kami
           </UnstyledLink>
           <UnstyledLink
-            href='#feature'
+            href='/#feature'
             className='text-gray-700 transition-colors hover:text-primary-700'
           >
             Fitur
@@ -63,21 +65,21 @@ export const Navbar = () => {
         <div className='border-t border-gray-200 bg-white/95 md:hidden'>
           <div className='layout flex flex-col gap-4 py-4'>
             <UnstyledLink
-              href='#course'
+              href='/my-courses'
               className='text-gray-700 transition-colors hover:text-primary-700'
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Kursus
             </UnstyledLink>
             <UnstyledLink
-              href='#about'
+              href='/tentang-kami'
               className='text-gray-700 transition-colors hover:text-primary-700'
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Tentang Kami
             </UnstyledLink>
             <UnstyledLink
-              href='#feature'
+              href='/#feature'
               className='text-gray-700 transition-colors hover:text-primary-700'
               onClick={() => setIsMobileMenuOpen(false)}
             >

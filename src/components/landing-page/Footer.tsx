@@ -1,6 +1,9 @@
+import Link from 'next/link';
 import * as React from 'react';
 
 import { Logo } from '@/components/Logo';
+
+import { landingMedia } from '@/constant/landing-media';
 
 export const Footer = () => {
   return (
@@ -8,7 +11,9 @@ export const Footer = () => {
       <div className='flex flex-col md:flex-row justify-between items-start px-6 md:px-8 max-w-7xl mx-auto gap-8'>
         {/* Brand */}
         <div className='space-y-3'>
-          <Logo logotype='textless' theme='light' size='sm' />
+          <Link href='/'>
+            <Logo logotype='textless' theme='light' size='sm' />
+          </Link>
           <p className='text-on-surface-soft text-sm max-w-xs'>
             © 2026 Eduloca. All rights reserved.
           </p>
@@ -58,6 +63,16 @@ export const Footer = () => {
                   className='text-on-surface-soft hover:text-primary-700 text-sm transition-colors'
                 >
                   Kontak
+                </a>
+              </li>
+              <li>
+                <a
+                  href={landingMedia.userGuidePdfPath}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-on-surface-soft hover:text-primary-700 text-sm transition-colors'
+                >
+                  Unduh Panduan Pengguna (PDF)
                 </a>
               </li>
             </ul>
