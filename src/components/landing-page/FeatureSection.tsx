@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 
+import { landingMedia } from '@/constant/landing-media';
+
 import { FeatureCard } from './FeatureCard';
+import { VideoEmbed } from './VideoEmbed';
 
 const features = [
   {
@@ -55,6 +58,31 @@ export const FeatureSection = () => {
               description={feature.description}
             />
           ))}
+        </div>
+
+        {/* Feature-explanation video */}
+        <div className='mt-16 mx-auto max-w-3xl'>
+          <h3 className='text-center font-display text-2xl font-bold text-dark mb-6'>
+            Lihat Cara Kerjanya
+          </h3>
+          <VideoEmbed
+            videoId={landingMedia.featureVideoId}
+            title='Cara Kerja Fitur Eduloca'
+          />
+
+          <div className='mt-6 flex justify-center'>
+            <a
+              href={landingMedia.userGuidePdfPath}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='inline-flex items-center gap-2 bg-primary-700 text-white px-6 py-3 rounded-full border-b-2 border-primary-500 hover:-translate-y-0.5 active:translate-y-0 active:border-b-0 transition-all duration-150 font-bold'
+            >
+              <span className='material-symbols-outlined text-xl'>
+                download
+              </span>
+              Unduh Panduan Pengguna (PDF)
+            </a>
+          </div>
         </div>
       </div>
     </section>
