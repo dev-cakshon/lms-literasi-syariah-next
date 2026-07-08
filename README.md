@@ -48,7 +48,7 @@ A Learning Management System for Islamic economic literacy. Built with Next.js 1
 - **Activity management** — create and edit True/False, Word Search, and Drag & Drop activities
 - **Quiz management** — "Daftar Kuis" section per course: create/edit quizzes with MC + short-answer questions, per-question images, time limit, passing grade / retake / show-answers toggles, and **Moodle XML import** for bulk question entry
 - **Enrollment management** — `/admin/enrollment` premium request queue: **Pending** tab (approve / decline with reason) and **Enrolled** tab (revoke access with reason)
-- **User management** — search by name or email, assign roles (student / instructor / admin), **per-user chatbot access toggle**, hard-delete users
+- **User management** — search by name or email, assign roles (student / instructor / admin), **per-user chatbot access toggle**, hard-delete users, add single users (`AddUserDialog`), and **batch register** students from CSV/xlsx (`/admin/user/batch`, PRD14)
 
 ## User Journeys
 
@@ -147,35 +147,110 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for architectural decision records.
 src/
 ├── app/
 │   ├── (landing-page)/              # Public: landing (/), login, signup
-│   └── (main)/                      # Auth-gated shell (ProtectedRoute)
-│       ├── (student)/
-│       │   ├── dashboard/           # /dashboard — profile, badges, leaderboard, certs
-│       │   ├── my-courses/          # /my-courses — enrolled courses + progress
-│       │   ├── chatbot/             # /chatbot — AI assistant
-│       │   └── (course)/
-│       │       └── course/[courseId]/
-│       │           ├── page.tsx                        # Course overview + syllabus
-│       │           ├── chapter/[chapterId]/            # Chapter content viewer
-│       │           ├── activity/[activityId]/
-│       │           │   ├── true-or-false/              # True/False activity player
-│       │           │   ├── word-search/                # Word Search activity player
-│       │           │   └── drag-drop/                  # Drag & Drop activity player
-│       │           └── quiz/[quizId]/                  # Quiz taking flow (MC + short-answer, timer, images)
-│       └── admin/                   # Admin-only (roles={['admin']})
-│           ├── course/              # /admin/course — course list + create
-│           │   └── [courseId]/
-│           │       ├── page.tsx                        # Course detail + content & quiz lists
-│           │       ├── chapter/[chapterId]/            # Chapter editor
-│           │       ├── activity/[activityId]/
-│           │       │   ├── true-or-false/              # True/False activity editor
-│           │       │   └── word-search/                # Word Search activity editor
-│           │       ├── drag-drop/[activityId]/         # Drag & Drop activity editor
-│           │       └── quiz/[quizId]/                  # Quiz editor (XML import, image, timer)
-│           ├── enrollment/            # /admin/enrollment — premium request queue + revoke
-│           └── user/                # /admin/user — user management
-├── components/                      # 75+ UI components organised by feature domain
+│   ├── (main)/                      # Auth-gated shell (ProtectedRoute)
+│   │   ├── (student)/
+│   │   │   ├── dashboard/           # /dashboard — profile, badges, leaderboard, certs
+│   │   │   ├── my-courses/          # /my-courses — enrolled courses + progress
+│   │   │   ├── chatbot/             # /chatbot — AI assistant
+│   │   │   └── (course)/
+│   │   │       └── course/[courseId]/
+│   │   │           ├── page.tsx                        # Course overview + syllabus
+│   │   │           ├── chapter/[chapterId]/            # Chapter content viewer
+│   │   │           ├── activity/[activityId]/
+│   │   │           │   ├── true-or-false/              # True/False activity player
+│   │   │           │   ├── word-search/                # Word Search activity player
+│   │   │           │   └── drag-drop/                  # Drag & Drop activity player
+│   │   │           └── quiz/[quizId]/                  # Quiz taking flow (MC + short-answer, timer, images)
+│   │   └── admin/                   # Admin-only (roles={['admin']})
+│   │       ├── course/              # /admin/course — course list + create
+│   │       │   └── [courseId]/
+│   │       │       ├── page.tsx                        # Course detail + content & quiz lists
+│   │       │       ├── chapter/[chapterId]/            # Chapter editor
+│   │       │       ├── activity/[activityId]/
+│   │       │       │   ├── true-or-false/              # True/False activity editor
+│   │       │       │   └── word-search/                # Word Search activity editor
+│   │       │       ├── drag-drop/[activityId]/         # Drag & Drop activity editor (note: nested differently from the student player above)
+│   │       │       └── quiz/[quizId]/                  # Quiz editor (XML import, image, timer)
+│   │       ├── enrollment/          # /admin/enrollment — premium request queue + revoke
+│   │       └── user/                # /admin/user — user management + AddUserDialog
+│   │           └── batch/           # /admin/user/batch — batch register (CSV/xlsx, PRD14)
+│   └── api/hello/                   # Sample Next.js route handler (not the app backend)
+├── components/                      # 110+ UI components organised by feature domain
+│                                    #   (course/, ui/, dashboard/, quiz/, course-list/, landing-page/,
+│                                    #    chatbot/, navbar/, sidebar/, admin/, activity/, gamification/, …)
 ├── contexts/                        # AuthContext — Firebase Auth state + profile
-├── hooks/                           # use-realtime (useLeaderboard, useCourseProgress), use-certificates (useMyCertificates), use-debounce
-├── lib/                             # api.ts, firebase.ts, chatbot.ts (SSE), wordSearch.ts, quizXmlImport.ts (Moodle XML), media.ts, courseUtils.ts, env.ts, …
-└── types/                           # index.ts — all shared TypeScript interfaces
+├── hooks/                           # use-realtime (useLeaderboard, useCourseProgress),
+│                                    #   use-certificates (useMyCertificates), use-debounce
+├── lib/                             # api.ts, firebase.ts, chatbot.ts (SSE), wordSearch.ts,
+│                                    #   quizXmlImport.ts (Moodle XML), media.ts, courseUtils.ts,
+│                                    #   helper.ts, logger.ts, og.ts, env.ts, utils.ts
+├── constant/                        # config.ts, env.ts — app config + env accessors
+├── styles/                          # globals.css — Tailwind v4 theme + design tokens
+├── types/                           # index.ts — all shared TypeScript interfaces
+├── __tests__/, __mocks__/,          # Jest suites, module mocks, and shared render/test helpers
+│   test-utils/
+```
+
+### Plain tree (no annotations)
+
+```
+src/
+├── app/
+│   ├── (landing-page)/
+│   │   ├── login/
+│   │   └── signup/
+│   ├── (main)/
+│   │   ├── (student)/
+│   │   │   ├── (course)/
+│   │   │   │   └── course/[courseId]/
+│   │   │   │       ├── activity/[activityId]/
+│   │   │   │       │   ├── drag-drop/
+│   │   │   │       │   ├── true-or-false/
+│   │   │   │       │   └── word-search/
+│   │   │   │       ├── chapter/[chapterId]/
+│   │   │   │       └── quiz/[quizId]/
+│   │   │   ├── chatbot/
+│   │   │   ├── dashboard/
+│   │   │   └── my-courses/
+│   │   └── admin/
+│   │       ├── course/[courseId]/
+│   │       │   ├── activity/[activityId]/
+│   │       │   │   ├── true-or-false/
+│   │       │   │   └── word-search/
+│   │       │   ├── chapter/[chapterId]/
+│   │       │   ├── drag-drop/[activityId]/
+│   │       │   └── quiz/[quizId]/
+│   │       ├── enrollment/
+│   │       └── user/
+│   │           └── batch/
+│   └── api/hello/
+├── components/
+│   ├── activity/
+│   ├── admin/
+│   │   └── activity-forms/
+│   ├── auth/
+│   ├── chatbot/
+│   ├── course/
+│   │   └── admin/
+│   ├── course-list/
+│   ├── dashboard/
+│   ├── gamification/
+│   ├── landing-page/
+│   ├── links/
+│   ├── navbar/
+│   ├── ornaments/
+│   ├── quiz/
+│   ├── sidebar/
+│   └── ui/
+├── constant/
+├── contexts/
+├── hooks/
+├── lib/
+│   └── __tests__/
+├── styles/
+├── types/
+├── __tests__/
+├── __mocks__/
+└── test-utils/
+    └── mocks/
 ```
